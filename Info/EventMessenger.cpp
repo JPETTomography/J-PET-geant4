@@ -83,6 +83,16 @@ EventMessenger::EventMessenger()
   fCMDAppliedRangeCut->SetDefaultValue(1 * mm);
   fCMDAppliedRangeCut->SetUnitCandidates("mm");
 
+  fCMDSaveEnoughSizedEvent = new G4UIcmdWithAnInteger("/jpetmc/event/saveEventWithSize", this);
+  fCMDSaveEnoughSizedEvent->SetGuidance("Set the size of the event you want to save");
+
+  fSetEnergyRangeToSave = new G4UIcmdWith3VectorAndUnit("/jpetmc/event/setEnergyRange", this);
+  fSetEnergyRangeToSave->SetGuidance("Set energy range for checking the event size (first minEnergy then maxEnergy) - works with saveEventWithSize!!");
+  fSetEnergyRangeToSave->SetDefaultValue(G4ThreeVector(-1*keV, -1*keV, 0));
+  fSetEnergyRangeToSave->SetDefaultUnit("keV");
+  fSetEnergyRangeToSave->SetUnitCandidates("keV");
+  fSetEnergyRangeToSave->SetParameterName("MinEnergy", "MaxEnergy", "none", false);
+
   fCreateDecayTree = new G4UIcmdWithABool("/jpetmc/output/CreateDecayTree", this);
   fCreateDecayTree->SetGuidance("Creates decay trees for each event.");
 }
@@ -96,13 +106,15 @@ EventMessenger::~EventMessenger()
   delete fSetSeed;
   delete fSaveSeed;
   delete fCMDKillEventsEscapingWorld;
+  delete fCMDSave2g;
+  delete fCMDSave3g;
   delete fCMDMinRegMulti;
   delete fCMDMaxRegMulti;
   delete fCMDExcludedMulti;
   delete fCMDAppliedEnergyCut;
   delete fCMDAppliedRangeCut;
-  delete fCMDSave2g;
-  delete fCMDSave3g;
+  delete fCMDSaveEnoughSizedEvent;
+  delete fSetEnergyRangeToSave;
   delete fCreateDecayTree;
 }
 
@@ -136,11 +148,22 @@ void EventMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
   } else if (command == fCMDAppliedRangeCut) {
     fRangeCut = fCMDAppliedRangeCut->GetNewDoubleValue(newValue);
     fUseRangeCut = true;
-  } else if (command == fCreateDecayTree) {
-    fCreateDecayTreeFlag = fCreateDecayTree->GetNewBoolValue(newValue);
   } else if (command == fCMDSave2g) {
     fSave2g = fCMDSave2g->GetNewBoolValue(newValue);
   } else if (command == fCMDSave3g) {
     fSave3g = fCMDSave3g->GetNewBoolValue(newValue);
+  } else if (command == fCMDSaveEnoughSizedEvent) {
+    fEventDesiredSize = fCMDSaveEnoughSizedEvent->GetNewIntValue(newValue);
+  } else if (command == fSetEnergyRangeToSave) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4double minEnergy;
+    G4double maxEnergy;
+    bool strictMultCheck;
+    is >> minEnergy >> maxEnergy >> strictMultCheck;
+    fEnergyRangeToSave = std::make_pair(minEnergy, maxEnergy);
+    fMultEnergyCheck = strictMultCheck;
+  } else if (command == fCreateDecayTree) {
+    fCreateDecayTreeFlag = fCreateDecayTree->GetNewBoolValue(newValue);
   }
 }
