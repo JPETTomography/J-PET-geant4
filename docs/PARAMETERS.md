@@ -62,8 +62,14 @@ Following options can be added to macro files, that are read by Geat4. Example f
  `/jpetmc/event/save2g`  
 * save event when 2g were registered (default false):  
  `/jpetmc/event/save3g`  
-  save event when 3g were registered (default false):  
+* save event when 3g were registered (default false):
   Options save2g/save3g  and saveEvtsDetAcc are separable !
+* save event with fixed number of hits to save (default 0 means all):
+ `/jpetmc/event/saveEventWithSize [int]`
+* save event with fixed number of hits to save and within the given energy window (default -1 keV energy means all energies):
+The third argument is an additional option: 0 -> save all events in which there was N hits within energy window
+1 -> save only events that have only fixed number of hits, which is in the energy window
+ `/jpetmc/event/setEnergyRange [min energy in keV - double] [max energy in keV - double] [bool]`
 * print how many events were generated:  
  `/jpetmc/event/printEvtStat`  
 * print out option during execution of the simulation - X in divisor (10^X) for number of printed events:  

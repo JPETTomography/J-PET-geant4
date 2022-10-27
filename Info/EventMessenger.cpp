@@ -87,7 +87,7 @@ EventMessenger::EventMessenger()
   fCMDSaveEnoughSizedEvent->SetGuidance("Set the size of the event you want to save");
 
   fSetEnergyRangeToSave = new G4UIcmdWith3VectorAndUnit("/jpetmc/event/setEnergyRange", this);
-  fSetEnergyRangeToSave->SetGuidance("Set energy range for checking the event size (first minEnergy then maxEnergy) - works with saveEventWithSize!!");
+  fSetEnergyRangeToSave->SetGuidance("Set energy range for checking the event size (first minEnergy then maxEnergy then control option to connect with saveEventWithSize) - works with saveEventWithSize!!");
   fSetEnergyRangeToSave->SetDefaultValue(G4ThreeVector(-1*keV, -1*keV, 0));
   fSetEnergyRangeToSave->SetDefaultUnit("keV");
   fSetEnergyRangeToSave->SetUnitCandidates("keV");
@@ -163,6 +163,8 @@ void EventMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
     is >> minEnergy >> maxEnergy >> strictMultCheck;
     fEnergyRangeToSave = std::make_pair(minEnergy, maxEnergy);
     fMultEnergyCheck = strictMultCheck;
+    if (fEventDesiredSize < 1)
+      fEventDesiredSize = 1000;
   } else if (command == fCreateDecayTree) {
     fCreateDecayTreeFlag = fCreateDecayTree->GetNewBoolValue(newValue);
   }

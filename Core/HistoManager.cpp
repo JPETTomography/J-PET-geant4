@@ -300,6 +300,13 @@ void HistoManager::BookHistograms()
       204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2]),
       "Y position [cm]", "Z position [cm]"
     );
+
+    createHistogramWithAxes(
+      new TH2D("cosm_genPoint_yz", "Cosmics: generated 'in the roof' point YZ",
+      204*(DetectorConstants::world_size[1]/m), -1.015*DetectorConstants::world_size[1], 1.025*DetectorConstants::world_size[1],
+      204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2]),
+      "Y position [cm]", "Z position [cm]"
+    );
   }
 }
 
@@ -333,6 +340,7 @@ void HistoManager::FillCosmicInfo(G4double theta, G4ThreeVector init, G4ThreeVec
     fillHistogram("cosm_vtx_xy", init.y(), doubleCheck(init.x()));
     fillHistogram("cosm_vtx_xz", init.z(), doubleCheck(init.x()));
     fillHistogram("cosm_vtx_yz", init.z(), doubleCheck(init.y()));
+    fillHistogram("cosm_genPoint_yz", orig.z(), doubleCheck(orig.y()));
   }
 }
 

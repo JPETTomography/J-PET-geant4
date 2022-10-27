@@ -26,10 +26,10 @@
 #include <G4Event.hh>
 #include "G4RunManager.hh"
 
-EventAction::EventAction() : is2gRec(false), is3gRec(false), fEventID(0)
+EventAction::EventAction() : is2gRec(false), is3gRec(false), isEnoughSize(false), fEventID(0)
 {}
 
-EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false), fEventID(0)
+EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false), isEnoughSize(false), fEventID(0)
 {}
 
 EventAction::~EventAction() {}
@@ -199,7 +199,6 @@ void EventAction::CheckIfEventHasEnoughSize(const G4Event* anEvent)
   int desiredSize = fEvtMessenger->GetMultiplicityToSaveEvent();
   G4double minEnergy = fEvtMessenger->GetEnergyRangeToSave().first;
   G4double maxEnergy = fEvtMessenger->GetEnergyRangeToSave().second;
-  int numberOfHitsWithEnoughEnergy = 0;
 
   G4HCofThisEvent * HCE = anEvent->GetHCofThisEvent();
   DetectorHitsCollection* DHC = 0;
@@ -207,6 +206,8 @@ void EventAction::CheckIfEventHasEnoughSize(const G4Event* anEvent)
     DHC = dynamic_cast<DetectorHitsCollection*>(HCE->GetHC(fScinCollID));
     int n_hit = DHC->entries();
     if (n_hit<desiredSize) return;
+
+    int numberOfHitsWithEnoughEnergy = 0;
     for (int i=0; i<n_hit; i++) {
        DetectorHit* dh =  dynamic_cast<DetectorHit*>(DHC->GetHit(i));
        if (((dh->GetEdep()/keV > minEnergy) || minEnergy < 0) && ((dh->GetEdep()/keV < maxEnergy) || maxEnergy < 0)) {
