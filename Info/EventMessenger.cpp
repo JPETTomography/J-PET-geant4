@@ -83,8 +83,11 @@ EventMessenger::EventMessenger()
   fCMDAppliedRangeCut->SetDefaultValue(1 * mm);
   fCMDAppliedRangeCut->SetUnitCandidates("mm");
 
-  fCMDSaveEnoughSizedEvent = new G4UIcmdWithAnInteger("/jpetmc/event/saveEventWithSize", this);
-  fCMDSaveEnoughSizedEvent->SetGuidance("Set the size of the event you want to save");
+  fCMDSaveMinSizedEvent = new G4UIcmdWithAnInteger("/jpetmc/event/saveEventWithMinSize", this);
+  fCMDSaveMinSizedEvent->SetGuidance("Set the minimal size of the event you want to save");
+  
+  fCMDSaveMaxSizedEvent = new G4UIcmdWithAnInteger("/jpetmc/event/saveEventWithMaxSize", this);
+  fCMDSaveMaxSizedEvent->SetGuidance("Set the maximal size of the event you want to save");
 
   fSetEnergyRangeToSave = new G4UIcmdWith3VectorAndUnit("/jpetmc/event/setEnergyRange", this);
   fSetEnergyRangeToSave->SetGuidance("Set energy range for checking the event size (first minEnergy then maxEnergy then control option to connect with saveEventWithSize) - works with saveEventWithSize!!");
@@ -113,7 +116,8 @@ EventMessenger::~EventMessenger()
   delete fCMDExcludedMulti;
   delete fCMDAppliedEnergyCut;
   delete fCMDAppliedRangeCut;
-  delete fCMDSaveEnoughSizedEvent;
+  delete fCMDSaveMinSizedEvent;
+  delete fCMDSaveMaxSizedEvent;
   delete fSetEnergyRangeToSave;
   delete fCreateDecayTree;
 }
@@ -152,8 +156,10 @@ void EventMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
     fSave2g = fCMDSave2g->GetNewBoolValue(newValue);
   } else if (command == fCMDSave3g) {
     fSave3g = fCMDSave3g->GetNewBoolValue(newValue);
-  } else if (command == fCMDSaveEnoughSizedEvent) {
-    fEventDesiredSize = fCMDSaveEnoughSizedEvent->GetNewIntValue(newValue);
+  } else if (command == fCMDSaveMinSizedEvent) {
+    fEventDesiredSize.first = fCMDSaveMinSizedEvent->GetNewIntValue(newValue);
+  } else if (command == fCMDSaveMaxSizedEvent) {
+    fEventDesiredSize.second = fCMDSaveMaxSizedEvent->GetNewIntValue(newValue);
   } else if (command == fSetEnergyRangeToSave) {
     G4String paramString = newValue;
     std::istringstream is(paramString);
@@ -163,8 +169,13 @@ void EventMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
     is >> minEnergy >> maxEnergy >> strictMultCheck;
     fEnergyRangeToSave = std::make_pair(minEnergy, maxEnergy);
     fMultEnergyCheck = strictMultCheck;
-    if (fEventDesiredSize < 1)
-      fEventDesiredSize = 1000;
+    if (fEventDesiredSize.first < 1) {
+      G4Exception(
+        "EventMessenger", "EM01",
+        JustWarning, "Setting minimal event multiplicity to save to 1"
+      );
+      fEventDesiredSize.first = 1;
+    }
   } else if (command == fCreateDecayTree) {
     fCreateDecayTreeFlag = fCreateDecayTree->GetNewBoolValue(newValue);
   }

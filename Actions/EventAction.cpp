@@ -73,7 +73,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
       G4RunManager::GetRunManager()->AbortEvent();
     }
   }
-  if (fEvtMessenger->GetMultiplicityToSaveEvent()) {
+  if (fEvtMessenger->GetMultiplicityToSaveEvent().first) {
     CheckIfEventHasEnoughSize(anEvent);
     if ( ! IsEnoughSize() ) {
       saveEvt = false;
@@ -196,7 +196,8 @@ void EventAction::CheckIfEventHasEnoughSize(const G4Event* anEvent)
 {
   isEnoughSize = false;
 
-  int desiredSize = fEvtMessenger->GetMultiplicityToSaveEvent();
+  int desiredMinSize = fEvtMessenger->GetMultiplicityToSaveEvent().first;
+  int desiredMaxSize = fEvtMessenger->GetMultiplicityToSaveEvent().second;
   G4double minEnergy = fEvtMessenger->GetEnergyRangeToSave().first;
   G4double maxEnergy = fEvtMessenger->GetEnergyRangeToSave().second;
 
@@ -205,7 +206,7 @@ void EventAction::CheckIfEventHasEnoughSize(const G4Event* anEvent)
   if (HCE) {
     DHC = dynamic_cast<DetectorHitsCollection*>(HCE->GetHC(fScinCollID));
     int n_hit = DHC->entries();
-    if (n_hit<desiredSize) return;
+    if (n_hit<desiredMinSize) return;
 
     int numberOfHitsWithEnoughEnergy = 0;
     for (int i=0; i<n_hit; i++) {
@@ -214,9 +215,11 @@ void EventAction::CheckIfEventHasEnoughSize(const G4Event* anEvent)
          numberOfHitsWithEnoughEnergy++;
        }
     }
-    if (numberOfHitsWithEnoughEnergy == desiredSize)
+    //Counting all events if energy range is not set, all only those within the range
+    if (numberOfHitsWithEnoughEnergy >= desiredMinSize && (desiredMaxSize > 0 && numberOfHitsWithEnoughEnergy <= desiredMaxSize))
       isEnoughSize = true;
-    if (fEvtMessenger->GetMultiplicityToSaveEventWithEnergy() && n_hit != desiredSize)
-      isEnoughSize = false;
+    //Test if the number of hits in the nergy range are equall to the minimal event size
+    if (fEvtMessenger->GetMultiplicityToSaveEventWithEnergy() && numberOfHitsWithEnoughEnergy == desiredMinSize)
+      isEnoughSize = true;
   }
 }
