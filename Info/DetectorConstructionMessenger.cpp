@@ -69,6 +69,30 @@ DetectorConstructionMessenger::DetectorConstructionMessenger(DetectorConstructio
   fPressureInChamber->SetGuidance("Define pressure in the chamber");
   fPressureInChamber->SetDefaultUnit("Pa");
   fPressureInChamber->SetUnitCandidates("Pa");
+
+  fConstructNemaPhantom = new G4UIcmdWithoutParameter("/jpetmc/detector/constructNemaPhantom", this);
+  fConstructNemaPhantom->SetGuidance("Setting to true the possibility to construct the Nema phantom");
+
+  fAddPhantomElementWithShape = new G4UIcmdWithAString("/jpetmc/detector/addPhantomElementWithShape", this);
+  fAddPhantomElementWithShape->SetGuidance("Adding the phantom element with shape (box, sphere, ...)");
+
+  fConstructPhantomElement = new G4UIcmdWithAnInteger("/jpetmc/detector/ConstructPhantomElement", this);
+  fConstructPhantomElement->SetGuidance("Setting the flag for construction of element with ID to true");
+
+  fSetPhantomElementDimensions = new G4UIcmdWithAString("/jpetmc/detector/setPhantomElementDimensions", this);
+  fSetPhantomElementDimensions->SetGuidance("Setting dimensions of the element (in cm) pointed by given ID");
+
+  fSetPhantomElementLocation = new G4UIcmdWithAString("/jpetmc/detector/setPhantomElementLocation", this);
+  fSetPhantomElementLocation->SetGuidance("Setting location of the element (in cm) pointed by given ID");
+
+  fSetPhantomElementRotation = new G4UIcmdWithAString("/jpetmc/detector/setPhantomElementRotation", this);
+  fSetPhantomElementRotation->SetGuidance("Setting rotation of the element (in deg) pointed by given ID in axis X, Y and Z");
+
+  fSetPhantomElementAction = new G4UIcmdWithAString("/jpetmc/detector/setPhantomElementActionWithOtherElement", this);
+  fSetPhantomElementAction->SetGuidance("Setting the action between two elements of the phantom (union, intersection, subtraction)");
+
+  fSetPhantomElementMaterialAndDensity = new G4UIcmdWithAString("/jpetmc/detector/setPhantomElementMaterialAndDensity", this);
+  fSetPhantomElementMaterialAndDensity->SetGuidance("Setting material and density of the element pointed by given ID");
 }
 
 DetectorConstructionMessenger::~DetectorConstructionMessenger()
@@ -86,83 +110,111 @@ DetectorConstructionMessenger::~DetectorConstructionMessenger()
   delete fJSONSetupFile;
   delete fJSONSetupRunNum;
   delete fPressureInChamber;
+  delete fConstructNemaPhantom;
+  delete fAddPhantomElementWithShape;
+  delete fConstructPhantomElement;
+  delete fSetPhantomElementDimensions;
+  delete fSetPhantomElementLocation;
+  delete fSetPhantomElementRotation;
+  delete fSetPhantomElementAction;
+  delete fSetPhantomElementMaterialAndDensity;
 }
 
 // cppcheck-suppress unusedFunction
 void DetectorConstructionMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
-  if (command == fLoadTargetForRun)
-  {
+  if (command == fLoadTargetForRun) {
     fDetector->LoadGeometryForRun(fLoadTargetForRun->GetNewIntValue(newValue));
     fDetector->UpdateGeometry();
-  }
-  else if (command == fLoadIdealGeometry)
-  {
+  } else if (command == fLoadIdealGeometry) {
     G4Exception("DetectorConstructionMessenger", "DCM01", JustWarning, "Option is not yet implemented");
-  }
-  else if (command == fLoadJPetBasicGeometry)
-  {
+  } else if (command == fLoadJPetBasicGeometry) {
     fDetector->ConstructBasicGeometry(true);
     fDetector->LoadFrame(true);
     fDetector->UpdateGeometry();
-  }
-  else if (command == fLoadOnlyScintillators)
-  {
+  } else if (command == fLoadOnlyScintillators) {
     fDetector->LoadFrame(false);
     fDetector->UpdateGeometry();
-  }
-  else if (command == fLoadWrapping)
-  {
+  } else if (command == fLoadWrapping) {
     fDetector->LoadWrapping(fLoadWrapping->GetNewBoolValue(newValue));
-  }
-  else if (command == fLoadModularLayer)
-  {
+  } else if (command == fLoadModularLayer) {
     fDetector->ConstructModularLayer(newValue);
     fDetector->UpdateGeometry();
-  } else if (command == fLoadModularLayerOnly) 
-  {
+  } else if (command == fLoadModularLayerOnly) {
     fDetector->ConstructBasicGeometry(false);
     fDetector->UpdateGeometry();
-  }
-  else if (command == fScinHitMergingTime)
-  {
+  } else if (command == fScinHitMergingTime) {
     DetectorConstants::SetMergingTimeValueForScin(fScinHitMergingTime->GetNewDoubleValue(newValue));
     fDetector->UpdateGeometry();
-  }
-  else if (command == fGeometryFileName)
-  {
+  } else if (command == fGeometryFileName) {
     fDetector->CreateGeometryFileFlag(true);
-    if (!newValue.contains(".json"))
-    {
+    if (!newValue.contains(".json")) {
       newValue.append(".json");
     }
     fDetector->SetGeometryFileName(newValue);
-  }
-  else if (command == fCreateGeometryType)
-  {
+  } else if (command == fCreateGeometryType) {
     fDetector->CreateGeometryFileFlag(true);
     fDetector->SetGeometryFileType(newValue);
-  }
-  else if (command == fJSONSetupFile)
-  {
+  } else if (command == fJSONSetupFile) {
     std::ifstream file(newValue.c_str());
-    if (file.good())
-    {
+    if (file.good()) {
       fDetector->readJSONSetup(true);
       fDetector->setJSONFileName(newValue);
       fDetector->UpdateGeometry();
-    }
-    else
-    {
+    } else {
       G4Exception("DetectorConstructionMessenger", "DCM02", FatalException, "Provided JSON file does not exist.");
     }
-  }
-  else if (command == fJSONSetupRunNum)
-  {
+  } else if (command == fJSONSetupRunNum) {
     fDetector->setJSONSetupRunNum(fJSONSetupRunNum->GetNewIntValue(newValue));
-  }
-  else if (command == fPressureInChamber)
-  {
+  } else if (command == fPressureInChamber) {
     fDetector->SetPressureInChamber(fPressureInChamber->GetNewDoubleValue(newValue));
+  } else if (command == fConstructNemaPhantom) {
+    fDetector->setNemaPhantomFlag(true);
+  } else if (command == fAddPhantomElementWithShape) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int ID;
+    G4String shape;
+    is >> ID >> shape;
+    fDetector->addPhantomElementWithShape(ID, shape);
+  } else if (command == fConstructPhantomElement) {
+    fDetector->setContructionFlagTrue(fConstructPhantomElement->GetNewIntValue(newValue));
+  } else if (command == fSetPhantomElementDimensions) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int ID;
+    G4String dimensions;
+    is >> ID >> dimensions;
+    fDetector->setPhantomElementDimensions(ID, dimensions);
+  } else if (command == fSetPhantomElementLocation) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int ID;
+    G4double x, y, z;
+    is >> ID >> x >> y >> z;
+    fDetector->setPhantomElementLocation(ID, x, y, z);
+  } else if (command == fSetPhantomElementRotation) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int ID;
+    G4double xRot, yRot, zRot;
+    is >> ID >> xRot >> yRot >> zRot;
+    fDetector->setPhantomElementRotation(ID, xRot, yRot, zRot);
+  } else if (command == fSetPhantomElementAction) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int ID1;
+    G4int ID2
+    G4String action;
+    is >> ID1 >> ID2 >> action;
+    fDetector->setPhantomElementAction(ID1, ID2, action);
+  } else if (command == fSetPhantomElementMaterialAndDensity) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int ID;
+    G4String material
+    G4double density;
+    is >> ID >> material >> density;
+    fDetector->setPhantomElementMaterial(ID, material, density);
   }
 }

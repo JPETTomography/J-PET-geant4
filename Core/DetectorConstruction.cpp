@@ -51,7 +51,7 @@ DetectorConstruction* DetectorConstruction::GetInstance()
 }
 
 DetectorConstruction::DetectorConstruction()
-    : G4VUserDetectorConstruction(), fRunNumber(0), fLoadScintillators(true), fLoadCADFrame(false), fLoadWrapping(true), fLoadModularLayer(false)
+    : G4VUserDetectorConstruction(), fRunNumber(0), fLoadScintillators(true), fLoadCADFrame(false), fLoadWrapping(true), fLoadModularLayer(false), fConstructNemaPhantom(false)
 {
   InitializeMaterials();
   fMessenger = new DetectorConstructionMessenger(this);
@@ -120,6 +120,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   else if (fRunNumber == 12)
   {
     ConstructTargetRun12();
+  } else { //Treated for fRunNumber = 0
+    if (fConstructNemaPhantom) {
+      ConstructNemaPhantom();
+    }
   }
 
   return fWorldPhysical;
@@ -1310,4 +1314,217 @@ void DetectorConstruction::CreateGeometryFile()
   {
     G4Exception("DetectorConstruction", "DC03", JustWarning, "Unrecognized geometry file type, accepted formats: barrel, modular.");
   }
+}
+
+
+void DetectorConstruction::ConstructNemaPhantom()
+{
+  for (unsigned i=0; i<phantomElements.size(); i++) {
+    if (phantomElements.at(i).fConstruct && phantomElements.at(i).fDimensions.size()) {
+      G4VSolid* newElem = nullptr;
+      G4Material* phantomElementMaterial = nullptr;
+      G4LogicalVolume* phantomElementLogic = nullptr;
+      G4RotationMatrix* rotMat = new G4RotationMatrix();
+
+      if (phantomElements.at(i).fRotation.size() > 0) {
+        rotMat->rotateX(phantomElements.at(i).fRotation.at(0)*deg);
+        if (phantomElements.at(i).fRotation.size() > 1)
+          rotMat->rotateY(phantomElements.at(i).fRotation.at(1)*deg);
+        if (phantomElements.at(i).fRotation.size() > 2)
+          rotMat->rotateZ(phantomElements.at(i).fRotation.at(2)*deg);
+      }
+
+      GeometryShape elementShape = phantomElements.at(i).fShape;
+      if (elementShape == GeometryShape::aBox) {
+        newElem = new G4Box("newElem", phantomElements.at(i).fDimensions.at(0) * cm, phantomElements.at(i).fDimensions.at(1) * cm,
+                            phantomElements.at(i).fDimensions.at(2) * cm);
+      } else if (elementShape == GeometryShape::aSphere) {
+        newElem = new G4Sphere("newElem", phantomElements.at(i).fDimensions.at(0) * cm, phantomElements.at(i).fDimensions.at(1) * cm,
+                               0, 360*deg, 0, 360*deg);
+      } else if (elementShape == GeometryShape::aOrb) {
+        newElem = new G4Orb("newElem", phantomElements.at(i).fDimensions.at(0) * cm);
+      } else if (elementShape == GeometryShape::aTube) {
+        newElem = new G4Tubs("newElem", phantomElements.at(i).fDimensions.at(0) * cm, phantomElements.at(i).fDimensions.at(1) * cm,
+                             phantomElements.at(i).fDimensions.at(2) * cm, 0., 360.*deg);
+      } else if (elementShape == GeometryShape::aEllTube) {
+        newElem = new G4EllipticalTube("newElem", phantomElements.at(i).fDimensions.at(0) * cm, phantomElements.at(i).fDimensions.at(1) * cm,
+                            phantomElements.at(i).fDimensions.at(2) * cm);
+      }
+
+      if (newElem != nullptr) {
+        for (unsigned j=0; j<phantomElements.at(i).fActionCombination.size(); j++) {//Complicated shapes
+          G4int idToCombine = phantomElements.at(i).fActionCombination.at(j).first;
+          GeometryCombination action = phantomElements.at(i).fActionCombination.at(j).second;
+          G4VSolid* newElemFragment = nullptr;
+
+          GeometryShape elementShape = phantomElements.at(idPhantElem.at(idToCombine)).fShape;
+          std::vector<double> dimensionsNew = phantomElements.at(idPhantElem.at(idToCombine)).fDimensions;
+          if (dimensionsNew.size() == 0)
+            continue;
+
+          if (elementShape == GeometryShape::aBox) {
+            newElemFragment = new G4Box("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm,
+                                        dimensionsNew.at(2) * cm);
+          } else if (elementShape == GeometryShape::aSphere) {
+            newElemFragment = new G4Sphere("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm,
+                                           0, 360*deg, 0, 360*deg);
+          } else if (elementShape == GeometryShape::aOrb) {
+            newElemFragment = new G4Orb("newElemFrag", dimensionsNew.at(0) * cm);
+          } else if (elementShape == GeometryShape::aTube) {
+            newElemFragment = new G4Tubs("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm,
+                                         dimensionsNew.at(2) * cm, 0., 360.*deg);
+          } else if (elementShape == GeometryShape::aEllTube) {
+            newElemFragment = new G4EllipticalTube("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm,
+                                                   dimensionsNew.at(2) * cm);
+        }
+
+          if (action == GeometryCombination::aUnion) {
+            newElem = new G4UnionSolid("newUnion", newElem, newElemFragment);
+          } else if (action == GeometryCombination::aSubtraction) {
+            newElem = new G4SubtractionSolid("newSubtraction", newElem, newElemFragment);
+          } else if (action == GeometryCombination::aIntersection) {
+            newElem = new G4IntersectionSolid("newIntersection", newElem, newElemFragment);
+          }
+        }
+      }
+
+      if (newElem != nullptr) {
+        PhantomMaterial elementMaterial = phantomElements.at(i).fMaterial;
+        phantomElementMaterial = new G4Material();
+
+        if (elementMaterial == PhantomMaterial::aWater) {
+          G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
+          G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
+          phantomElementMaterial = new G4Material("Water", phantomElements.at(i).fDensity*mg/cm3, 2);
+          phantomElementMaterial->AddElement(elH, 2);
+          phantomElementMaterial->AddElement(elO, 1);
+        } else if (elementMaterial == PhantomMaterial::aPlastic) {
+          G4Element* elC = new G4Element("Carbon", "C", z=6., a=12.0107*g/mole);
+          G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
+          phantomElementMaterial = new G4Material("Plastic", phantomElements.at(i).fDensity*mg/cm3, 2);
+          phantomElementMaterial->AddElement(elC, 2);
+          phantomElementMaterial->AddElement(elH, 4);
+        } else if (elementMaterial == PhantomMaterial::aAlumnium) {
+          phantomElementMaterial = new G4Material("Al", z=13., a=26.981539*g/mole, phantomElements.at(i).fDensity*mg/cm3);
+        } else if (elementMaterial == PhantomMaterial::aSiliconDioxide) {
+          G4Element* elSi = new G4Element("Silicon", "Si", z=14., a=28.0855*g/mole);
+          G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
+          phantomElementMaterial = new G4Material("SiliconDioxide", phantomElements.at(i).fDensity*mg/cm3, 2);
+          phantomElementMaterial->AddElement(elSi, 1);
+          phantomElementMaterial->AddElement(elO, 4);
+        } else {//temporary until finding better default material
+          G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
+          G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
+          phantomElementMaterial = new G4Material("Water", phantomElements.at(i).fDensity*mg/cm3, 2);
+          phantomElementMaterial->AddElement(elH, 2);
+          phantomElementMaterial->AddElement(elO, 1);
+        }
+
+        if (phantomElementMaterial != nullptr)
+          phantomElementLogic = new G4LogicalVolume(newElem, phantomElementMaterial, "World", 0, 0, 0);
+      }
+
+      if (phantomElements.at(i).fLocation.size() == 0) {
+        phantomElements.at(i).fLocation = {0,0,0};
+      }
+      if (phantomElementLogic != nullptr) {
+        G4VPhysicalVolume* newPhantomElement = new G4PVPlacement(rotMat, G4ThreeVector(phantomElements.at(i).fLocation.at(0)*cm,
+                                                                                       phantomElements.at(i).fLocation.at(1)*cm,
+                                                                                       phantomElements.at(i).fLocation.at(2)*cm),
+                                                                 phantomElementLogic, "PhantElemID" + std::string(i), World, false, 0);
+      }
+    }
+  }
+}
+
+void DetectorConstruction::addPhantomElementWithShape(G4int id, G4String shape)
+{
+  PhantElem newElem;
+  if (elementShape == "G4Box" || elementShape == "G4box" || elementShape == "box") {
+    newElem.fShape = GeometryShape::aBox;
+  } else if (elementShape == "G4Sphere" || elementShape == "G4sphere" || elementShape == "sphere") {
+    newElem.fShape = GeometryShape::aSphere;
+  } else if (elementShape == "G4Orb" || elementShape == "G4orb" || elementShape == "orb" || elementShape == "ball") {
+    newElem.fShape = GeometryShape::aOrb;
+  } else if (elementShape == "G4Tubs" || elementShape == "G4tubs" || elementShape == "tube" || elementShape == "cylinder") {
+    newElem.fShape = GeometryShape::aTube;
+  } else if (elementShape == "G4EllipticalTube" || elementShape == "G4ellipticalTube" ||
+             elementShape == "ellipticalTube" || elementShape == "elipticalTube") {
+    newElem.fShape = GeometryShape::aEllTube;
+  } else {
+    G4Exception("DetectorConstruction", "DC04", JustWarning, "Unrecognized shape of the phantom element");
+  }
+
+  newElem.fConstruct = false;
+  idPhantElem.insert({id, phantomElements.size()});
+  phantomElements.push_back(newElem);
+}
+
+void DetectorConstruction::setContructionFlagTrue(G4int id)
+{
+  phantomElements.at(idPhantElem.at(id)).fConstruct = true;
+}
+
+void DetectorConstruction::setPhantomElementDimensions(G4int id, G4String stringWithParameters)
+{
+  GeometryShape elementShape = phantomElements.at(idPhantElem.at(id)).fShape;
+  std::istringstream is(stringWithParameters);
+  std::vector<double> dimTemp;
+  if (elementShape == GeometryShape::aBox || elementShape == GeometryShape::aEllTube) {
+    G4double xHalfLength, yHalfLength, zHalfLength;
+    is >> xHalfLength >> yHalfLength >> zHalfLength;
+    dimTemp = {xHalfLength, yHalfLength, zHalfLength};
+  } else if (GeometryShape::aSphere) {
+    G4double rMin, rMax;
+    is >> rMin >> rMax;
+    dimTemp = {rMin, rMax};
+  } else if (GeometryShape::aOrb) {
+    G4double rMax;
+    is >> rMax;
+    dimTemp = {rMax};
+  } else if (GeometryShape::aTube) {
+    G4double rMin, rMax, zHalfLength;
+    is >> rMax;
+    dimTemp = {rMin, rMax, zHalfLength};
+  }
+  phantomElements.at(idPhantElem.at(id)).fDimensions = dimTemp;
+}
+
+void DetectorConstruction::setPhantomElementLocation(Grint id, G4double x, G4double y, G4double z)
+{
+  std::vector<double> tempLoc = {x, y, z};
+  phantomElements.at(idPhantElem.at(id)).fLocation = dimTemp;
+}
+
+void DetectorConstruction::setPhantomElementRotation(Grint id, G4double xRot, G4double yRot, G4double zRot)
+{
+  std::vector<double> tempLoc = {xRot, yRot, zRot};
+  phantomElements.at(idPhantElem.at(id)).fRotation = dimTemp;
+}
+
+void DetectorConstruction::setPhantomElementAction(G4int id1, G4int id2, G4String action)
+{
+  if (action == "union") {
+    phantomElements.at(idPhantElem.at(id1)).fActionCombination.push_back(std::make_pair(id2, GeometryCombination::aUnion));
+  } else if (action == "subtraction") {
+    phantomElements.at(idPhantElem.at(id1)).fActionCombination.push_back(std::make_pair(id2, GeometryCombination::aSubtraction));
+  } else if (action == "intersection") {
+    phantomElements.at(idPhantElem.at(id1)).fActionCombination.push_back(std::make_pair(id2, GeometryCombination::aIntersection));
+  } else {
+    G4Exception("DetectorConstruction", "DC05", JustWarning, "Bad action fo the phantom element creation. Should be one of following: union, subtraction, intersection.");
+  }
+}
+
+void DetectorConstruction::setPhantomElementMaterial(G4int id, G4String materialName, G4double density)
+{
+  if (materialName == "water" || materialName == "Water" || materialName == "H2O" || materialName == "h20") {
+    phantomElements.at(idPhantElem.at(id)).fMaterial = PhantomMaterial::aWater;
+  } else if (materialName == "plastic" || materialName == "Plastic" || materialName == "polymer" || materialName == "Polymer") {
+    phantomElements.at(idPhantElem.at(id)).fMaterial = PhantomMaterial::aPlastic;
+  } else if (materialName == "Al" || materialName == "al" || materialName == "Aluminium" || materialName == "aluminium") {
+    phantomElements.at(idPhantElem.at(id)).fMaterial = PhantomMaterial::aAlumnium;
+  } else if (materialName == "SiO2" || materialName == "sio2" || materialName == "SiliconDioxide" || materialName == "siliconDioxide") {
+    phantomElements.at(idPhantElem.at(id)).fMaterial = PhantomMaterial::aSiliconDioxide;
+  }
+  phantomElements.at(idPhantElem.at(id)).fDensity = density;
 }
