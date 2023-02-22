@@ -22,13 +22,18 @@
 
 #include <G4LogicalVolumeStore.hh>
 #include <G4PhysicalVolumeStore.hh>
-#include <G4Polycone.hh>
 #include <G4RegionStore.hh>
 #include <G4SolidStore.hh>
-#include <G4Sphere.hh>
-#include <G4SubtractionSolid.hh>
+#include <G4Material.hh>
+#include <G4Box.hh>
+#include <G4Orb.hh>
 #include <G4Tubs.hh>
+#include <G4Sphere.hh>
+#include <G4Polycone.hh>
+#include <G4EllipticalTube.hh>
 #include <G4UnionSolid.hh>
+#include <G4SubtractionSolid.hh>
+#include <G4IntersectionSolid.hh>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/optional.hpp>
@@ -1390,8 +1395,9 @@ void DetectorConstruction::ConstructNemaPhantom()
 
       if (newElem != nullptr) {
         PhantomMaterial elementMaterial = phantomElements.at(i).fMaterial;
-        phantomElementMaterial = new G4Material();
+        phantomElementMaterial = vacuum;
 
+        double z, a;
         if (elementMaterial == PhantomMaterial::aWater) {
           G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
           G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
@@ -1421,23 +1427,23 @@ void DetectorConstruction::ConstructNemaPhantom()
         }
 
         if (phantomElementMaterial != nullptr)
-          phantomElementLogic = new G4LogicalVolume(newElem, phantomElementMaterial, "World", 0, 0, 0);
+          phantomElementLogic = new G4LogicalVolume(newElem, phantomElementMaterial, "phanElem", 0, 0, 0);
       }
 
       if (phantomElements.at(i).fLocation.size() == 0) {
         phantomElements.at(i).fLocation = {0,0,0};
       }
       if (phantomElementLogic != nullptr) {
-        G4VPhysicalVolume* newPhantomElement = new G4PVPlacement(rotMat, G4ThreeVector(phantomElements.at(i).fLocation.at(0)*cm,
-                                                                                       phantomElements.at(i).fLocation.at(1)*cm,
-                                                                                       phantomElements.at(i).fLocation.at(2)*cm),
-                                                                 phantomElementLogic, "PhantElemID" + std::string(i), World, false, 0);
+        new G4PVPlacement(rotMat, G4ThreeVector(phantomElements.at(i).fLocation.at(0)*cm,
+                                                phantomElements.at(i).fLocation.at(1)*cm,
+                                                phantomElements.at(i).fLocation.at(2)*cm),
+                          phantomElementLogic, "PhantElemID" + std::to_string(i), fWorldLogical, false, 0);
       }
     }
   }
 }
 
-void DetectorConstruction::addPhantomElementWithShape(G4int id, G4String shape)
+void DetectorConstruction::addPhantomElementWithShape(G4int id, G4String elementShape)
 {
   PhantElem newElem;
   if (elementShape == "G4Box" || elementShape == "G4box" || elementShape == "box") {
@@ -1470,36 +1476,39 @@ void DetectorConstruction::setPhantomElementDimensions(G4int id, G4String string
   GeometryShape elementShape = phantomElements.at(idPhantElem.at(id)).fShape;
   std::istringstream is(stringWithParameters);
   std::vector<double> dimTemp;
+  int ID;
   if (elementShape == GeometryShape::aBox || elementShape == GeometryShape::aEllTube) {
     G4double xHalfLength, yHalfLength, zHalfLength;
-    is >> xHalfLength >> yHalfLength >> zHalfLength;
+    is >> ID >> xHalfLength >> yHalfLength >> zHalfLength;
     dimTemp = {xHalfLength, yHalfLength, zHalfLength};
-  } else if (GeometryShape::aSphere) {
+    std::cout << "Dim test" << std::endl;
+    std::cout << xHalfLength << " " << yHalfLength << " " << zHalfLength << std::endl;
+  } else if (elementShape == GeometryShape::aSphere) {
     G4double rMin, rMax;
-    is >> rMin >> rMax;
+    is >> ID >> rMin >> rMax;
     dimTemp = {rMin, rMax};
-  } else if (GeometryShape::aOrb) {
+  } else if (elementShape == GeometryShape::aOrb) {
     G4double rMax;
-    is >> rMax;
+    is >> ID >> rMax;
     dimTemp = {rMax};
-  } else if (GeometryShape::aTube) {
+  } else if (elementShape == GeometryShape::aTube) {
     G4double rMin, rMax, zHalfLength;
-    is >> rMax;
+    is >> ID >> rMin >> rMax >> zHalfLength;
     dimTemp = {rMin, rMax, zHalfLength};
   }
   phantomElements.at(idPhantElem.at(id)).fDimensions = dimTemp;
 }
 
-void DetectorConstruction::setPhantomElementLocation(Grint id, G4double x, G4double y, G4double z)
+void DetectorConstruction::setPhantomElementLocation(G4int id, G4double x, G4double y, G4double z)
 {
   std::vector<double> tempLoc = {x, y, z};
-  phantomElements.at(idPhantElem.at(id)).fLocation = dimTemp;
+  phantomElements.at(idPhantElem.at(id)).fLocation = tempLoc;
 }
 
-void DetectorConstruction::setPhantomElementRotation(Grint id, G4double xRot, G4double yRot, G4double zRot)
+void DetectorConstruction::setPhantomElementRotation(G4int id, G4double xRot, G4double yRot, G4double zRot)
 {
-  std::vector<double> tempLoc = {xRot, yRot, zRot};
-  phantomElements.at(idPhantElem.at(id)).fRotation = dimTemp;
+  std::vector<double> tempRot = {xRot, yRot, zRot};
+  phantomElements.at(idPhantElem.at(id)).fRotation = tempRot;
 }
 
 void DetectorConstruction::setPhantomElementAction(G4int id1, G4int id2, G4String action)

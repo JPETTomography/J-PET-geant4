@@ -185,7 +185,7 @@ void DetectorConstructionMessenger::SetNewValue(G4UIcommand* command, G4String n
     G4int ID;
     G4String dimensions;
     is >> ID >> dimensions;
-    fDetector->setPhantomElementDimensions(ID, dimensions);
+    fDetector->setPhantomElementDimensions(ID, newValue);
   } else if (command == fSetPhantomElementLocation) {
     G4String paramString = newValue;
     std::istringstream is(paramString);
@@ -204,7 +204,7 @@ void DetectorConstructionMessenger::SetNewValue(G4UIcommand* command, G4String n
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int ID1;
-    G4int ID2
+    G4int ID2;
     G4String action;
     is >> ID1 >> ID2 >> action;
     fDetector->setPhantomElementAction(ID1, ID2, action);
@@ -212,7 +212,7 @@ void DetectorConstructionMessenger::SetNewValue(G4UIcommand* command, G4String n
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int ID;
-    G4String material
+    G4String material;
     G4double density;
     is >> ID >> material >> density;
     fDetector->setPhantomElementMaterial(ID, material, density);

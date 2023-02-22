@@ -126,8 +126,8 @@ public:
   void addPhantomElementWithShape(G4int id, G4String shape);
   void setContructionFlagTrue(G4int id);
   void setPhantomElementDimensions(G4int id, G4String stringWithParameters);
-  void setPhantomElementLocation(Grint id, G4double x, G4double y, G4double z);
-  void setPhantomElementRotation(Grint id, G4double xRot, G4double yRot, G4double zRot);
+  void setPhantomElementLocation(G4int id, G4double x, G4double y, G4double z);
+  void setPhantomElementRotation(G4int id, G4double xRot, G4double yRot, G4double zRot);
   void setPhantomElementAction(G4int id1, G4int id2, G4String action);
   void setPhantomElementMaterial(G4int id, G4String materialName, G4double density);
 
@@ -278,7 +278,7 @@ struct PhantElem
   std::vector<double> fRotation;
   PhantomMaterial fMaterial;
   G4double fDensity;
-  std::vector<std::pair(G4int, GeometryCombination)> fActionCombination;
+  std::vector<std::pair<G4int, GeometryCombination>> fActionCombination;
 };
 
 void replace(std::string& json, const std::string& placeholder);
