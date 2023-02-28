@@ -63,6 +63,9 @@ private:
   std::tuple<G4ThreeVector, MaterialExtension*> GetVerticesDistributionAlongStepVector(
     const G4ThreeVector center, const G4ThreeVector direction
   );
+  std::tuple<G4ThreeVector, MaterialExtension*> GetVerticesDistributionAlongStepVectorExponential(
+    const G4ThreeVector center, const G4ThreeVector direction
+  );
   G4PrimaryVertex* GenerateTwoGammaVertex(
     const G4ThreeVector vtxPosition, const G4double T0, const G4double lifetime2g
   );

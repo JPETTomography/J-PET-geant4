@@ -36,6 +36,14 @@ enum Dimension {
   dimX, dimY  
 };
 
+enum NemaGenerationOption {
+  n3G, nPPs, nDirect, nPrompt, nDirectLFDensDep
+};
+
+enum PositroniumDecayMode {
+  pPs, oPs, direct
+};
+
 /**
  * @class PrimaryGeneratorAction
  * @brief heart of simulated physics
@@ -52,17 +60,18 @@ public:
   BeamParams* GetBeamParams() { return fBeam; }
   SourceParams* GetIsotopeParams() { return fIsotope; }
   G4String GetSourceTypeInfo() { return fGenerateSourceType; }
+  void SetPointShape(G4int nemaPoint, G4String shape);
   void SetNemaPoint(G4int pointID) { fNemaGenerator.SetOnePointOnly(pointID); fNemaPoint = pointID; };
   void GenerateDefaultNemaPositions();
   void SetNemaPointPosition(G4int nemaPoint, const G4ThreeVector& position);
   void SetNemaPositionWeight(G4int position, G4int weight);
-  void SetNemaPointLifetime(G4int position, G4double lifetime);
-  void SetNemaPoint3GOption(G4int position);
+  void SetNemaPointLifetime(G4int position, PositroniumDecayMode mode, G4double lifetime);
+  void SetNemaPointGenerationOption(G4int nemaPoint, NemaGenerationOption which, bool option);
   void SetNemaPointSize(G4int position, G4double radius, G4double length);
-  void SetNemaPointPromptOption(G4int position);
   void SetNemaPointPromptSize(G4int position, G4double radius, G4double length);
   void SetNemaPointOrientation(G4int position, G4double theta, G4double phi);
   void SetNemaPointShape(G4int position, Dimension dim, G4double direction, G4double power, G4double length);
+  void SetPointExperimentalReach(G4int nemaPoint, G4double reach);
   void SetEffectivePositronRadius(G4double);
   
   G4int GetNemaPoint() { return fNemaPoint; }

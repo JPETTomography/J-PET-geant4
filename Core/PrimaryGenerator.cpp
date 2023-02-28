@@ -52,6 +52,12 @@ G4PrimaryVertex* PrimaryGenerator::GenerateThreeGammaVertex(
   vertex->SetT0(T0 + lifetime);
   vertex->SetPosition(vtxPosition.x(), vtxPosition.y(), vtxPosition.z());
 
+  theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+  MaterialExtension* material = dynamic_cast<MaterialExtension*>(
+    theNavigator->LocateGlobalPointAndSetup(vtxPosition)->GetLogicalVolume()->GetMaterial()
+  );
+  info->SetDensity(material->GetDensity());
+
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* particleDefinition = particleTable->FindParticle("gamma");
   Double_t mass_secondaries[3] = {0., 0., 0.};
@@ -109,6 +115,12 @@ G4PrimaryVertex* PrimaryGenerator::GenerateTwoGammaVertex(
   vertex->SetUserInformation(info);
   vertex->SetT0(T0 + lifetime);
   vertex->SetPosition(vtxPosition.x(), vtxPosition.y(), vtxPosition.z());
+
+  theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+  MaterialExtension* material = dynamic_cast<MaterialExtension*>(
+    theNavigator->LocateGlobalPointAndSetup(vtxPosition)->GetLogicalVolume()->GetMaterial()
+  );
+  info->SetDensity(material->GetDensity());
 
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* particleDefinition = particleTable->FindParticle("gamma");
@@ -302,6 +314,34 @@ PrimaryGenerator::GetVerticesDistributionAlongStepVector(
   };
   return std::make_tuple(myPoint, mat);
 }
+
+std::tuple<G4ThreeVector, MaterialExtension*>
+PrimaryGenerator::GetVerticesDistributionAlongStepVectorExponential(
+  const G4ThreeVector center, const G4ThreeVector direction
+) {
+  G4bool lookForVtx = false;
+  G4ThreeVector myPoint;
+  MaterialExtension* mat;
+  G4double reach = 1 * mm;
+  G4double stepNumber = 0.;
+  G4double density, probFunction;
+  G4double directionMag = direction.mag();
+  while (!lookForVtx) {
+    stepNumber++;
+    myPoint = center + direction*stepNumber;
+    theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+    mat = dynamic_cast<MaterialExtension*>(
+      theNavigator->LocateGlobalPointAndSetup(myPoint)->GetLogicalVolume()->GetMaterial()
+    );
+    density = mat->GetDensity() / (g/cm3);
+    reach = 19.378*std::pow(density, -1.53977); // test function of reach (in mm)
+    probFunction = 1 - exp(-directionMag*stepNumber/reach);
+    if (G4UniformRand() < probFunction)
+      lookForVtx = true;
+  };
+  return std::make_tuple(myPoint, mat);
+}
+
 void PrimaryGenerator::GenerateEvtLargeChamber(G4Event* event)
 {
   G4ThreeVector chamberCenter = DetectorConstants::GetChamberCenter();
@@ -514,16 +554,86 @@ void PrimaryGenerator::GenerateIsotope(SourceParams* sourceParams, G4Event* even
 void PrimaryGenerator::GenerateNema(G4Event* event, NemaGenerator* nemaGen)
 {
   NemaPoint nemaPoint = nemaGen->GetRandomPoint();
-  
+
   G4ThreeVector nemaPosition = nemaPoint.position;
-  G4ThreeVector vtxPosition = GenerateVertexUniformInCylinder(nemaPoint.sizeOfPoint.getX(), nemaPoint.sizeOfPoint.getZ());
-  vtxPosition = nemaGen->GetPointShapedInY(vtxPosition, nemaPoint);
-  vtxPosition = nemaGen->GetRotatedPoint(vtxPosition, nemaPoint);
+  PointShape shape = nemaPoint.shape;
+  G4ThreeVector vtxPosition;
+  if (shape == PointShape::aCylinder) {
+    vtxPosition = GenerateVertexUniformInCylinder(nemaPoint.sizeOfPoint.getX(), nemaPoint.sizeOfPoint.getZ());
+    vtxPosition = nemaGen->GetPointShapedInY(vtxPosition, nemaPoint);
+    vtxPosition = nemaGen->GetRotatedPoint(vtxPosition, nemaPoint);
+  } else {
+    vtxPosition = GetRandomPointInFilledSphere(nemaPoint.sizeOfPoint.getX());
+  }
   vtxPosition = vtxPosition + nemaPosition;
+
+  MaterialExtension* material;
+  double stepSize = 0.1 * mm;
+  PositronReachOption reachOpt = nemaPoint.isPositronReachExp;
+  G4double posReach = nemaPoint.positronReach;
+
+  if (reachOpt == PositronReachOption::aNo) {
+    theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+    material = dynamic_cast<MaterialExtension*>(
+      theNavigator->LocateGlobalPointAndSetup(vtxPosition)->GetLogicalVolume()->GetMaterial()
+    );
+  } else if (reachOpt == PositronReachOption::aFixedUniform) {
+    vtxPosition = vtxPosition + GetRandomPointInFilledSphere(posReach * cm);
+    theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+    material = dynamic_cast<MaterialExtension*>(
+      theNavigator->LocateGlobalPointAndSetup(vtxPosition)->GetLogicalVolume()->GetMaterial()
+    );
+  } else {
+    std::tie(vtxPosition, material) = GetVerticesDistributionAlongStepVectorExponential(
+      vtxPosition, GetRandomPointOnSphere(stepSize)
+    );
+  }
+
+  double DirectLF = nemaPoint.directLifetime;
+  G4double density = 0.1*g/cm3;
+
+  if (material)
+    density = material->GetDensity() / (g/cm3);
+
+  if (nemaPoint.directLFDensityDependent) {
+    DirectLF = 8.19151*exp(-0.00517436*density)/1000;   //dummy function for test in ns
+  }
 
   double lifetime = nemaPoint.lifetime;
   bool is3GAllowed = nemaPoint.is3GAllowed;
-  if (is3GAllowed) {
+  bool alreadyPrimVertexAdded = false;
+  double randDecChannel = G4UniformRand();
+
+  using namespace primary_generator_constants;
+
+  if (nemaPoint.isDirectAllowed) {
+    if (randDecChannel > 1.0 - DIRECT_PS_ANNIHILATION) {
+      randDecChannel = randDecChannel/DIRECT_PS_ANNIHILATION;
+      if (is3GAllowed && randDecChannel < MaterialParameters::fDirect3Gfraction) {
+        event->AddPrimaryVertex(GenerateThreeGammaVertex(
+          DecayChannel::kDirect3G, vtxPosition, 0.0f, DirectLF
+        ));
+      } else {
+        event->AddPrimaryVertex(GenerateTwoGammaVertex(
+            vtxPosition, 0.0f, DirectLF
+        ));
+      }
+      alreadyPrimVertexAdded = true;
+    } else {
+      randDecChannel = randDecChannel/(1.0 - DIRECT_PS_ANNIHILATION);
+    }
+  }
+
+  if (nemaPoint.isParaPSAllowed && !alreadyPrimVertexAdded) {
+    if (randDecChannel < PARA_PS_CREATION) {
+      event->AddPrimaryVertex(GenerateTwoGammaVertex(
+        vtxPosition, 0.0f, nemaPoint.pPsLifetime
+      ));
+      alreadyPrimVertexAdded = true;
+    }
+  }
+
+  if (is3GAllowed && !alreadyPrimVertexAdded) {
     double randLF = G4UniformRand();
     double lfTest = MaterialParameters::GetoPsIntensity3G(lifetime * ns, 100);
     if (randLF > lfTest) {
@@ -535,17 +645,23 @@ void PrimaryGenerator::GenerateNema(G4Event* event, NemaGenerator* nemaGen)
         DecayChannel::kOrtho3G, vtxPosition, 0.0f, lifetime
       ));
     }
-  } else {
+  } else if (!alreadyPrimVertexAdded) {
     event->AddPrimaryVertex(GenerateTwoGammaVertex(
       vtxPosition, 0.0f, lifetime
     ));
   }
-  
+
   bool isPromptAllowed = nemaPoint.isPromptAllowed;
+
   if (isPromptAllowed) {
-    G4ThreeVector vtxPromptPosition = GenerateVertexUniformInCylinder(nemaPoint.sizeOfPointPrompt.getX(), nemaPoint.sizeOfPointPrompt.getZ());
-    vtxPromptPosition = nemaGen->GetPointShapedInY(vtxPromptPosition, nemaPoint);
-    vtxPromptPosition = nemaGen->GetRotatedPoint(vtxPromptPosition, nemaPoint);
+    G4ThreeVector vtxPromptPosition;
+    if (shape == PointShape::aCylinder) {
+      vtxPromptPosition = GenerateVertexUniformInCylinder(nemaPoint.sizeOfPointPrompt.getX(), nemaPoint.sizeOfPointPrompt.getZ());
+      vtxPromptPosition = nemaGen->GetPointShapedInY(vtxPromptPosition, nemaPoint);
+      vtxPromptPosition = nemaGen->GetRotatedPoint(vtxPromptPosition, nemaPoint);
+    } else
+      vtxPromptPosition = GetRandomPointInFilledSphere(nemaPoint.sizeOfPointPrompt.getX());
+
     vtxPromptPosition = vtxPromptPosition + nemaPosition;
     event->AddPrimaryVertex(GeneratePromptGammaVertex(
       vtxPromptPosition, 0.0f, MaterialParameters::fSodiumGammaTau,

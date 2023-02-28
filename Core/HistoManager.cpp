@@ -191,32 +191,41 @@ void HistoManager::BookHistograms()
     new TH2D("gen_XY", "Generated XY coordinates of annihilation point. Bin size: 0.1 cm x 0.1 cm", 
              500, -24.95, 25.05, 500, -24.95, 25.05), "Annihilation point (2/3g) X [cm]", "Annihilation point (2/3g) Y [cm]"
   );
-
   createHistogramWithAxes(
     new TH2D("gen_XZ", "Generated XZ coordinates of annihilation point. Bin size: 0.1 cm x 0.1 cm", 
              500, -24.95, 25.05, 1200, -59.95, 60.05), "Annihilation point (2/3g) X [cm]", "Annihilation point (2/3g) Z [cm]"
   );
-
   createHistogramWithAxes(
     new TH2D("gen_YZ", "Generated YZ coordinates of annihilation point. Bin size: 0.1 cm x 0.1 cm", 
              500, -24.95, 25.05, 1200, -59.95, 60.05), "Annihilation point (2/3g) Y [cm]", "Annihilation point (2/3g) Z [cm]"
   );
 
   createHistogramWithAxes(
-    new TH2D("gen_X_vs_lifetime", "Generated X coordinates of annihilation point vs lifetime. Bin size: 1 cm x 100 ns", 
-             50, -24.5, 25.5, 2000, -50.0, 199950.0), "Annihilation point X [cm]", "Generated lifetime [ns]"
+    new TH2D("gen_X_vs_lifetime", "Generated X coordinates of annihilation point vs lifetime. Bin size: 1 cm x 100 ps",
+             50, -24.5, 25.5, 2000, -50.0, 199950.0), "Annihilation point X [cm]", "Generated lifetime [ps]"
+  );
+  createHistogramWithAxes(
+    new TH2D("gen_Y_vs_lifetime", "Generated Y coordinates of annihilation point vs lifetime. Bin size: 1 cm x 100 ps",
+             50, -24.5, 25.5, 2000, -50.0, 199950.0), "Annihilation point Y [cm]", "Generated lifetime [ps]"
+  );
+  createHistogramWithAxes(
+    new TH2D("gen_Z_vs_lifetime", "Generated Z coordinates of annihilation point vs lifetime. Bin size: 1 cm x 100 ps",
+             120, -59.5, 60.5, 2000, -50.0, 199950.0), "Annihilation point Z [cm]", "Generated lifetime [ps]"
   );
   
   createHistogramWithAxes(
-    new TH2D("gen_Y_vs_lifetime", "Generated Y coordinates of annihilation point vs lifetime. Bin size: 1 cm x 100 ns", 
-             50, -24.5, 25.5, 2000, -50.0, 199950.0), "Annihilation point Y [cm]", "Generated lifetime [ns]"
+    new TH2D("gen_X_vs_density", "Nema generated X coordinates of annihilation point vs density. Bin size: 1 cm x 0.1 g/cm3",
+             50, -24.5, 25.5, 115, 0.49, 11.01), "Annihilation point X [cm]", "Generated density [g/cm3]"
   );
-  
   createHistogramWithAxes(
-    new TH2D("gen_Z_vs_lifetime", "Generated Z coordinates of annihilation point vs lifetime. Bin size: 1 cm x 100 ns", 
-             120, -59.5, 60.5, 2000, -50.0, 199950.0), "Annihilation point Z [cm]", "Generated lifetime [ns]"
+    new TH2D("gen_Y_vs_density", "Nema generated Y coordinates of annihilation point vs density. Bin size: 1 cm x 0.1 g/cm3",
+             50, -24.5, 25.5, 115, 0.49, 11.01), "Annihilation point Y [cm]", "Generated density [g/cm3]"
   );
-  
+  createHistogramWithAxes(
+    new TH2D("gen_Z_vs_density", "Nema generated Z coordinates of annihilation point vs density. Bin size: 1 cm x 0.1 g/cm3",
+             120, -59.5, 60.5, 115, 0.49, 11.01), "Annihilation point Z [cm]", "Generated density [g/cm3]"
+  );
+
   createHistogramWithAxes(
     new TH2D("gen_prompt_XY", "Generated XY coordinates of annihilation point. Bin size: 0.1 cm x 0.1 cm", 
              500, -24.95, 25.05, 500, -24.95, 25.05), "Prompt emission point X [cm]", "Prompt emission point Y [cm]"
@@ -277,14 +286,12 @@ void HistoManager::BookHistograms()
     204*(DetectorConstants::world_size[0]/m), -1.015*DetectorConstants::world_size[0], 1.025*DetectorConstants::world_size[0]),
     "Y position [cm]", "X position [cm]"
   );
-
   createHistogramWithAxes(
     new TH2D("cosm_vtx_xz", "Cosmics: generated vertex point XZ",
     204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2],
     204*(DetectorConstants::world_size[0]/m), -1.015*DetectorConstants::world_size[0], 1.025*DetectorConstants::world_size[0]),
     "Z position [cm]", "X position [cm]"
   );
-
   createHistogramWithAxes(
     new TH2D("cosm_vtx_yz", "Cosmics: generated vertex point YZ",
     204*(DetectorConstants::world_size[1]/m), -1.015*DetectorConstants::world_size[1], 1.025*DetectorConstants::world_size[1],
@@ -371,6 +378,9 @@ void HistoManager::AddGenInfo(VtxInformation* info)
       fillHistogram("gen_X_vs_lifetime", info->GetVtxPositionX() / cm, doubleCheck(info->GetLifetime() / ps));
       fillHistogram("gen_Y_vs_lifetime", info->GetVtxPositionY() / cm, doubleCheck(info->GetLifetime() / ps));
       fillHistogram("gen_Z_vs_lifetime", info->GetVtxPositionZ() / cm, doubleCheck(info->GetLifetime() / ps));
+      fillHistogram("gen_X_vs_density", info->GetVtxPositionX() / cm, doubleCheck(info->GetDensity() / (g/cm3)));
+      fillHistogram("gen_Y_vs_density", info->GetVtxPositionY() / cm, doubleCheck(info->GetDensity() / (g/cm3)));
+      fillHistogram("gen_Z_vs_density", info->GetVtxPositionZ() / cm, doubleCheck(info->GetDensity() / (g/cm3)));
     }
   }
 

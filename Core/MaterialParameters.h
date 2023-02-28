@@ -42,7 +42,8 @@ class MaterialParameters
 public:
   enum MaterialID {
     mUnknown, mXAD4, mAl, mKapton, mPlexiglass, mScin, mPA6, mAir,
-    mPolycarbonate, mPolyoxymethylene, mSiliconDioxide, mStainlessSteel 
+    mPolycarbonate, mPolyoxymethylene, mSiliconDioxide, mStainlessSteel,
+    mWater
   };
 
   MaterialParameters();

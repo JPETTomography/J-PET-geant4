@@ -175,7 +175,7 @@ G4int DetectorConstruction::getNumberOfScintillators()
 {
   if (fLoadModularLayer)
   {
-    return 504;
+    return 512;
   }
   else if (fReadJSONSetup)
   {
@@ -1328,6 +1328,7 @@ void DetectorConstruction::ConstructNemaPhantom()
     if (phantomElements.at(i).fConstruct && phantomElements.at(i).fDimensions.size()) {
       G4VSolid* newElem = nullptr;
       G4Material* phantomElementMaterial = nullptr;
+      G4Material* phantMatExt = nullptr;
       G4LogicalVolume* phantomElementLogic = nullptr;
       G4RotationMatrix* rotMat = new G4RotationMatrix();
 
@@ -1364,6 +1365,9 @@ void DetectorConstruction::ConstructNemaPhantom()
 
           GeometryShape elementShape = phantomElements.at(idPhantElem.at(idToCombine)).fShape;
           std::vector<double> dimensionsNew = phantomElements.at(idPhantElem.at(idToCombine)).fDimensions;
+          std::vector<double> locationNew = phantomElements.at(idPhantElem.at(idToCombine)).fLocation;
+          std::vector<double> rotationNew = phantomElements.at(idPhantElem.at(idToCombine)).fRotation;
+
           if (dimensionsNew.size() == 0)
             continue;
 
@@ -1381,14 +1385,26 @@ void DetectorConstruction::ConstructNemaPhantom()
           } else if (elementShape == GeometryShape::aEllTube) {
             newElemFragment = new G4EllipticalTube("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm,
                                                    dimensionsNew.at(2) * cm);
-        }
+          }
+
+          G4RotationMatrix* rotMatNew = new G4RotationMatrix();
+          if (phantomElements.at(idPhantElem.at(idToCombine)).fRotation.size() > 0) {
+            rotMatNew->rotateX(phantomElements.at(idPhantElem.at(idToCombine)).fRotation.at(0)*deg);
+            if (phantomElements.at(idPhantElem.at(idToCombine)).fRotation.size() > 1)
+              rotMatNew->rotateY(phantomElements.at(idPhantElem.at(idToCombine)).fRotation.at(1)*deg);
+            if (phantomElements.at(idPhantElem.at(idToCombine)).fRotation.size() > 2)
+              rotMatNew->rotateZ(phantomElements.at(idPhantElem.at(idToCombine)).fRotation.at(2)*deg);
+          }
 
           if (action == GeometryCombination::aUnion) {
-            newElem = new G4UnionSolid("newUnion", newElem, newElemFragment);
+            newElem = new G4UnionSolid("newUnion", newElem, newElemFragment, rotMatNew,
+                                       G4ThreeVector(locationNew.at(0), locationNew.at(1), locationNew.at(2)));
           } else if (action == GeometryCombination::aSubtraction) {
-            newElem = new G4SubtractionSolid("newSubtraction", newElem, newElemFragment);
+            newElem = new G4SubtractionSolid("newSubtraction", newElem, newElemFragment, rotMatNew,
+                                             G4ThreeVector(locationNew.at(0), locationNew.at(1), locationNew.at(2)));
           } else if (action == GeometryCombination::aIntersection) {
-            newElem = new G4IntersectionSolid("newIntersection", newElem, newElemFragment);
+            newElem = new G4IntersectionSolid("newIntersection", newElem, newElemFragment, rotMatNew,
+                                              G4ThreeVector(locationNew.at(0), locationNew.at(1), locationNew.at(2)));
           }
         }
       }
@@ -1396,38 +1412,49 @@ void DetectorConstruction::ConstructNemaPhantom()
       if (newElem != nullptr) {
         PhantomMaterial elementMaterial = phantomElements.at(i).fMaterial;
         phantomElementMaterial = vacuum;
+        phantMatExt = fVacuum;
 
         double z, a;
         if (elementMaterial == PhantomMaterial::aWater) {
           G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
           G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
-          phantomElementMaterial = new G4Material("Water", phantomElements.at(i).fDensity*mg/cm3, 2);
+          phantomElementMaterial = new G4Material("Water", phantomElements.at(i).fDensity*g/cm3, 2);
           phantomElementMaterial->AddElement(elH, 2);
           phantomElementMaterial->AddElement(elO, 1);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mWater,
+                                              "water" + std::to_string(i), phantomElementMaterial);
         } else if (elementMaterial == PhantomMaterial::aPlastic) {
           G4Element* elC = new G4Element("Carbon", "C", z=6., a=12.0107*g/mole);
           G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
-          phantomElementMaterial = new G4Material("Plastic", phantomElements.at(i).fDensity*mg/cm3, 2);
+          phantomElementMaterial = new G4Material("Plastic", phantomElements.at(i).fDensity*g/cm3, 2);
           phantomElementMaterial->AddElement(elC, 2);
           phantomElementMaterial->AddElement(elH, 4);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mScin,
+                                              "plastic" + std::to_string(i), phantomElementMaterial);
         } else if (elementMaterial == PhantomMaterial::aAlumnium) {
-          phantomElementMaterial = new G4Material("Al", z=13., a=26.981539*g/mole, phantomElements.at(i).fDensity*mg/cm3);
+          phantomElementMaterial = new G4Material("Al", z=13., a=26.981539*g/mole, phantomElements.at(i).fDensity*g/cm3);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mAl,
+                                              "aluminum" + std::to_string(i), phantomElementMaterial);
         } else if (elementMaterial == PhantomMaterial::aSiliconDioxide) {
           G4Element* elSi = new G4Element("Silicon", "Si", z=14., a=28.0855*g/mole);
           G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
-          phantomElementMaterial = new G4Material("SiliconDioxide", phantomElements.at(i).fDensity*mg/cm3, 2);
+          phantomElementMaterial = new G4Material("SiliconDioxide", phantomElements.at(i).fDensity*g/cm3, 2);
           phantomElementMaterial->AddElement(elSi, 1);
           phantomElementMaterial->AddElement(elO, 4);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mSiliconDioxide,
+                                              "silica" + std::to_string(i), phantomElementMaterial);
         } else {//temporary until finding better default material
           G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
           G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
-          phantomElementMaterial = new G4Material("Water", phantomElements.at(i).fDensity*mg/cm3, 2);
+          phantomElementMaterial = new G4Material("Water", phantomElements.at(i).fDensity*g/cm3, 2);
           phantomElementMaterial->AddElement(elH, 2);
           phantomElementMaterial->AddElement(elO, 1);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mWater,
+                                              "water" + std::to_string(i), phantomElementMaterial);
         }
 
         if (phantomElementMaterial != nullptr)
-          phantomElementLogic = new G4LogicalVolume(newElem, phantomElementMaterial, "phanElem", 0, 0, 0);
+          phantomElementLogic = new G4LogicalVolume(newElem, phantMatExt, "phanElem");
       }
 
       if (phantomElements.at(i).fLocation.size() == 0) {
@@ -1437,7 +1464,7 @@ void DetectorConstruction::ConstructNemaPhantom()
         new G4PVPlacement(rotMat, G4ThreeVector(phantomElements.at(i).fLocation.at(0)*cm,
                                                 phantomElements.at(i).fLocation.at(1)*cm,
                                                 phantomElements.at(i).fLocation.at(2)*cm),
-                          phantomElementLogic, "PhantElemID" + std::to_string(i), fWorldLogical, false, 0);
+                          phantomElementLogic, "PhantElemID" + std::to_string(i), fWorldLogical, true, 0, checkOverlaps);
       }
     }
   }
@@ -1481,8 +1508,6 @@ void DetectorConstruction::setPhantomElementDimensions(G4int id, G4String string
     G4double xHalfLength, yHalfLength, zHalfLength;
     is >> ID >> xHalfLength >> yHalfLength >> zHalfLength;
     dimTemp = {xHalfLength, yHalfLength, zHalfLength};
-    std::cout << "Dim test" << std::endl;
-    std::cout << xHalfLength << " " << yHalfLength << " " << zHalfLength << std::endl;
   } else if (elementShape == GeometryShape::aSphere) {
     G4double rMin, rMax;
     is >> ID >> rMin >> rMax;

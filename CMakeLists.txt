@@ -57,11 +57,15 @@ set(SCRIPT_FILES
   run6.mac
   run7.mac
   nema.mac
+  nemaJ_XY.mac
+  nemaJ_YZ.mac
+  nemaBig.mac
   cosmics.mac
   init_vis.mac
   singleBeam.mac
   extendedSource.mac
   modSmCh.mac
+  readJSONSetup.mac
 )
 
 ################################################################################

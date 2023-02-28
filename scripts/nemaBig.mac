@@ -1,0 +1,477 @@
+# Visualization setting
+#/control/execute init_vis.mac
+
+# Initialize kernel
+/jpetmc/detector/loadModularLayer Single
+/jpetmc/detector/loadModularLayerOnly
+/jpetmc/detector/loadOnlyScintillators
+/jpetmc/detector/loadWrapping false
+
+/jpetmc/detector/constructNemaPhantom
+
+/jpetmc/detector/addPhantomElementWithShape 1 ellipticalTube
+/jpetmc/detector/setPhantomElementDimensions 1 14 9 11
+/jpetmc/detector/setPhantomElementLocation 1 0 0 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 1 plastic 1.5
+
+/jpetmc/detector/addPhantomElementWithShape 2 ellipticalTube
+/jpetmc/detector/setPhantomElementDimensions 2 13 8 10
+/jpetmc/detector/setPhantomElementLocation 2 0 0 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 2 water 1
+
+/jpetmc/detector/addPhantomElementWithShape 3 cylinder
+/jpetmc/detector/setPhantomElementDimensions 3 0 3 10
+/jpetmc/detector/setPhantomElementLocation 3 0 -5 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 3 plastic 0.9
+
+/jpetmc/detector/addPhantomElementWithShape 41 ball
+/jpetmc/detector/setPhantomElementDimensions 41 1
+/jpetmc/detector/setPhantomElementLocation 41 0 7.5 8.5
+/jpetmc/detector/setPhantomElementMaterialAndDensity 41 plastic 1.4
+
+/jpetmc/detector/addPhantomElementWithShape 42 ball
+/jpetmc/detector/setPhantomElementDimensions 42 0.9
+/jpetmc/detector/setPhantomElementLocation 42 1 6.5 5.5
+/jpetmc/detector/setPhantomElementMaterialAndDensity 42 plastic 1.4
+
+/jpetmc/detector/addPhantomElementWithShape 43 ball
+/jpetmc/detector/setPhantomElementDimensions 43 0.8
+/jpetmc/detector/setPhantomElementLocation 43 1 4.5 2.5
+/jpetmc/detector/setPhantomElementMaterialAndDensity 43 plastic 1.2
+
+/jpetmc/detector/addPhantomElementWithShape 44 ball
+/jpetmc/detector/setPhantomElementDimensions 44 0.7
+/jpetmc/detector/setPhantomElementLocation 44 0 3.5 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 44 plastic 1.2
+
+/jpetmc/detector/addPhantomElementWithShape 45 ball
+/jpetmc/detector/setPhantomElementDimensions 45 0.6
+/jpetmc/detector/setPhantomElementLocation 45 -1 4.5 -2.5
+/jpetmc/detector/setPhantomElementMaterialAndDensity 45 plastic 1
+
+/jpetmc/detector/addPhantomElementWithShape 46 ball
+/jpetmc/detector/setPhantomElementDimensions 46 0.5
+/jpetmc/detector/setPhantomElementLocation 46 -1 6.5 -5
+/jpetmc/detector/setPhantomElementMaterialAndDensity 46 plastic 1
+
+/jpetmc/detector/addPhantomElementWithShape 47 ball
+/jpetmc/detector/setPhantomElementDimensions 47 0.4
+/jpetmc/detector/setPhantomElementLocation 47 0 5.5 -8
+/jpetmc/detector/setPhantomElementMaterialAndDensity 47 plastic 0.8
+
+/jpetmc/detector/addPhantomElementWithShape 51 cylinder
+/jpetmc/detector/setPhantomElementDimensions 51 0 1 8
+/jpetmc/detector/setPhantomElementLocation 51 -11 2 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 51 plastic 2.0
+
+/jpetmc/detector/addPhantomElementWithShape 52 cylinder
+/jpetmc/detector/setPhantomElementDimensions 52 0 0.9 8
+/jpetmc/detector/setPhantomElementLocation 52 -10 1 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 52 plastic 1.8
+
+/jpetmc/detector/addPhantomElementWithShape 53 cylinder
+/jpetmc/detector/setPhantomElementDimensions 53 0 0.8 8
+/jpetmc/detector/setPhantomElementLocation 53 -10 -1 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 53 plastic 1.6
+
+/jpetmc/detector/addPhantomElementWithShape 54 cylinder
+/jpetmc/detector/setPhantomElementDimensions 54 0 0.7 8
+/jpetmc/detector/setPhantomElementLocation 54 -11 -2 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 54 plastic 1.4
+
+/jpetmc/detector/addPhantomElementWithShape 55 cylinder
+/jpetmc/detector/setPhantomElementDimensions 55 0 0.6 8
+/jpetmc/detector/setPhantomElementLocation 55 -12 -1 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 55 plastic 1.2
+
+/jpetmc/detector/addPhantomElementWithShape 56 cylinder
+/jpetmc/detector/setPhantomElementDimensions 56 0 0.5 8
+/jpetmc/detector/setPhantomElementLocation 56 -12 1 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 56 plastic 1.0
+
+/jpetmc/detector/addPhantomElementWithShape 57 cylinder
+/jpetmc/detector/setPhantomElementDimensions 57 0 0.4 8
+/jpetmc/detector/setPhantomElementLocation 57 -11 0 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 57 plastic 0.8
+
+/jpetmc/detector/addPhantomElementWithShape 61 cylinder
+/jpetmc/detector/setPhantomElementDimensions 61 0 1 4
+/jpetmc/detector/setPhantomElementLocation 61 11 6 8
+/jpetmc/detector/setPhantomElementRotation 61 0 90 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 61 aluminium 2.6
+
+/jpetmc/detector/addPhantomElementWithShape 62 cylinder
+/jpetmc/detector/setPhantomElementDimensions 62 0 0.9 4
+/jpetmc/detector/setPhantomElementLocation 62 10 2 5
+/jpetmc/detector/setPhantomElementRotation 62 0 90 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 62 aluminium 2.6
+
+/jpetmc/detector/addPhantomElementWithShape 63 cylinder
+/jpetmc/detector/setPhantomElementDimensions 63 0 0.8 4
+/jpetmc/detector/setPhantomElementLocation 63 10 -2 2
+/jpetmc/detector/setPhantomElementRotation 63 0 90 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 63 aluminium 2.4
+
+/jpetmc/detector/addPhantomElementWithShape 64 cylinder
+/jpetmc/detector/setPhantomElementDimensions 64 0 0.7 4
+/jpetmc/detector/setPhantomElementLocation 64 11 -3 -1
+/jpetmc/detector/setPhantomElementRotation 64 0 90 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 64 aluminium 2.4
+
+/jpetmc/detector/addPhantomElementWithShape 65 cylinder
+/jpetmc/detector/setPhantomElementDimensions 65 0 0.6 4
+/jpetmc/detector/setPhantomElementLocation 65 12 1 -3
+/jpetmc/detector/setPhantomElementRotation 65 0 90 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 65 aluminium 2.2
+
+/jpetmc/detector/addPhantomElementWithShape 66 cylinder
+/jpetmc/detector/setPhantomElementDimensions 66 0 0.5 4
+/jpetmc/detector/setPhantomElementLocation 66 12 4 -5
+/jpetmc/detector/setPhantomElementRotation 66 0 90 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 66 aluminium 2.2
+
+/jpetmc/detector/addPhantomElementWithShape 67 cylinder
+/jpetmc/detector/setPhantomElementDimensions 67 0 0.4 4
+/jpetmc/detector/setPhantomElementLocation 67 11 0 -7
+/jpetmc/detector/setPhantomElementRotation 67 0 90 0
+/jpetmc/detector/setPhantomElementMaterialAndDensity 67 aluminium 2
+
+/jpetmc/detector/setPhantomElementActionWithOtherElement 1 2 subtraction
+
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 3 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 41 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 42 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 43 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 44 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 45 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 46 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 47 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 51 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 52 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 53 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 54 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 55 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 56 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 57 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 61 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 62 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 63 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 64 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 65 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 66 subtraction
+/jpetmc/detector/setPhantomElementActionWithOtherElement 2 67 subtraction
+
+/jpetmc/detector/ConstructPhantomElement 1
+/jpetmc/detector/ConstructPhantomElement 2
+/jpetmc/detector/ConstructPhantomElement 3
+/jpetmc/detector/ConstructPhantomElement 41
+/jpetmc/detector/ConstructPhantomElement 42
+/jpetmc/detector/ConstructPhantomElement 43
+/jpetmc/detector/ConstructPhantomElement 44
+/jpetmc/detector/ConstructPhantomElement 45
+/jpetmc/detector/ConstructPhantomElement 46
+/jpetmc/detector/ConstructPhantomElement 47
+/jpetmc/detector/ConstructPhantomElement 51
+/jpetmc/detector/ConstructPhantomElement 52
+/jpetmc/detector/ConstructPhantomElement 53
+/jpetmc/detector/ConstructPhantomElement 54
+/jpetmc/detector/ConstructPhantomElement 55
+/jpetmc/detector/ConstructPhantomElement 56
+/jpetmc/detector/ConstructPhantomElement 57
+/jpetmc/detector/ConstructPhantomElement 61
+/jpetmc/detector/ConstructPhantomElement 62
+/jpetmc/detector/ConstructPhantomElement 63
+/jpetmc/detector/ConstructPhantomElement 64
+/jpetmc/detector/ConstructPhantomElement 65
+/jpetmc/detector/ConstructPhantomElement 66
+/jpetmc/detector/ConstructPhantomElement 67
+
+/jpetmc/source/nema/mixed
+
+/jpetmc/source/nema/mixed/setPosition 1 0 7.5 8.5
+/jpetmc/source/nema/mixed/setPosition 2 1 6.5 5.5
+/jpetmc/source/nema/mixed/setPosition 3 1 4.5 2.5
+/jpetmc/source/nema/mixed/setPosition 4 0 3.5 0
+/jpetmc/source/nema/mixed/setPosition 5 -1 4.5 -2.5
+/jpetmc/source/nema/mixed/setPosition 6 -1 6.5 -5
+/jpetmc/source/nema/mixed/setPosition 7 0 5.5 -8
+/jpetmc/source/nema/mixed/setPosition 8 0 -5 0
+/jpetmc/source/nema/mixed/setPosition 9 -11 2 0
+/jpetmc/source/nema/mixed/setPosition 10 -10 1 0
+/jpetmc/source/nema/mixed/setPosition 11 -10 -1 0
+/jpetmc/source/nema/mixed/setPosition 12 -11 -2 0
+/jpetmc/source/nema/mixed/setPosition 13 -12 -1 0
+/jpetmc/source/nema/mixed/setPosition 14 -12 1 0
+/jpetmc/source/nema/mixed/setPosition 15 -11 0 0
+/jpetmc/source/nema/mixed/setPosition 16 11 6 8
+/jpetmc/source/nema/mixed/setPosition 17 10 2 5
+/jpetmc/source/nema/mixed/setPosition 18 10 -2 2
+/jpetmc/source/nema/mixed/setPosition 19 11 -3 -1
+/jpetmc/source/nema/mixed/setPosition 20 12 1 -3
+/jpetmc/source/nema/mixed/setPosition 21 12 4 -5
+/jpetmc/source/nema/mixed/setPosition 22 11 0 -7
+
+/jpetmc/source/nema/mixed/setShape 1 ball
+/jpetmc/source/nema/mixed/setShape 2 ball
+/jpetmc/source/nema/mixed/setShape 3 ball
+/jpetmc/source/nema/mixed/setShape 4 ball
+/jpetmc/source/nema/mixed/setShape 5 ball
+/jpetmc/source/nema/mixed/setShape 6 ball
+/jpetmc/source/nema/mixed/setShape 7 ball
+/jpetmc/source/nema/mixed/setShape 8 cylinder
+/jpetmc/source/nema/mixed/setShape 9 cylinder
+/jpetmc/source/nema/mixed/setShape 10 cylinder
+/jpetmc/source/nema/mixed/setShape 11 cylinder
+/jpetmc/source/nema/mixed/setShape 12 cylinder
+/jpetmc/source/nema/mixed/setShape 13 cylinder
+/jpetmc/source/nema/mixed/setShape 14 cylinder
+/jpetmc/source/nema/mixed/setShape 15 cylinder
+/jpetmc/source/nema/mixed/setShape 16 cylinder
+/jpetmc/source/nema/mixed/setShape 17 cylinder
+/jpetmc/source/nema/mixed/setShape 18 cylinder
+/jpetmc/source/nema/mixed/setShape 19 cylinder
+/jpetmc/source/nema/mixed/setShape 20 cylinder
+/jpetmc/source/nema/mixed/setShape 21 cylinder
+/jpetmc/source/nema/mixed/setShape 22 cylinder
+
+/jpetmc/source/nema/mixed/setWeight 1 1
+/jpetmc/source/nema/mixed/setWeight 2 1
+/jpetmc/source/nema/mixed/setWeight 3 1
+/jpetmc/source/nema/mixed/setWeight 4 1
+/jpetmc/source/nema/mixed/setWeight 5 1
+/jpetmc/source/nema/mixed/setWeight 6 1
+/jpetmc/source/nema/mixed/setWeight 7 1
+/jpetmc/source/nema/mixed/setWeight 8 1
+/jpetmc/source/nema/mixed/setWeight 9 1
+/jpetmc/source/nema/mixed/setWeight 10 1
+/jpetmc/source/nema/mixed/setWeight 11 1
+/jpetmc/source/nema/mixed/setWeight 12 1
+/jpetmc/source/nema/mixed/setWeight 13 1
+/jpetmc/source/nema/mixed/setWeight 14 1
+/jpetmc/source/nema/mixed/setWeight 15 1
+/jpetmc/source/nema/mixed/setWeight 16 1
+/jpetmc/source/nema/mixed/setWeight 17 1
+/jpetmc/source/nema/mixed/setWeight 18 1
+/jpetmc/source/nema/mixed/setWeight 19 1
+/jpetmc/source/nema/mixed/setWeight 20 1
+/jpetmc/source/nema/mixed/setWeight 21 1
+/jpetmc/source/nema/mixed/setWeight 22 1
+
+/jpetmc/source/nema/mixed/setLifetime 1 2.5
+/jpetmc/source/nema/mixed/setLifetime 2 2.5
+/jpetmc/source/nema/mixed/setLifetime 3 2.2
+/jpetmc/source/nema/mixed/setLifetime 4 2.2
+/jpetmc/source/nema/mixed/setLifetime 5 2
+/jpetmc/source/nema/mixed/setLifetime 6 2
+/jpetmc/source/nema/mixed/setLifetime 7 1.8
+/jpetmc/source/nema/mixed/setLifetime 8 3
+/jpetmc/source/nema/mixed/setLifetime 9 2.5
+/jpetmc/source/nema/mixed/setLifetime 10 2.5
+/jpetmc/source/nema/mixed/setLifetime 11 2.2
+/jpetmc/source/nema/mixed/setLifetime 12 2.2
+/jpetmc/source/nema/mixed/setLifetime 13 2
+/jpetmc/source/nema/mixed/setLifetime 14 2
+/jpetmc/source/nema/mixed/setLifetime 15 1.8
+/jpetmc/source/nema/mixed/setLifetime 16 1.4
+/jpetmc/source/nema/mixed/setLifetime 17 1.3
+/jpetmc/source/nema/mixed/setLifetime 18 1.2
+/jpetmc/source/nema/mixed/setLifetime 19 1.1
+/jpetmc/source/nema/mixed/setLifetime 20 1
+/jpetmc/source/nema/mixed/setLifetime 21 0.9
+/jpetmc/source/nema/mixed/setLifetime 22 0.8
+
+/jpetmc/source/nema/mixed/setCylinderSize 1 0.1 1
+/jpetmc/source/nema/mixed/setCylinderSize 2 0.1 1
+/jpetmc/source/nema/mixed/setCylinderSize 3 0.1 1
+/jpetmc/source/nema/mixed/setCylinderSize 4 0.1 1
+/jpetmc/source/nema/mixed/setCylinderSize 5 0.1 1
+/jpetmc/source/nema/mixed/setCylinderSize 6 0.1 1
+/jpetmc/source/nema/mixed/setCylinderSize 7 0.1 1
+/jpetmc/source/nema/mixed/setCylinderSize 8 3 10
+/jpetmc/source/nema/mixed/setCylinderSize 9 0.1 8
+/jpetmc/source/nema/mixed/setCylinderSize 10 0.1 8
+/jpetmc/source/nema/mixed/setCylinderSize 11 0.1 8
+/jpetmc/source/nema/mixed/setCylinderSize 12 0.1 8
+/jpetmc/source/nema/mixed/setCylinderSize 13 0.1 8
+/jpetmc/source/nema/mixed/setCylinderSize 14 0.1 8
+/jpetmc/source/nema/mixed/setCylinderSize 15 0.1 8
+/jpetmc/source/nema/mixed/setCylinderSize 16 0.1 4
+/jpetmc/source/nema/mixed/setCylinderSize 17 0.1 4
+/jpetmc/source/nema/mixed/setCylinderSize 18 0.1 4
+/jpetmc/source/nema/mixed/setCylinderSize 19 0.1 4
+/jpetmc/source/nema/mixed/setCylinderSize 20 0.1 4
+/jpetmc/source/nema/mixed/setCylinderSize 21 0.1 4
+/jpetmc/source/nema/mixed/setCylinderSize 22 0.1 4
+
+/jpetmc/source/nema/mixed/setCylinderRotation 16 0 90
+/jpetmc/source/nema/mixed/setCylinderRotation 17 0 90
+/jpetmc/source/nema/mixed/setCylinderRotation 18 0 90
+/jpetmc/source/nema/mixed/setCylinderRotation 19 0 90
+/jpetmc/source/nema/mixed/setCylinderRotation 20 0 90
+/jpetmc/source/nema/mixed/setCylinderRotation 21 0 90
+/jpetmc/source/nema/mixed/setCylinderRotation 22 0 90
+
+/jpetmc/source/nema/mixed/setPromptSourceSize 1 0.1 1
+/jpetmc/source/nema/mixed/setPromptSourceSize 2 0.1 1
+/jpetmc/source/nema/mixed/setPromptSourceSize 3 0.1 1
+/jpetmc/source/nema/mixed/setPromptSourceSize 4 0.1 1
+/jpetmc/source/nema/mixed/setPromptSourceSize 5 0.1 1
+/jpetmc/source/nema/mixed/setPromptSourceSize 6 0.1 1
+/jpetmc/source/nema/mixed/setPromptSourceSize 7 0.1 1
+/jpetmc/source/nema/mixed/setPromptSourceSize 8 3 10
+/jpetmc/source/nema/mixed/setPromptSourceSize 9 0.1 8
+/jpetmc/source/nema/mixed/setPromptSourceSize 10 0.1 8
+/jpetmc/source/nema/mixed/setPromptSourceSize 11 0.1 8
+/jpetmc/source/nema/mixed/setPromptSourceSize 12 0.1 8
+/jpetmc/source/nema/mixed/setPromptSourceSize 13 0.1 8
+/jpetmc/source/nema/mixed/setPromptSourceSize 14 0.1 8
+/jpetmc/source/nema/mixed/setPromptSourceSize 15 0.1 8
+/jpetmc/source/nema/mixed/setPromptSourceSize 16 0.1 4
+/jpetmc/source/nema/mixed/setPromptSourceSize 17 0.1 4
+/jpetmc/source/nema/mixed/setPromptSourceSize 18 0.1 4
+/jpetmc/source/nema/mixed/setPromptSourceSize 19 0.1 4
+/jpetmc/source/nema/mixed/setPromptSourceSize 20 0.1 4
+/jpetmc/source/nema/mixed/setPromptSourceSize 21 0.1 4
+/jpetmc/source/nema/mixed/setPromptSourceSize 22 0.1 4
+
+/jpetmc/source/nema/mixed/allowPrompt 1 1
+/jpetmc/source/nema/mixed/allowPrompt 2 1
+/jpetmc/source/nema/mixed/allowPrompt 3 1
+/jpetmc/source/nema/mixed/allowPrompt 4 1
+/jpetmc/source/nema/mixed/allowPrompt 5 1
+/jpetmc/source/nema/mixed/allowPrompt 6 1
+/jpetmc/source/nema/mixed/allowPrompt 7 1
+/jpetmc/source/nema/mixed/allowPrompt 8 1
+/jpetmc/source/nema/mixed/allowPrompt 9 1
+/jpetmc/source/nema/mixed/allowPrompt 10 1
+/jpetmc/source/nema/mixed/allowPrompt 11 1
+/jpetmc/source/nema/mixed/allowPrompt 12 1
+/jpetmc/source/nema/mixed/allowPrompt 13 1
+/jpetmc/source/nema/mixed/allowPrompt 14 1
+/jpetmc/source/nema/mixed/allowPrompt 15 1
+/jpetmc/source/nema/mixed/allowPrompt 16 1
+/jpetmc/source/nema/mixed/allowPrompt 17 1
+/jpetmc/source/nema/mixed/allowPrompt 18 1
+/jpetmc/source/nema/mixed/allowPrompt 19 1
+/jpetmc/source/nema/mixed/allowPrompt 20 1
+/jpetmc/source/nema/mixed/allowPrompt 21 1
+/jpetmc/source/nema/mixed/allowPrompt 22 1
+
+/jpetmc/source/nema/mixed/allow3G 1 1
+/jpetmc/source/nema/mixed/allow3G 2 1
+/jpetmc/source/nema/mixed/allow3G 3 1
+/jpetmc/source/nema/mixed/allow3G 4 1
+/jpetmc/source/nema/mixed/allow3G 5 1
+/jpetmc/source/nema/mixed/allow3G 6 1
+/jpetmc/source/nema/mixed/allow3G 7 1
+/jpetmc/source/nema/mixed/allow3G 8 1
+/jpetmc/source/nema/mixed/allow3G 9 1
+/jpetmc/source/nema/mixed/allow3G 10 1
+/jpetmc/source/nema/mixed/allow3G 11 1
+/jpetmc/source/nema/mixed/allow3G 12 1
+/jpetmc/source/nema/mixed/allow3G 13 1
+/jpetmc/source/nema/mixed/allow3G 14 1
+/jpetmc/source/nema/mixed/allow3G 15 1
+/jpetmc/source/nema/mixed/allow3G 16 1
+/jpetmc/source/nema/mixed/allow3G 17 1
+/jpetmc/source/nema/mixed/allow3G 18 1
+/jpetmc/source/nema/mixed/allow3G 19 1
+/jpetmc/source/nema/mixed/allow3G 20 1
+/jpetmc/source/nema/mixed/allow3G 21 1
+/jpetmc/source/nema/mixed/allow3G 22 1
+
+/jpetmc/source/nema/mixed/allowPPs 1 1
+/jpetmc/source/nema/mixed/allowPPs 2 1
+/jpetmc/source/nema/mixed/allowPPs 3 1
+/jpetmc/source/nema/mixed/allowPPs 4 1
+/jpetmc/source/nema/mixed/allowPPs 5 1
+/jpetmc/source/nema/mixed/allowPPs 6 1
+/jpetmc/source/nema/mixed/allowPPs 7 1
+/jpetmc/source/nema/mixed/allowPPs 8 1
+/jpetmc/source/nema/mixed/allowPPs 9 1
+/jpetmc/source/nema/mixed/allowPPs 10 1
+/jpetmc/source/nema/mixed/allowPPs 11 1
+/jpetmc/source/nema/mixed/allowPPs 12 1
+/jpetmc/source/nema/mixed/allowPPs 13 1
+/jpetmc/source/nema/mixed/allowPPs 14 1
+/jpetmc/source/nema/mixed/allowPPs 15 1
+/jpetmc/source/nema/mixed/allowPPs 16 1
+/jpetmc/source/nema/mixed/allowPPs 17 1
+/jpetmc/source/nema/mixed/allowPPs 18 1
+/jpetmc/source/nema/mixed/allowPPs 19 1
+/jpetmc/source/nema/mixed/allowPPs 20 1
+/jpetmc/source/nema/mixed/allowPPs 21 1
+/jpetmc/source/nema/mixed/allowPPs 22 1
+
+/jpetmc/source/nema/mixed/allowDirect 1 1
+/jpetmc/source/nema/mixed/allowDirect 2 1
+/jpetmc/source/nema/mixed/allowDirect 3 1
+/jpetmc/source/nema/mixed/allowDirect 4 1
+/jpetmc/source/nema/mixed/allowDirect 5 1
+/jpetmc/source/nema/mixed/allowDirect 6 1
+/jpetmc/source/nema/mixed/allowDirect 7 1
+/jpetmc/source/nema/mixed/allowDirect 8 1
+/jpetmc/source/nema/mixed/allowDirect 9 1
+/jpetmc/source/nema/mixed/allowDirect 10 1
+/jpetmc/source/nema/mixed/allowDirect 11 1
+/jpetmc/source/nema/mixed/allowDirect 12 1
+/jpetmc/source/nema/mixed/allowDirect 13 1
+/jpetmc/source/nema/mixed/allowDirect 14 1
+/jpetmc/source/nema/mixed/allowDirect 15 1
+/jpetmc/source/nema/mixed/allowDirect 16 1
+/jpetmc/source/nema/mixed/allowDirect 17 1
+/jpetmc/source/nema/mixed/allowDirect 18 1
+/jpetmc/source/nema/mixed/allowDirect 19 1
+/jpetmc/source/nema/mixed/allowDirect 20 1
+/jpetmc/source/nema/mixed/allowDirect 21 1
+/jpetmc/source/nema/mixed/allowDirect 22 1
+
+/jpetmc/run/setEffectivePositronRangeDensityDependence 1 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 2 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 3 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 4 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 5 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 6 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 7 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 8 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 9 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 10 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 11 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 12 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 13 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 14 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 15 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 16 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 17 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 18 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 19 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 20 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 21 1
+/jpetmc/run/setEffectivePositronRangeDensityDependence 22 1
+
+/jpetmc/run/setEffectivePositronRange 1 0
+/jpetmc/run/setEffectivePositronRange 2 0
+/jpetmc/run/setEffectivePositronRange 3 0
+/jpetmc/run/setEffectivePositronRange 4 0
+/jpetmc/run/setEffectivePositronRange 5 0
+/jpetmc/run/setEffectivePositronRange 6 0
+/jpetmc/run/setEffectivePositronRange 7 0
+/jpetmc/run/setEffectivePositronRange 8 1.5
+/jpetmc/run/setEffectivePositronRange 9 0
+/jpetmc/run/setEffectivePositronRange 10 0
+/jpetmc/run/setEffectivePositronRange 11 0
+/jpetmc/run/setEffectivePositronRange 12 0
+/jpetmc/run/setEffectivePositronRange 13 0
+/jpetmc/run/setEffectivePositronRange 14 0
+/jpetmc/run/setEffectivePositronRange 15 0
+/jpetmc/run/setEffectivePositronRange 16 0
+/jpetmc/run/setEffectivePositronRange 17 0
+/jpetmc/run/setEffectivePositronRange 18 0
+/jpetmc/run/setEffectivePositronRange 19 0
+/jpetmc/run/setEffectivePositronRange 20 0
+/jpetmc/run/setEffectivePositronRange 21 0
+/jpetmc/run/setEffectivePositronRange 22 0
+
+/run/initialize
+
+/run/beamOn 100000
