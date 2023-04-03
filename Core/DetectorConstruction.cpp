@@ -1453,8 +1453,16 @@ void DetectorConstruction::ConstructNemaPhantom()
                                               "water" + std::to_string(i), phantomElementMaterial);
         }
 
-        if (phantomElementMaterial != nullptr)
+        if (phantomElementMaterial != nullptr) {
           phantomElementLogic = new G4LogicalVolume(newElem, phantMatExt, "phanElem");
+          double colorParam = phantomElementMaterial->GetDensity()/5;
+          double colorParam2 = 1 - phantomElementMaterial->GetDensity()/5;
+          double colorParam3 = phantomElementMaterial->GetDensity()/2.5;
+          G4VisAttributes* detVisAtt = new G4VisAttributes(G4Colour(colorParam, colorParam2, colorParam3));
+          detVisAtt->SetForceWireframe(true);
+          detVisAtt->SetForceSolid(true);
+          phantomElementLogic->SetVisAttributes(detVisAtt);
+	}
       }
 
       if (phantomElements.at(i).fLocation.size() == 0) {

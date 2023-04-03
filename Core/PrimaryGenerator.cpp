@@ -326,6 +326,7 @@ PrimaryGenerator::GetVerticesDistributionAlongStepVectorExponential(
   G4double stepNumber = 0.;
   G4double density, probFunction;
   G4double directionMag = direction.mag();
+  G4double minDens = 0.1;
   while (!lookForVtx) {
     stepNumber++;
     myPoint = center + direction*stepNumber;
@@ -333,7 +334,15 @@ PrimaryGenerator::GetVerticesDistributionAlongStepVectorExponential(
     mat = dynamic_cast<MaterialExtension*>(
       theNavigator->LocateGlobalPointAndSetup(myPoint)->GetLogicalVolume()->GetMaterial()
     );
-    density = mat->GetDensity() / (g/cm3);
+
+    if (mat) {
+      density = mat->GetDensity() / (g/cm3);
+      if (density < minDens)
+        density = minDens;
+    } else {
+      density = minDens;
+    }
+
     reach = 19.378*std::pow(density, -1.53977); // test function of reach (in mm)
     probFunction = 1 - exp(-directionMag*stepNumber/reach);
     if (G4UniformRand() < probFunction)
@@ -596,7 +605,7 @@ void PrimaryGenerator::GenerateNema(G4Event* event, NemaGenerator* nemaGen)
     density = material->GetDensity() / (g/cm3);
 
   if (nemaPoint.directLFDensityDependent) {
-    DirectLF = 8.19151*exp(-0.00517436*density)/1000;   //dummy function for test in ns
+    DirectLF = 0.819151*exp(-0.517436*density);   //dummy function for test in ns
   }
 
   double lifetime = nemaPoint.lifetime;
