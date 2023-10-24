@@ -26,10 +26,10 @@
 #include <G4Event.hh>
 #include "G4RunManager.hh"
 
-EventAction::EventAction() : is2gRec(false), is3gRec(false), fEventID(0)
+EventAction::EventAction() : is2gRec(false), is3gRec(false), isEnoughSize(false), fEventID(0)
 {}
 
-EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false), fEventID(0)
+EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false), isEnoughSize(false), fEventID(0)
 {}
 
 EventAction::~EventAction() {}
@@ -56,13 +56,12 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
       return;
     }
   }
-
-  CheckIf2gIsRegistered(anEvent);
-  CheckIf3gIsRegistered(anEvent);
+  bool saveEvt = true;
 
   if (fEvtMessenger->Save2g()) {
     CheckIf2gIsRegistered(anEvent);
     if ( ! Is2gRegistered() ) {
+      saveEvt = false;
       G4RunManager::GetRunManager()->AbortEvent();
     }
   }
@@ -70,12 +69,23 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
   if (fEvtMessenger->Save3g()) {
     CheckIf3gIsRegistered(anEvent);
     if ( ! Is3gRegistered() ) {
+      saveEvt = false;
+      G4RunManager::GetRunManager()->AbortEvent();
+    }
+  }
+  if (fEvtMessenger->GetMultiplicityToSaveEvent().first) {
+    CheckIfEventHasEnoughSize(anEvent);
+    if ( ! IsEnoughSize() ) {
+      saveEvt = false;
       G4RunManager::GetRunManager()->AbortEvent();
     }
   }
 
-  WriteToFile(anEvent);
-  fHistoManager->SetEventNumber(anEvent->GetEventID() + 1);
+  if (saveEvt) {
+    WriteToFile(anEvent);
+    fHistoManager->SetEventNumber(anEvent->GetEventID() + 1);
+  } else
+    fHistoManager->DontSaveEvent();
 }
 
 void EventAction::WriteToFile(const G4Event* anEvent)
@@ -100,6 +110,7 @@ void EventAction::WriteToFile(const G4Event* anEvent)
       if (EnergyDeposit < .511 - fEvtMessenger->GetEnergyCut() && fEvtMessenger->GetEnergyCutFlag()) continue;
      
       fHistoManager->AddNewHit(dh);
+      fHistoManager->AddEventInfo(dh, n_hit);
     }
   }
 
@@ -107,14 +118,41 @@ void EventAction::WriteToFile(const G4Event* anEvent)
   fHistoManager->SaveEvtPack();
 }
 
-bool EventAction::Is2gRegistered()
+void EventAction::CheckIf2gIsRegistered(const G4Event* anEvent)
 {
-  return is2gRec;
-}
+  bool isGenerated = false;
+  bool isReconstructed = true;
+  is2gRec = false;
+  std::vector<bool> isGammaRec{false,false,false};
 
-bool EventAction::Is3gRegistered()
-{
-  return is3gRec;
+  for (int i=0; i<anEvent->GetNumberOfPrimaryVertex(); i++) {
+    VtxInformation* info =  dynamic_cast<VtxInformation*>(anEvent->GetPrimaryVertex(i)->GetUserInformation());
+    if (info != nullptr) {
+      isGenerated = isGenerated || info->GetTwoGammaGen();
+    }
+  }
+
+  if (!isGenerated) { return; }
+
+  G4HCofThisEvent * HCE = anEvent->GetHCofThisEvent();
+  DetectorHitsCollection* DHC = 0;
+  if (HCE) {
+    DHC = dynamic_cast<DetectorHitsCollection*>(HCE->GetHC(fScinCollID));
+    int n_hit = DHC->entries();
+    if (n_hit<2) return;
+
+    for (int i=0; i<n_hit; i++) {
+       DetectorHit* dh =  dynamic_cast<DetectorHit*>(DHC->GetHit(i));
+       if (dh->GetGenGammaMultiplicity() == 2) {
+         isGammaRec[dh->GetGenGammaIndex()] = true;
+       }
+    }
+  }
+
+  for (int i=1; i<=2; i++) {
+    isReconstructed = isReconstructed && isGammaRec[i];
+  }
+  is2gRec = isReconstructed;
 }
 
 void EventAction::CheckIf3gIsRegistered(const G4Event* anEvent)
@@ -154,39 +192,34 @@ void EventAction::CheckIf3gIsRegistered(const G4Event* anEvent)
   is3gRec = isReconstructed;
 }
 
-void EventAction::CheckIf2gIsRegistered(const G4Event* anEvent)
+void EventAction::CheckIfEventHasEnoughSize(const G4Event* anEvent)
 {
-  bool isGenerated = false;
-  bool isReconstructed = true;
-  is2gRec = false;
-  std::vector<bool> isGammaRec{false,false,false};
+  isEnoughSize = false;
 
-  for (int i=0; i<anEvent->GetNumberOfPrimaryVertex(); i++) {
-    VtxInformation* info =  dynamic_cast<VtxInformation*>(anEvent->GetPrimaryVertex(i)->GetUserInformation());    
-    if (info != nullptr) {
-      isGenerated = isGenerated || info->GetTwoGammaGen();
-    }
-  }
-
-  if (!isGenerated) { return; }
+  int desiredMinSize = fEvtMessenger->GetMultiplicityToSaveEvent().first;
+  int desiredMaxSize = fEvtMessenger->GetMultiplicityToSaveEvent().second;
+  G4double minEnergy = fEvtMessenger->GetEnergyRangeToSave().first;
+  G4double maxEnergy = fEvtMessenger->GetEnergyRangeToSave().second;
 
   G4HCofThisEvent * HCE = anEvent->GetHCofThisEvent();
   DetectorHitsCollection* DHC = 0;
   if (HCE) {
     DHC = dynamic_cast<DetectorHitsCollection*>(HCE->GetHC(fScinCollID));
     int n_hit = DHC->entries();
-    if (n_hit<2) return;
+    if (n_hit<desiredMinSize) return;
 
+    int numberOfHitsWithEnoughEnergy = 0;
     for (int i=0; i<n_hit; i++) {
        DetectorHit* dh =  dynamic_cast<DetectorHit*>(DHC->GetHit(i));
-       if (dh->GetGenGammaMultiplicity() == 2) {
-         isGammaRec[dh->GetGenGammaIndex()] = true;
+       if (((dh->GetEdep()/keV > minEnergy) || minEnergy < 0) && ((dh->GetEdep()/keV < maxEnergy) || maxEnergy < 0)) {
+         numberOfHitsWithEnoughEnergy++;
        }
     }
+    //Counting all events if energy range is not set, all only those within the range
+    if (numberOfHitsWithEnoughEnergy >= desiredMinSize && (desiredMaxSize > 0 && numberOfHitsWithEnoughEnergy <= desiredMaxSize))
+      isEnoughSize = true;
+    //Test if the number of hits in the nergy range are equall to the minimal event size
+    if (fEvtMessenger->GetMultiplicityToSaveEventWithEnergy() && numberOfHitsWithEnoughEnergy == desiredMinSize)
+      isEnoughSize = true;
   }
-
-  for (int i=1; i<=2; i++) {
-    isReconstructed = isReconstructed && isGammaRec[i];
-  }
-  is2gRec = isReconstructed;
 }

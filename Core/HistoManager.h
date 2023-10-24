@@ -66,15 +66,18 @@ public:
   void Save(); //! call once; save all trees and histograms
   void SaveEvtPack();
   void Clear() { fEventPack->Clear(); };
+  void DontSaveEvent() { fEmptyEvent = true; SaveEvtPack(); };
   void AddGenInfo(VtxInformation* info);
   void AddGenInfoParticles(G4PrimaryParticle* particle);
   void AddNewHit(DetectorHit*);
+  void AddEventInfo(DetectorHit* hit, int eventSize);
   void AddNodeToDecayTree(int nodeID, int trackID);
   void SetParentIDofPhoton(int x) { fParentIDofPhoton = x; };
   int GetParentIDofPhoton() const { return fParentIDofPhoton; };
   void SetEventNumber(int x) { fEventPack->SetEventNumber(x); };
   int GetEventNumber() { return fEventPack->GetEventNumber(); };
   void SetHistogramCreation(bool tf) { fMakeControlHisto = tf; };
+  void SetCosmicHistoCreation(bool tf) { fMakeCosmicHistos = tf; };
   bool GetMakeControlHisto() const { return fMakeControlHisto; };
   void SetDecayChannel(DecayChannel decayChannel) { fDecayChannel = decayChannel; };
   void FillHistoGenInfo(const G4Event* anEvent);
@@ -106,6 +109,7 @@ private:
   DecayChannel fDecayChannel;
   bool fBookStatus = false;
   bool fMakeControlHisto = false;
+  bool fMakeCosmicHistos = false;
   TFile* fRootFile = nullptr;
   TTree* fTree = nullptr;
   TBranch* fBranchTrk = nullptr;
