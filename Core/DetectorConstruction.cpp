@@ -1398,13 +1398,13 @@ void DetectorConstruction::ConstructNemaPhantom()
 
           if (action == GeometryCombination::aUnion) {
             newElem = new G4UnionSolid("newUnion", newElem, newElemFragment, rotMatNew,
-                                       G4ThreeVector(locationNew.at(0), locationNew.at(1), locationNew.at(2)));
+                                       G4ThreeVector(locationNew.at(0) * cm, locationNew.at(1) * cm, locationNew.at(2) * cm));
           } else if (action == GeometryCombination::aSubtraction) {
             newElem = new G4SubtractionSolid("newSubtraction", newElem, newElemFragment, rotMatNew,
-                                             G4ThreeVector(locationNew.at(0), locationNew.at(1), locationNew.at(2)));
+                                             G4ThreeVector(locationNew.at(0) * cm, locationNew.at(1) * cm, locationNew.at(2) * cm));
           } else if (action == GeometryCombination::aIntersection) {
             newElem = new G4IntersectionSolid("newIntersection", newElem, newElemFragment, rotMatNew,
-                                              G4ThreeVector(locationNew.at(0), locationNew.at(1), locationNew.at(2)));
+                                              G4ThreeVector(locationNew.at(0) * cm, locationNew.at(1) * cm, locationNew.at(2) * cm));
           }
         }
       }
