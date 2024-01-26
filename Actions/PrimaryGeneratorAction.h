@@ -67,12 +67,14 @@ public:
   void SetNemaPositionWeight(G4int position, G4int weight);
   void SetNemaPointLifetime(G4int position, PositroniumDecayMode mode, G4double lifetime);
   void SetNemaPointGenerationOption(G4int nemaPoint, NemaGenerationOption which, bool option);
-  void SetNemaPointSize(G4int position, G4double radius, G4double length);
-  void SetNemaPointPromptSize(G4int position, G4double radius, G4double length);
+  void SetNemaPointSize(G4int position, G4double x, G4double y, G4double z);
+  void SetNemaPointPromptSize(G4int position, G4double x, G4double y, G4double z);
   void SetNemaPointOrientation(G4int position, G4double theta, G4double phi);
   void SetNemaPointShape(G4int position, Dimension dim, G4double direction, G4double power, G4double length);
   void SetPointExperimentalReach(G4int nemaPoint, G4double reach);
   void SetEffectivePositronRadius(G4double);
+  void SetNemaPointIsotopeType(G4int, G4String);
+  void SetPhantomElementIDForNemaPoint(G4int nemaPoint, G4int phantomElement);
   
   G4int GetNemaPoint() { return fNemaPoint; }
 

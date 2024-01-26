@@ -131,6 +131,14 @@ public:
   void setPhantomElementAction(G4int id1, G4int id2, G4String action);
   void setPhantomElementMaterial(G4int id, G4String materialName, G4double density);
 
+  G4VPhysicalVolume* GetPhantElement(G4int id)
+  {
+    auto search = idPhantElem.find(id);
+    if (search != idPhantElem.end()) {
+      return phantomElementsPhysVolumes.at(idPhantElem.at(id));
+    } else
+      return nullptr;
+  }
 private:
   static G4ThreadLocal G4bool fConstructedSDandField;
   static DetectorConstruction* fInstance;
@@ -223,6 +231,7 @@ private:
 
   std::map<G4int, G4int> idPhantElem;
   std::vector<PhantElem> phantomElements;
+  std::vector<G4VPhysicalVolume*> phantomElementsPhysVolumes;
 };
 
 struct Frame

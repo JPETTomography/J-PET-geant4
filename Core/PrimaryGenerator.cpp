@@ -29,6 +29,7 @@
 #include <G4SystemOfUnits.hh>
 #include <G4ParticleTable.hh>
 #include <Randomize.hh>
+#include <geomdefs.hh>
 #include <globals.hh>
 #include <TF1.h>
 
@@ -327,10 +328,10 @@ PrimaryGenerator::GetVerticesDistributionAlongStepVectorExponential(
   G4double density, probFunction;
   G4double directionMag = direction.mag();
   G4double minDens = 0.1;
+  theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
   while (!lookForVtx) {
     stepNumber++;
     myPoint = center + direction*stepNumber;
-    theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
     mat = dynamic_cast<MaterialExtension*>(
       theNavigator->LocateGlobalPointAndSetup(myPoint)->GetLogicalVolume()->GetMaterial()
     );
@@ -349,6 +350,33 @@ PrimaryGenerator::GetVerticesDistributionAlongStepVectorExponential(
       lookForVtx = true;
   };
   return std::make_tuple(myPoint, mat);
+}
+
+G4ThreeVector PrimaryGenerator::GenerateNemaVertex(G4int phantomElementID, G4ThreeVector boxCoveringElement)
+{
+  G4VPhysicalVolume* nemaVolume = DetectorConstruction::GetInstance()->GetPhantElement(phantomElementID);
+  if (nemaVolume == nullptr)
+    return G4ThreeVector(0,0,0);
+  
+  G4String desiredName = nemaVolume->GetName();
+  G4ThreeVector translation = nemaVolume->GetObjectTranslation();
+  G4bool lookForVtx = false;
+  G4ThreeVector myPoint;
+  theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+  
+  while (!lookForVtx) {
+    G4double rand1 = G4UniformRand();
+    G4double rand2 = G4UniformRand();
+    G4double rand3 = G4UniformRand();
+    myPoint.setX((2*rand1 - 1)*boxCoveringElement.getX());
+    myPoint.setY((2*rand2 - 1)*boxCoveringElement.getY());
+    myPoint.setZ((2*rand3 - 1)*boxCoveringElement.getZ());
+    myPoint = myPoint + translation;
+
+    if (theNavigator->LocateGlobalPointAndSetup(myPoint)->GetName() == desiredName)
+      lookForVtx = true;
+  }
+  return myPoint;
 }
 
 void PrimaryGenerator::GenerateEvtLargeChamber(G4Event* event)
@@ -568,13 +596,18 @@ void PrimaryGenerator::GenerateNema(G4Event* event, NemaGenerator* nemaGen)
   PointShape shape = nemaPoint.shape;
   G4ThreeVector vtxPosition;
   if (shape == PointShape::aCylinder) {
-    vtxPosition = GenerateVertexUniformInCylinder(nemaPoint.sizeOfPoint.getX(), nemaPoint.sizeOfPoint.getZ());
+    vtxPosition = GenerateVertexUniformInCylinder(nemaPoint.sizeOfPoint.getX(), nemaPoint.sizeOfPoint.getY());
     vtxPosition = nemaGen->GetPointShapedInY(vtxPosition, nemaPoint);
     vtxPosition = nemaGen->GetRotatedPoint(vtxPosition, nemaPoint);
-  } else {
+    vtxPosition = vtxPosition + nemaPosition;
+  } else if (shape == PointShape::aBall) {
     vtxPosition = GetRandomPointInFilledSphere(nemaPoint.sizeOfPoint.getX());
+    vtxPosition = vtxPosition + nemaPosition;
+  } else {
+    vtxPosition = GenerateNemaVertex(nemaPoint.phantomElementID, nemaPoint.sizeOfPoint);
   }
-  vtxPosition = vtxPosition + nemaPosition;
+  
+  G4ThreeVector vtxPromptPosition = vtxPosition; //Connecting prompt with the annihilation
 
   MaterialExtension* material;
   double stepSize = 0.1 * mm;
@@ -663,19 +696,26 @@ void PrimaryGenerator::GenerateNema(G4Event* event, NemaGenerator* nemaGen)
   bool isPromptAllowed = nemaPoint.isPromptAllowed;
 
   if (isPromptAllowed) {
-    G4ThreeVector vtxPromptPosition;
-    if (shape == PointShape::aCylinder) {
-      vtxPromptPosition = GenerateVertexUniformInCylinder(nemaPoint.sizeOfPointPrompt.getX(), nemaPoint.sizeOfPointPrompt.getZ());
+/*   if (shape == PointShape::aCylinder) {
+      vtxPromptPosition = GenerateVertexUniformInCylinder(nemaPoint.sizeOfPointPrompt.getX(), nemaPoint.sizeOfPointPrompt.getY());
       vtxPromptPosition = nemaGen->GetPointShapedInY(vtxPromptPosition, nemaPoint);
       vtxPromptPosition = nemaGen->GetRotatedPoint(vtxPromptPosition, nemaPoint);
-    } else
-      vtxPromptPosition = GetRandomPointInFilledSphere(nemaPoint.sizeOfPointPrompt.getX());
-
-    vtxPromptPosition = vtxPromptPosition + nemaPosition;
-    event->AddPrimaryVertex(GeneratePromptGammaVertex(
-      vtxPromptPosition, 0.0f, MaterialParameters::fSodiumGammaTau,
-      MaterialParameters::fSodiumGammaEnergy
-    ));
+      vtxPromptPosition = vtxPromptPosition + nemaPosition;
+    } else if (shape == PointShape::aBall) */
+   // vtxPromptPosition = GetRandomPointInFilledSphere(nemaPoint.sizeOfPointPrompt.getX());
+      
+//    vtxPromptPosition = vtxPromptPosition + vtxPosition; // moving prompt from the annihilation position
+    if (nemaPoint.isotope == IsotopeType::i22Na) {
+      event->AddPrimaryVertex(GeneratePromptGammaVertex(
+        vtxPromptPosition, 0.0f, MaterialParameters::fSodiumGammaTau,
+        MaterialParameters::fSodiumGammaEnergy
+      ));
+    } else {
+      event->AddPrimaryVertex(GeneratePromptGammaVertex(
+        vtxPromptPosition, 0.0f, MaterialParameters::fScandiumGammaTau,
+        MaterialParameters::fScandiumGammaEnergy
+      ));
+    }
   }
 }
 

@@ -28,7 +28,11 @@ enum PositronReachOption {
 };
 
 enum PointShape {
-  aCylinder, aBall
+  aCylinder, aBall, aPhantom
+};
+
+enum IsotopeType {
+  i22Na, i44Sc  
 };
 
 struct NemaPoint
@@ -53,6 +57,9 @@ struct NemaPoint
   PositronReachOption isPositronReachExp = PositronReachOption::aNo;
   G4double positronReach = 0.5;
   bool directLFDensityDependent = false;
+  
+  IsotopeType isotope = IsotopeType::i22Na;
+  G4int phantomElementID = 0;
 };
 
 class NemaGenerator
@@ -94,6 +101,9 @@ public:
     fGeneratedPoints.at(fIDPointsConnection.at(pointID)).positronReach = reach;
   };
   void SetNemaPointDirectLFDependence(G4int pointID, bool isDep) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).directLFDensityDependent = isDep; };
+  void SetIsotope(G4int pointID, IsotopeType type) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isotope = type; };
+  void SetPhantElementID(G4int pointID, G4int phantomID) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).phantomElementID = phantomID; };
+  
   bool DoesPointExistAlready(G4int pointID) const;
   NemaPoint GetPoint(G4int pointID) const;
   NemaPoint GetRandomPoint() const;

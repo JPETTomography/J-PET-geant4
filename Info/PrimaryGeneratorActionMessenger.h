@@ -65,13 +65,15 @@ private:
   G4UIcmdWithAString* fNemaSetPosition3GOption = nullptr;
   G4UIcmdWithAString* fNemaSetPositionPPSOption = nullptr;
   G4UIcmdWithAString* fNemaSetPositionDirectOption = nullptr;
-  G4UIcmdWithAString* fNemaSetPositionCylinderSize = nullptr;
+  G4UIcmdWithAString* fNemaSetPositionSize = nullptr;
   G4UIcmdWithAString* fNemaSetPositionPromptOption = nullptr;
   G4UIcmdWithAString* fNemaSetPositionPromptSize = nullptr;
   G4UIcmdWithAString* fNemaSetPositionCylinderRotation = nullptr;
   G4UIcmdWithAString* fNemaSetPositionCylinderShapeY = nullptr;
   G4UIcmdWithAString* fNemaSetPositionPositronReach = nullptr;
   G4UIcmdWithAString* fNemaSetPositionPositronReachDensDep = nullptr;
+  G4UIcmdWithAString* fNemaSetPositionIsotopeType = nullptr;
+  G4UIcmdWithAString* fNemaSetPhantomElementID = nullptr;
   G4UIcmdWith3VectorAndUnit* fSetChamberCenter = nullptr;
   G4UIcmdWithADoubleAndUnit* fSetChamberEffectivePositronRadius = nullptr;
   G4UIcmdWithoutParameter* fCosmicOnly = nullptr;

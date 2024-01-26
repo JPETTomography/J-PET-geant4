@@ -1398,13 +1398,13 @@ void DetectorConstruction::ConstructNemaPhantom()
 
           if (action == GeometryCombination::aUnion) {
             newElem = new G4UnionSolid("newUnion", newElem, newElemFragment, rotMatNew,
-                                       G4ThreeVector(locationNew.at(0), locationNew.at(1), locationNew.at(2)));
+                                       G4ThreeVector(locationNew.at(0) * cm, locationNew.at(1) * cm, locationNew.at(2) * cm));
           } else if (action == GeometryCombination::aSubtraction) {
             newElem = new G4SubtractionSolid("newSubtraction", newElem, newElemFragment, rotMatNew,
-                                             G4ThreeVector(locationNew.at(0), locationNew.at(1), locationNew.at(2)));
+                                             G4ThreeVector(locationNew.at(0) * cm, locationNew.at(1) * cm, locationNew.at(2) * cm));
           } else if (action == GeometryCombination::aIntersection) {
             newElem = new G4IntersectionSolid("newIntersection", newElem, newElemFragment, rotMatNew,
-                                              G4ThreeVector(locationNew.at(0), locationNew.at(1), locationNew.at(2)));
+                                              G4ThreeVector(locationNew.at(0) * cm, locationNew.at(1) * cm, locationNew.at(2) * cm));
           }
         }
       }
@@ -1469,10 +1469,12 @@ void DetectorConstruction::ConstructNemaPhantom()
         phantomElements.at(i).fLocation = {0,0,0};
       }
       if (phantomElementLogic != nullptr) {
-        new G4PVPlacement(rotMat, G4ThreeVector(phantomElements.at(i).fLocation.at(0)*cm,
-                                                phantomElements.at(i).fLocation.at(1)*cm,
-                                                phantomElements.at(i).fLocation.at(2)*cm),
-                          phantomElementLogic, "PhantElemID" + std::to_string(i), fWorldLogical, true, 0, checkOverlaps);
+        phantomElementsPhysVolumes.push_back(new G4PVPlacement(rotMat, G4ThreeVector(phantomElements.at(i).fLocation.at(0)*cm,
+                                                                                     phantomElements.at(i).fLocation.at(1)*cm,
+                                                                                     phantomElements.at(i).fLocation.at(2)*cm),
+                                                               phantomElementLogic, "PhantElemID" + std::to_string(i), fWorldLogical,
+                                                               true, 0, checkOverlaps)
+                                            );
       }
     }
   }

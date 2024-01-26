@@ -280,28 +280,28 @@
 /jpetmc/source/nema/mixed/setLifetime 21 0.9
 /jpetmc/source/nema/mixed/setLifetime 22 0.8
 
-/jpetmc/source/nema/mixed/setCylinderSize 1 0.1 1
-/jpetmc/source/nema/mixed/setCylinderSize 2 0.1 1
-/jpetmc/source/nema/mixed/setCylinderSize 3 0.1 1
-/jpetmc/source/nema/mixed/setCylinderSize 4 0.1 1
-/jpetmc/source/nema/mixed/setCylinderSize 5 0.1 1
-/jpetmc/source/nema/mixed/setCylinderSize 6 0.1 1
-/jpetmc/source/nema/mixed/setCylinderSize 7 0.1 1
-/jpetmc/source/nema/mixed/setCylinderSize 8 3 10
-/jpetmc/source/nema/mixed/setCylinderSize 9 0.1 8
-/jpetmc/source/nema/mixed/setCylinderSize 10 0.1 8
-/jpetmc/source/nema/mixed/setCylinderSize 11 0.1 8
-/jpetmc/source/nema/mixed/setCylinderSize 12 0.1 8
-/jpetmc/source/nema/mixed/setCylinderSize 13 0.1 8
-/jpetmc/source/nema/mixed/setCylinderSize 14 0.1 8
-/jpetmc/source/nema/mixed/setCylinderSize 15 0.1 8
-/jpetmc/source/nema/mixed/setCylinderSize 16 0.1 4
-/jpetmc/source/nema/mixed/setCylinderSize 17 0.1 4
-/jpetmc/source/nema/mixed/setCylinderSize 18 0.1 4
-/jpetmc/source/nema/mixed/setCylinderSize 19 0.1 4
-/jpetmc/source/nema/mixed/setCylinderSize 20 0.1 4
-/jpetmc/source/nema/mixed/setCylinderSize 21 0.1 4
-/jpetmc/source/nema/mixed/setCylinderSize 22 0.1 4
+/jpetmc/source/nema/mixed/setPointSize 1 0.1 1
+/jpetmc/source/nema/mixed/setPointSize 2 0.1 1
+/jpetmc/source/nema/mixed/setPointSize 3 0.1 1
+/jpetmc/source/nema/mixed/setPointSize 4 0.1 1
+/jpetmc/source/nema/mixed/setPointSize 5 0.1 1
+/jpetmc/source/nema/mixed/setPointSize 6 0.1 1
+/jpetmc/source/nema/mixed/setPointSize 7 0.1 1
+/jpetmc/source/nema/mixed/setPointSize 8 3 10
+/jpetmc/source/nema/mixed/setPointSize 9 0.1 8
+/jpetmc/source/nema/mixed/setPointSize 10 0.1 8
+/jpetmc/source/nema/mixed/setPointSize 11 0.1 8
+/jpetmc/source/nema/mixed/setPointSize 12 0.1 8
+/jpetmc/source/nema/mixed/setPointSize 13 0.1 8
+/jpetmc/source/nema/mixed/setPointSize 14 0.1 8
+/jpetmc/source/nema/mixed/setPointSize 15 0.1 8
+/jpetmc/source/nema/mixed/setPointSize 16 0.1 4
+/jpetmc/source/nema/mixed/setPointSize 17 0.1 4
+/jpetmc/source/nema/mixed/setPointSize 18 0.1 4
+/jpetmc/source/nema/mixed/setPointSize 19 0.1 4
+/jpetmc/source/nema/mixed/setPointSize 20 0.1 4
+/jpetmc/source/nema/mixed/setPointSize 21 0.1 4
+/jpetmc/source/nema/mixed/setPointSize 22 0.1 4
 
 /jpetmc/source/nema/mixed/setCylinderRotation 16 0 90
 /jpetmc/source/nema/mixed/setCylinderRotation 17 0 90
@@ -426,51 +426,51 @@
 /jpetmc/source/nema/mixed/allowDirect 21 1
 /jpetmc/source/nema/mixed/allowDirect 22 1
 
-/jpetmc/run/setEffectivePositronRangeDensityDependence 1 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 2 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 3 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 4 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 5 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 6 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 7 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 8 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 9 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 10 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 11 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 12 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 13 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 14 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 15 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 16 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 17 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 18 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 19 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 20 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 21 1
-/jpetmc/run/setEffectivePositronRangeDensityDependence 22 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 1 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 2 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 3 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 4 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 5 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 6 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 7 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 8 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 9 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 10 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 11 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 12 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 13 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 14 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 15 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 16 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 17 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 18 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 19 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 20 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 21 1
+/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence 22 1
 
-/jpetmc/run/setEffectivePositronRange 1 0
-/jpetmc/run/setEffectivePositronRange 2 0
-/jpetmc/run/setEffectivePositronRange 3 0
-/jpetmc/run/setEffectivePositronRange 4 0
-/jpetmc/run/setEffectivePositronRange 5 0
-/jpetmc/run/setEffectivePositronRange 6 0
-/jpetmc/run/setEffectivePositronRange 7 0
-/jpetmc/run/setEffectivePositronRange 8 1.5
-/jpetmc/run/setEffectivePositronRange 9 0
-/jpetmc/run/setEffectivePositronRange 10 0
-/jpetmc/run/setEffectivePositronRange 11 0
-/jpetmc/run/setEffectivePositronRange 12 0
-/jpetmc/run/setEffectivePositronRange 13 0
-/jpetmc/run/setEffectivePositronRange 14 0
-/jpetmc/run/setEffectivePositronRange 15 0
-/jpetmc/run/setEffectivePositronRange 16 0
-/jpetmc/run/setEffectivePositronRange 17 0
-/jpetmc/run/setEffectivePositronRange 18 0
-/jpetmc/run/setEffectivePositronRange 19 0
-/jpetmc/run/setEffectivePositronRange 20 0
-/jpetmc/run/setEffectivePositronRange 21 0
-/jpetmc/run/setEffectivePositronRange 22 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 1 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 2 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 3 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 4 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 5 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 6 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 7 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 8 1.5
+/jpetmc/source/nema/mixed/setEffectivePositronRange 9 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 10 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 11 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 12 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 13 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 14 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 15 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 16 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 17 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 18 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 19 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 20 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 21 0
+/jpetmc/source/nema/mixed/setEffectivePositronRange 22 0
 
 /run/initialize
 
