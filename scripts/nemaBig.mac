@@ -257,28 +257,28 @@
 /jpetmc/source/nema/mixed/setWeight 21 1
 /jpetmc/source/nema/mixed/setWeight 22 1
 
-/jpetmc/source/nema/mixed/setLifetime 1 2.5
-/jpetmc/source/nema/mixed/setLifetime 2 2.5
-/jpetmc/source/nema/mixed/setLifetime 3 2.2
-/jpetmc/source/nema/mixed/setLifetime 4 2.2
-/jpetmc/source/nema/mixed/setLifetime 5 2
-/jpetmc/source/nema/mixed/setLifetime 6 2
-/jpetmc/source/nema/mixed/setLifetime 7 1.8
-/jpetmc/source/nema/mixed/setLifetime 8 3
-/jpetmc/source/nema/mixed/setLifetime 9 2.5
-/jpetmc/source/nema/mixed/setLifetime 10 2.5
-/jpetmc/source/nema/mixed/setLifetime 11 2.2
-/jpetmc/source/nema/mixed/setLifetime 12 2.2
-/jpetmc/source/nema/mixed/setLifetime 13 2
-/jpetmc/source/nema/mixed/setLifetime 14 2
-/jpetmc/source/nema/mixed/setLifetime 15 1.8
-/jpetmc/source/nema/mixed/setLifetime 16 1.4
-/jpetmc/source/nema/mixed/setLifetime 17 1.3
-/jpetmc/source/nema/mixed/setLifetime 18 1.2
-/jpetmc/source/nema/mixed/setLifetime 19 1.1
-/jpetmc/source/nema/mixed/setLifetime 20 1
-/jpetmc/source/nema/mixed/setLifetime 21 0.9
-/jpetmc/source/nema/mixed/setLifetime 22 0.8
+/jpetmc/source/nema/mixed/setOPsLifetime 1 2.5
+/jpetmc/source/nema/mixed/setOPsLifetime 2 2.5
+/jpetmc/source/nema/mixed/setOPsLifetime 3 2.2
+/jpetmc/source/nema/mixed/setOPsLifetime 4 2.2
+/jpetmc/source/nema/mixed/setOPsLifetime 5 2
+/jpetmc/source/nema/mixed/setOPsLifetime 6 2
+/jpetmc/source/nema/mixed/setOPsLifetime 7 1.8
+/jpetmc/source/nema/mixed/setOPsLifetime 8 3
+/jpetmc/source/nema/mixed/setOPsLifetime 9 2.5
+/jpetmc/source/nema/mixed/setOPsLifetime 10 2.5
+/jpetmc/source/nema/mixed/setOPsLifetime 11 2.2
+/jpetmc/source/nema/mixed/setOPsLifetime 12 2.2
+/jpetmc/source/nema/mixed/setOPsLifetime 13 2
+/jpetmc/source/nema/mixed/setOPsLifetime 14 2
+/jpetmc/source/nema/mixed/setOPsLifetime 15 1.8
+/jpetmc/source/nema/mixed/setOPsLifetime 16 1.4
+/jpetmc/source/nema/mixed/setOPsLifetime 17 1.3
+/jpetmc/source/nema/mixed/setOPsLifetime 18 1.2
+/jpetmc/source/nema/mixed/setOPsLifetime 19 1.1
+/jpetmc/source/nema/mixed/setOPsLifetime 20 1
+/jpetmc/source/nema/mixed/setOPsLifetime 21 0.9
+/jpetmc/source/nema/mixed/setOPsLifetime 22 0.8
 
 /jpetmc/source/nema/mixed/setPointSize 1 0.1 1
 /jpetmc/source/nema/mixed/setPointSize 2 0.1 1

@@ -59,7 +59,7 @@ private:
   G4UIcmdWithAString* fNemaSetPosition = nullptr;
   G4UIcmdWithAString* fNemaSetShape = nullptr;
   G4UIcmdWithAString* fNemaSetPositionWeight = nullptr;
-  G4UIcmdWithAString* fNemaSetPositionLifetime = nullptr;
+  G4UIcmdWithAString* fNemaSetPositionOPSLifetime = nullptr;
   G4UIcmdWithAString* fNemaSetPositionPPSLifetime = nullptr;
   G4UIcmdWithAString* fNemaSetPositionDirectLifetime = nullptr;
   G4UIcmdWithAString* fNemaSetPosition3GOption = nullptr;

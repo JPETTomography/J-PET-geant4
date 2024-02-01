@@ -329,6 +329,8 @@ PrimaryGenerator::GetVerticesDistributionAlongStepVectorExponential(
   G4double directionMag = direction.mag();
   G4double minDens = 0.1;
   theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+  
+  using namespace primary_generator_constants;
   while (!lookForVtx) {
     stepNumber++;
     myPoint = center + direction*stepNumber;
@@ -344,7 +346,7 @@ PrimaryGenerator::GetVerticesDistributionAlongStepVectorExponential(
       density = minDens;
     }
 
-    reach = 19.378*std::pow(density, -1.53977); // test function of reach (in mm)
+    reach = DIRECT_RANGE_DENSITY_PARAM_A*std::pow(density, DIRECT_RANGE_DENSITY_PARAM_B); // test function of reach (in mm)
     probFunction = 1 - exp(-directionMag*stepNumber/reach);
     if (G4UniformRand() < probFunction)
       lookForVtx = true;
@@ -634,19 +636,19 @@ void PrimaryGenerator::GenerateNema(G4Event* event, NemaGenerator* nemaGen)
   double DirectLF = nemaPoint.directLifetime;
   G4double density = 0.1*g/cm3;
 
+  using namespace primary_generator_constants;
+  
   if (material)
     density = material->GetDensity() / (g/cm3);
 
   if (nemaPoint.directLFDensityDependent) {
-    DirectLF = 0.819151*exp(-0.517436*density);   //dummy function for test in ns
+    DirectLF = DIRECT_LF_DENSITY_PARAM_A*exp(-DIRECT_LF_DENSITY_PARAM_B*density);   //dummy function for test in ns
   }
 
-  double lifetime = nemaPoint.lifetime;
+  double lifetime = nemaPoint.oPslifetime;
   bool is3GAllowed = nemaPoint.is3GAllowed;
   bool alreadyPrimVertexAdded = false;
   double randDecChannel = G4UniformRand();
-
-  using namespace primary_generator_constants;
 
   if (nemaPoint.isDirectAllowed) {
     if (randDecChannel > 1.0 - DIRECT_PS_ANNIHILATION) {

@@ -41,7 +41,7 @@ struct NemaPoint
   
   PointShape shape = PointShape::aCylinder;
   G4ThreeVector position;
-  G4double lifetime = 2; //ns
+  G4double oPslifetime = 2; //ns
   G4double pPsLifetime = 0.125; //ns
   G4double directLifetime = 0.4; //ns
   bool is3GAllowed = false;
@@ -81,7 +81,7 @@ public:
   void SetOnePointOnly(G4int pointID);
   void SetPointShape(G4int pointID, PointShape shapeParam) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).shape = shapeParam; };
   void SetPointPosition(G4int pointID, const G4ThreeVector& pos) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).position = pos; };
-  void SetPointLifetime(G4int pointID, G4double lf) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).lifetime = lf; };
+  void SetPointOPsLifetime(G4int pointID, G4double lf) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).oPslifetime = lf; };
   void SetPointPPsLifetime(G4int pointID, G4double lf) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).pPsLifetime = lf; };
   void SetPointDirectLifetime(G4int pointID, G4double lf) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).directLifetime = lf; };
   void SetPoint3GOption(G4int pointID, bool is3G) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).is3GAllowed = is3G; };

@@ -133,9 +133,9 @@ public:
 
   G4VPhysicalVolume* GetPhantElement(G4int id)
   {
-    auto search = idPhantElem.find(id);
-    if (search != idPhantElem.end()) {
-      return phantomElementsPhysVolumes.at(idPhantElem.at(id));
+    auto search = fPhantomElemIDs.find(id);
+    if (search != fPhantomElemIDs.end()) {
+      return fPhantomElementsPhysVolumes.at(fPhantomElemIDs.at(id));
     } else
       return nullptr;
   }
@@ -229,9 +229,9 @@ private:
   std::vector<Slot> fSlotContainer;
   G4int fLayerNumber = 0;
 
-  std::map<G4int, G4int> idPhantElem;
-  std::vector<PhantElem> phantomElements;
-  std::vector<G4VPhysicalVolume*> phantomElementsPhysVolumes;
+  std::map<G4int, G4int> fPhantomElemIDs;
+  std::vector<PhantElem> fPhantomElements;
+  std::vector<G4VPhysicalVolume*> fPhantomElementsPhysVolumes;
 };
 
 struct Frame

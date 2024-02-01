@@ -200,7 +200,7 @@ void PrimaryGeneratorAction::SetNemaPointLifetime(G4int nemaPoint, PositroniumDe
   if (mode == PositroniumDecayMode::pPs) {
     fNemaGenerator.SetPointPPsLifetime(nemaPoint, lifetime);
   } else if (mode == PositroniumDecayMode::oPs) {
-    fNemaGenerator.SetPointLifetime(nemaPoint, lifetime);
+    fNemaGenerator.SetPointOPsLifetime(nemaPoint, lifetime);
   } else if (mode == PositroniumDecayMode::direct) {
     fNemaGenerator.SetPointDirectLifetime(nemaPoint, lifetime);
   } else {

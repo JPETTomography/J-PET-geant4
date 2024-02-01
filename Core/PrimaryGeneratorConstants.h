@@ -20,11 +20,23 @@
 
 namespace primary_generator_constants {
 
-  // Cosmics muons parameters
+//Constants that should in future be changed by the user
+    
+// Cosmics muons parameters
   static const G4double MUON_CHARGE_RATIO = 1.2766;
   static const G4double MUON_MEAN_ENERGY_GEV = 4*GeV;
+
+// Primary expected fractions of annihilation of positron by different decay modes
   static const G4double DIRECT_PS_ANNIHILATION = 0.6;
   static const G4double PARA_PS_CREATION = 0.25;
+  
+// Constants for a dumy fit to the expected lifetime of direct annihilation as a function of the density of the material
+  static const G4double DIRECT_LF_DENSITY_PARAM_A = 0.819151;
+  static const G4double DIRECT_LF_DENSITY_PARAM_B = 0.517436;
+
+// Constants for a dumy fit to the expected range of positron as a function of the density of the material
+  static const G4double DIRECT_RANGE_DENSITY_PARAM_A = 19.378;
+  static const G4double DIRECT_RANGE_DENSITY_PARAM_B = -1.53977;
 }
 
 #endif /* !PRIMARY_GENERATOR_CONSTANTS */

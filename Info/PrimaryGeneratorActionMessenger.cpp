@@ -93,8 +93,8 @@ PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGenerato
   fNemaSetPositionWeight = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setWeight", this);
   fNemaSetPositionWeight->SetGuidance("Setting the weight of a given point in nema generation (int - point, int - weight), if 0 it removes a point from generation");
   
-  fNemaSetPositionLifetime = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setLifetime", this);
-  fNemaSetPositionLifetime->SetGuidance("Setting the mean lifetime of a given point in nema generation (int - point, double - lifetime), lifetime should be positive, instead generated with default value 0.3 ns");
+  fNemaSetPositionOPSLifetime = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setOPsLifetime", this);
+  fNemaSetPositionOPSLifetime->SetGuidance("Setting the mean ortho-Ps lifetime of a given point in nema generation (int - point, double - lifetime), lifetime should be positive, instead generated with default value 0.3 ns");
   
   fNemaSetPositionPPSLifetime = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setPPsLifetime", this);
   fNemaSetPositionPPSLifetime->SetGuidance("Setting the mean para-Ps lifetime of a given point in nema generation (int - point, double - lifetime), lifetime should be positive, instead generated with default value 0.125 ns");
@@ -175,7 +175,7 @@ PrimaryGeneratorActionMessenger::~PrimaryGeneratorActionMessenger()
   delete fNemaMixed;
   delete fNemaSetPosition;
   delete fNemaSetPositionWeight;
-  delete fNemaSetPositionLifetime;
+  delete fNemaSetPositionOPSLifetime;
   delete fNemaSetPositionPPSLifetime;
   delete fNemaSetPositionDirectLifetime;
   delete fNemaSetPosition3GOption;
@@ -251,7 +251,7 @@ void PrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, G4String
     G4double weight;
     is >> nemaPoint >> weight;
     fPrimGen->SetNemaPositionWeight(nemaPoint, weight);
-  } else if (command == fNemaSetPositionLifetime) {
+  } else if (command == fNemaSetPositionOPSLifetime) {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int nemaPoint;

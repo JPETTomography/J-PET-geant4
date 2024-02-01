@@ -22,7 +22,7 @@ NemaPoint::NemaPoint()
 {
   G4ThreeVector temp(0,0,0);
   position = temp;
-  lifetime = MaterialParameters::fTauBulk;
+  oPslifetime = MaterialParameters::fTauBulk;
   is3GAllowed = false;
   G4ThreeVector temp2(0.1,0.1,0.1);
   sizeOfPoint = temp2;
