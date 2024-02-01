@@ -52,7 +52,11 @@ enum GeometryShape {
 };
 
 enum PhantomMaterial {
-  aWater, aPlastic, aAlumnium, aSiliconDioxide
+  aWater, aPlastic, aAlumnium, aSiliconDioxide, aCustom
+};
+
+enum MaterialElementType {
+  aBasic, aIsotope  
 };
 
 //! Flag for debugging purposes
@@ -123,6 +127,10 @@ public:
 
   G4int GetRunNumber() const { return fRunNumber; };
 
+  void addMaterialElementForPhantom(G4String elementName, G4double zNumber, G4double mass);
+  void addMaterialIsotopeForPhantom(G4String elementName, G4double zNumber, G4double nNumber, G4double mass);
+  void addCustomMaterialForPhantom(G4int id);
+  void addElementToCustomMaterialForPhantom(G4int idMaterial, G4String idElement, G4double fraction);
   void addPhantomElementWithShape(G4int id, G4String shape);
   void setContructionFlagTrue(G4int id);
   void setPhantomElementDimensions(G4int id, G4String stringWithParameters);
@@ -232,6 +240,11 @@ private:
   std::map<G4int, G4int> fPhantomElemIDs;
   std::vector<PhantElem> fPhantomElements;
   std::vector<G4VPhysicalVolume*> fPhantomElementsPhysVolumes;
+  
+  std::map<G4String, G4int> fMaterialElemIDs;
+  std::vector<G4Element*> fMaterialElements;
+  std::map<G4int, G4int> fCustomMatPhantomIDs;
+  std::vector<std::map<G4int, G4double>> fCustomMaterialsCompositionForPhantom;
 };
 
 struct Frame
@@ -286,6 +299,7 @@ struct PhantElem
   std::vector<double> fLocation;
   std::vector<double> fRotation;
   PhantomMaterial fMaterial;
+  G4int fCustomMaterialID = 0;
   G4double fDensity;
   std::vector<std::pair<G4int, GeometryCombination>> fActionCombination;
 };

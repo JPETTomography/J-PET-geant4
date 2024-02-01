@@ -56,6 +56,10 @@ private:
   G4UIcmdWithAnInteger* fJSONSetupRunNum = nullptr;
   G4UIcmdWithADoubleAndUnit* fPressureInChamber = nullptr;
   G4UIcmdWithoutParameter* fConstructNemaPhantom = nullptr;
+  G4UIcmdWithAString* fAddMaterialElement = nullptr;
+  G4UIcmdWithAString* fAddMaterialIsotopeElement = nullptr;
+  G4UIcmdWithAnInteger* fAddCustomMaterialWithID = nullptr;
+  G4UIcmdWithAString* fAddElementToCustomMaterial = nullptr;
   G4UIcmdWithAString* fAddPhantomElementWithShape = nullptr;
   G4UIcmdWithAnInteger* fConstructPhantomElement = nullptr;
   G4UIcmdWithAString* fSetPhantomElementDimensions = nullptr;

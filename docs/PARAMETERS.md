@@ -20,6 +20,32 @@ Following options can be added to macro files, that are read by Geat4. Example f
  `/jpetmc/detector/jsonSetupFile [fileName]`
 * set the number of Run that is to be loaded from JSON file
  `/jpetmc/detector/jsonSetupRunNum [number]`
+* set the option to construct nema phantom inside the detector
+ `/jpetmc/detector/constructNemaPhantom`
+* add element to the database in order to construct custom materials
+ `/jpetmc/detector/addMaterialElement [name] [z number - number of protons] [mass in g/mol]`
+ or 
+ `/jpetmc/detector/addMaterialIsotopeElement [name] [z number - number of protons] [n number - number of nuclei] [mass in g/mol]`
+* add custom material
+ `/jpetmc/detector/addCustomMaterialWithID [id]`
+* add previously predefined elements to the custom material.
+ `/jpetmc/detector/addElementToCustomMaterial [id of material - int] [name of element - string] [fraction of element - double]`
+* add phantom element with a given shape (box, sphere, tube...)
+ `/jpetmc/detector/addPhantomElementWithShape [id] [shape]`
+* allow to consruct previously defined phantom element
+ `/jpetmc/detector/ConstructPhantomElement [id]`
+* set the dimensions of the phantom element 
+ `/jpetmc/detector/setPhantomElementDimensions [dim1 - in cm] [dim2 - in cm] [dim3 - in cm]`
+* set the dimensions of the phantom element 
+ `/jpetmc/detector/setPhantomElementDimensions [dim1 - in cm] [dim2 - in cm] [dim3 - in cm]`
+* set the location of the phantom element center
+ `/jpetmc/detector/setPhantomElementLocation [x - in cm] [y - in cm] [z - in cm]`
+* set the rotation of the phantom element center
+ `/jpetmc/detector/setPhantomElementRotation [in x - deg] [in y - deg] [in z - deg]`
+* set the interaction between two phantom elements (subtraction, sum or intersection)
+ `/jpetmc/detector/setPhantomElementActionWithOtherElement [id of the base element to interact] [id of the modificator element] [action]`
+* set the material name (water, plastic, ... or custom + id for customs) and density for a given phantom element
+ `/jpetmc/detector/setPhantomElementMaterialAndDensity [id of element] [material name] [density in g/cm3]`
 
 ## General parameters:  
 * Hit merging time:  

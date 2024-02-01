@@ -73,6 +73,18 @@ DetectorConstructionMessenger::DetectorConstructionMessenger(DetectorConstructio
   fConstructNemaPhantom = new G4UIcmdWithoutParameter("/jpetmc/detector/constructNemaPhantom", this);
   fConstructNemaPhantom->SetGuidance("Setting to true the possibility to construct the Nema phantom");
 
+  fAddMaterialElement = new G4UIcmdWithAString("/jpetmc/detector/addMaterialElement", this);
+  fAddMaterialElement->SetGuidance("Adding the element for custom material (name) (z number) (mass in g/mol)");
+  
+  fAddMaterialIsotopeElement = new G4UIcmdWithAString("/jpetmc/detector/addMaterialIsotopeElement", this);
+  fAddMaterialIsotopeElement->SetGuidance("Adding the element but isotope for custom material (name) (z number) (n number) (mass in g/mol)");
+  
+  fAddCustomMaterialWithID = new G4UIcmdWithAnInteger("/jpetmc/detector/addCustomMaterialWithID", this);
+  fAddCustomMaterialWithID->SetGuidance("Adding the custom material with id - int");
+  
+  fAddElementToCustomMaterial = new G4UIcmdWithAString("/jpetmc/detector/addElementToCustomMaterial", this);
+  fAddElementToCustomMaterial->SetGuidance("Adding the element to custom material (id of material - int) (id of element - string) (fraction of element)");
+  
   fAddPhantomElementWithShape = new G4UIcmdWithAString("/jpetmc/detector/addPhantomElementWithShape", this);
   fAddPhantomElementWithShape->SetGuidance("Adding the phantom element with shape (box, sphere, ...)");
 
@@ -92,7 +104,7 @@ DetectorConstructionMessenger::DetectorConstructionMessenger(DetectorConstructio
   fSetPhantomElementAction->SetGuidance("Setting the action between two elements of the phantom (union, intersection, subtraction)");
 
   fSetPhantomElementMaterialAndDensity = new G4UIcmdWithAString("/jpetmc/detector/setPhantomElementMaterialAndDensity", this);
-  fSetPhantomElementMaterialAndDensity->SetGuidance("Setting material and density of the element pointed by given ID");
+  fSetPhantomElementMaterialAndDensity->SetGuidance("Setting material and density (g/cm3) of the element pointed by given ID");
 }
 
 DetectorConstructionMessenger::~DetectorConstructionMessenger()
@@ -111,6 +123,10 @@ DetectorConstructionMessenger::~DetectorConstructionMessenger()
   delete fJSONSetupRunNum;
   delete fPressureInChamber;
   delete fConstructNemaPhantom;
+  delete fAddMaterialElement;
+  delete fAddMaterialIsotopeElement;
+  delete fAddCustomMaterialWithID;
+  delete fAddElementToCustomMaterial;
   delete fAddPhantomElementWithShape;
   delete fConstructPhantomElement;
   delete fSetPhantomElementDimensions;
@@ -170,6 +186,33 @@ void DetectorConstructionMessenger::SetNewValue(G4UIcommand* command, G4String n
     fDetector->SetPressureInChamber(fPressureInChamber->GetNewDoubleValue(newValue));
   } else if (command == fConstructNemaPhantom) {
     fDetector->setNemaPhantomFlag(true);
+  } else if (command == fAddMaterialElement) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4String nameID;
+    G4double zNumber;
+    G4double mass; //in g/mole
+    is >> nameID >> zNumber >> mass;
+    fDetector->addMaterialElementForPhantom(nameID, zNumber, mass);
+  } else if (command == fAddMaterialIsotopeElement) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4String nameID;
+    G4double zNumber;
+    G4double nNumber;
+    G4double mass; //in g/mole
+    is >> nameID >> zNumber >> nNumber >> mass;
+    fDetector->addMaterialIsotopeForPhantom(nameID, zNumber, nNumber, mass);
+  } else if (command == fAddCustomMaterialWithID) {
+    fDetector->addCustomMaterialForPhantom(fConstructPhantomElement->GetNewIntValue(newValue));
+  } else if (command == fAddElementToCustomMaterial) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int id;
+    G4String elementID;
+    G4double fraction;
+    is >> id >> elementID >> fraction;
+    fDetector->addElementToCustomMaterialForPhantom(id, elementID, fraction);
   } else if (command == fAddPhantomElementWithShape) {
     G4String paramString = newValue;
     std::istringstream is(paramString);

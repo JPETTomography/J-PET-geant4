@@ -42,6 +42,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <string>
 #include <CADMesh.hh>
 
 namespace pt = boost::property_tree;
@@ -1439,6 +1440,17 @@ void DetectorConstruction::ConstructNemaPhantom()
           phantomElementMaterial->AddElement(elO, 4);
           phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mSiliconDioxide,
                                               "silica" + std::to_string(i), phantomElementMaterial);
+        } else if (elementMaterial == PhantomMaterial::aCustom) {
+          G4int customMatID = fPhantomElements.at(i).fCustomMaterialID;
+          G4String matName = "Custom" + std::to_string(customMatID);
+          G4int numberOfElements = fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(customMatID)).size();
+          phantomElementMaterial = new G4Material(matName, fPhantomElements.at(i).fDensity*g/cm3, numberOfElements);
+          for (auto mapIterator=fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(customMatID)).begin(); 
+               mapIterator!=fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(customMatID)).end(); mapIterator++) {
+            phantomElementMaterial->AddElement(fMaterialElements.at(mapIterator->first), mapIterator->second);
+          }
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mUnknown,
+                                              matName, phantomElementMaterial);
         } else {//temporary until finding better default material
           G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
           G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
@@ -1472,6 +1484,52 @@ void DetectorConstruction::ConstructNemaPhantom()
                                                                true, 0, checkOverlaps)
                                             );
       }
+    }
+  }
+}
+
+void DetectorConstruction::addMaterialElementForPhantom(G4String elementName, G4double zNumber, G4double mass)
+{
+  G4String customElementName = "custom" + elementName;
+  G4Element* newElem = new G4Element(customElementName, elementName, zNumber, mass*g/mole);
+  fMaterialElemIDs.insert({elementName, fMaterialElemIDs.size()});
+  fMaterialElements.push_back(newElem);
+}
+
+void DetectorConstruction::addMaterialIsotopeForPhantom(G4String elementName, G4double zNumber, G4double nNumber, G4double mass)
+{
+  G4String customElementName = "custom" + elementName;
+  G4Isotope* iso = new G4Isotope("Isotope", zNumber, nNumber, mass*g/mole);
+  G4Element* newElem = new G4Element(customElementName, elementName, 1);
+  newElem->AddIsotope(iso, 1);
+  fMaterialElemIDs.insert({elementName, fMaterialElemIDs.size()});
+  fMaterialElements.push_back(newElem);
+}
+
+void DetectorConstruction::addCustomMaterialForPhantom(G4int id)
+{
+  fCustomMatPhantomIDs.insert({id, fCustomMatPhantomIDs.size()});
+  std::map<G4int, G4double> temp;
+  fCustomMaterialsCompositionForPhantom.push_back(temp);
+}
+
+void DetectorConstruction::addElementToCustomMaterialForPhantom(G4int idMaterial, G4String idElement, G4double fraction)
+{
+  auto search = fCustomMatPhantomIDs.find(idMaterial);
+  if (search == fCustomMatPhantomIDs.end()) {
+    fCustomMatPhantomIDs.insert({idMaterial, fCustomMatPhantomIDs.size()});
+    std::map<G4int, G4double> temp;
+    auto searchElement = fMaterialElemIDs.find(idElement);
+    if (searchElement != fMaterialElemIDs.end()) {
+      G4int idElem = fMaterialElemIDs.at(idElement);
+      temp.insert(std::make_pair(idElem, fraction));
+      fCustomMaterialsCompositionForPhantom.push_back(temp);
+    }
+  } else {
+    auto searchElement = fMaterialElemIDs.find(idElement);
+    if (searchElement != fMaterialElemIDs.end()) {
+      G4int idElem = fMaterialElemIDs.at(idElement);
+      fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(idMaterial)).insert(std::make_pair(idElem, fraction));
     }
   }
 }
@@ -1557,6 +1615,7 @@ void DetectorConstruction::setPhantomElementAction(G4int id1, G4int id2, G4Strin
 
 void DetectorConstruction::setPhantomElementMaterial(G4int id, G4String materialName, G4double density)
 {
+  std::string customName = "custom";
   if (materialName == "water" || materialName == "Water" || materialName == "H2O" || materialName == "h20") {
     fPhantomElements.at(fPhantomElemIDs.at(id)).fMaterial = PhantomMaterial::aWater;
   } else if (materialName == "plastic" || materialName == "Plastic" || materialName == "polymer" || materialName == "Polymer") {
@@ -1565,6 +1624,10 @@ void DetectorConstruction::setPhantomElementMaterial(G4int id, G4String material
     fPhantomElements.at(fPhantomElemIDs.at(id)).fMaterial = PhantomMaterial::aAlumnium;
   } else if (materialName == "SiO2" || materialName == "sio2" || materialName == "SiliconDioxide" || materialName == "siliconDioxide") {
     fPhantomElements.at(fPhantomElemIDs.at(id)).fMaterial = PhantomMaterial::aSiliconDioxide;
+  } else if (materialName.contains(std::string("custom")) || materialName.contains(std::string("Custom"))) {
+    fPhantomElements.at(fPhantomElemIDs.at(id)).fMaterial = PhantomMaterial::aCustom;
+    G4String customID = materialName.remove(0, customName.size());
+    fPhantomElements.at(fPhantomElemIDs.at(id)).fCustomMaterialID = std::stoi(customID);
   }
   fPhantomElements.at(fPhantomElemIDs.at(id)).fDensity = density;
 }
