@@ -71,6 +71,7 @@ public:
   void SetNemaPointPromptSize(G4int position, G4double x, G4double y, G4double z);
   void SetNemaPointOrientation(G4int position, G4double theta, G4double phi);
   void SetNemaPointShape(G4int position, Dimension dim, G4double direction, G4double power, G4double length);
+  void SetPointPositronReachShape(G4int nemaPoint, G4String shape);
   void SetPointExperimentalReach(G4int nemaPoint, G4double reach);
   void SetEffectivePositronRadius(G4double);
   void SetNemaPointIsotopeType(G4int, G4String);

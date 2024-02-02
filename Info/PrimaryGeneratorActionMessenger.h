@@ -70,6 +70,7 @@ private:
   G4UIcmdWithAString* fNemaSetPositionPromptSize = nullptr;
   G4UIcmdWithAString* fNemaSetPositionCylinderRotation = nullptr;
   G4UIcmdWithAString* fNemaSetPositionCylinderShapeY = nullptr;
+  G4UIcmdWithAString* fNemaSetPositionPositronReachShape = nullptr;
   G4UIcmdWithAString* fNemaSetPositionPositronReach = nullptr;
   G4UIcmdWithAString* fNemaSetPositionPositronReachDensDep = nullptr;
   G4UIcmdWithAString* fNemaSetPositionIsotopeType = nullptr;

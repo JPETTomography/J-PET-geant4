@@ -627,6 +627,12 @@ void PrimaryGenerator::GenerateNema(G4Event* event, NemaGenerator* nemaGen)
     material = dynamic_cast<MaterialExtension*>(
       theNavigator->LocateGlobalPointAndSetup(vtxPosition)->GetLogicalVolume()->GetMaterial()
     );
+  } else if (reachOpt == PositronReachOption::aFixedExponential) {
+    vtxPosition = vtxPosition + GetRandomPointInFilledExpo3D(posReach * cm);
+    theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+    material = dynamic_cast<MaterialExtension*>(
+      theNavigator->LocateGlobalPointAndSetup(vtxPosition)->GetLogicalVolume()->GetMaterial()
+    );
   } else {
     std::tie(vtxPosition, material) = GetVerticesDistributionAlongStepVectorExponential(
       vtxPosition, GetRandomPointOnSphere(stepSize)
@@ -777,6 +783,17 @@ const G4ThreeVector PrimaryGenerator::GetRandomPointOnSphere(G4double radius)
   G4double x = radius * sin(phi) * cos(theta);
   G4double y = radius * sin(phi) * sin(theta);
   G4double z = radius * cos(phi);
+  return G4ThreeVector(x, y, z);
+}
+
+const G4ThreeVector PrimaryGenerator::GetRandomPointInFilledExpo3D(G4double reach)
+{
+  G4double theta = 2 * M_PI * G4UniformRand();
+  G4double phi = acos(1 - 2 * G4UniformRand());
+  G4double r = G4RandExponential::shoot(reach);
+  G4double x = r * sin(phi) * cos(theta);
+  G4double y = r * sin(phi) * sin(theta);
+  G4double z = r * cos(phi);
   return G4ThreeVector(x, y, z);
 }
 

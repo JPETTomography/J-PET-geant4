@@ -126,6 +126,9 @@ PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGenerato
   fNemaSetPositionCylinderShapeY = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setCylinderShapeParametersY", this);
   fNemaSetPositionCylinderShapeY->SetGuidance("Setting the shape of the cylinder in Y directory in which annihilation position is simulated (int - point, double - direction of the change, double - power of the shape change, double (0,1) - cut-off of the shape)");
   
+  fNemaSetPositionPositronReachShape = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setEffectivePositronRangeShape", this);
+  fNemaSetPositionPositronReachShape->SetGuidance("Set effective positron radius shape for given nema point (int, string - sphere, expo, dens or no)");
+  
   fNemaSetPositionPositronReach = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setEffectivePositronRange", this);
   fNemaSetPositionPositronReach->SetGuidance("Set effective positron radius for given nema point (int, double)");
 
@@ -186,6 +189,7 @@ PrimaryGeneratorActionMessenger::~PrimaryGeneratorActionMessenger()
   delete fNemaSetPositionPromptSize;
   delete fNemaSetPositionCylinderRotation;
   delete fNemaSetPositionCylinderShapeY;
+  delete fNemaSetPositionPositronReachShape;
   delete fNemaSetPositionPositronReach;
   delete fNemaSetPositionPositronReachDensDep;
   delete fNemaSetPositionIsotopeType;
@@ -332,6 +336,13 @@ void PrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, G4String
     G4double direction, power, length;
     is >> nemaPoint >> direction >> power >> length;
     fPrimGen->SetNemaPointShape(nemaPoint, Dimension::dimY, direction*cm, power, length);
+  } else if (command == fNemaSetPositionPositronReachShape) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    G4String shape;
+    is >> nemaPoint >> shape;
+    fPrimGen->SetPointPositronReachShape(nemaPoint, shape);
   } else if (command == fNemaSetPositionPositronReach) {
     G4String paramString = newValue;
     std::istringstream is(paramString);

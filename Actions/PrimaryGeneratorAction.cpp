@@ -309,11 +309,32 @@ void PrimaryGeneratorAction::SetNemaPointShape(G4int nemaPoint, Dimension dim, G
   }
 }
 
-void PrimaryGeneratorAction::SetPointExperimentalReach(G4int nemaPoint, G4double reach)
+void PrimaryGeneratorAction::SetPointPositronReachShape(G4int nemaPoint, G4String shape)
 {
   if (nemaPoint < 1) {
     G4Exception(
       "PrimaryGeneratorAction", "PG13", JustWarning,
+      "Nema point for which you want to set reach shape is less than 1. Cannot set it now properly."
+    );
+  } else {
+    fNemaGenerator.AddPoint(nemaPoint);
+  }
+
+  if (shape == "sphere" || shape == "Sphere")
+    fNemaGenerator.SetPointReachShape(nemaPoint, PositronReachOption::aFixedUniform);
+  else if (shape == "exponential" || shape == "Exponential" || shape == "expo" || shape == "Expo")
+    fNemaGenerator.SetPointReachShape(nemaPoint, PositronReachOption::aFixedExponential);
+  else if (shape == "density" || shape == "Density" || shape == "dens" || shape == "Dens")
+    fNemaGenerator.SetPointReachShape(nemaPoint, PositronReachOption::aDensityDep);
+  else
+    fNemaGenerator.SetPointReachShape(nemaPoint, PositronReachOption::aNo);
+}
+
+void PrimaryGeneratorAction::SetPointExperimentalReach(G4int nemaPoint, G4double reach)
+{
+  if (nemaPoint < 1) {
+    G4Exception(
+      "PrimaryGeneratorAction", "PG14", JustWarning,
       "Nema point for which you want to set reach is less than 1. Cannot set it now properly."
     );
   } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
@@ -324,12 +345,11 @@ void PrimaryGeneratorAction::SetPointExperimentalReach(G4int nemaPoint, G4double
   }
 }
 
-
 void PrimaryGeneratorAction::SetPointShape(G4int nemaPoint, G4String shape)
 {
   if (nemaPoint < 1) {
     G4Exception(
-      "PrimaryGeneratorAction", "PG14", JustWarning,
+      "PrimaryGeneratorAction", "PG15", JustWarning,
       "Nema point for which you want to set shape is less than 1. Cannot set it now properly."
     );
   } else if (!fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
@@ -348,7 +368,7 @@ void PrimaryGeneratorAction::SetNemaPointIsotopeType(G4int nemaPoint, G4String t
 {
   if (nemaPoint < 1) {
     G4Exception(
-      "PrimaryGeneratorAction", "PG15", JustWarning,
+      "PrimaryGeneratorAction", "PG16", JustWarning,
       "Nema point for which you want to set isotope is less than 1. Cannot set it now properly."
     );
   } else if (!fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
@@ -365,7 +385,7 @@ void PrimaryGeneratorAction::SetPhantomElementIDForNemaPoint(G4int nemaPoint, G4
 {
   if (nemaPoint < 1) {
     G4Exception(
-      "PrimaryGeneratorAction", "PG16", JustWarning,
+      "PrimaryGeneratorAction", "PG17", JustWarning,
       "Nema point for which you want to set phantom element is less than 1. Cannot set it now properly."
     );
   } else if (!fNemaGenerator.DoesPointExistAlready(nemaPoint)) {

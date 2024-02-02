@@ -86,6 +86,7 @@ private:
   );
   const G4ThreeVector GetRandomPointInFilledSphere(G4double radius);
   const G4ThreeVector GetRandomPointOnSphere(G4double radius);
+  const G4ThreeVector GetRandomPointInFilledExpo3D(G4double reach);
   
   G4Navigator* theNavigator =  G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
 };

@@ -24,7 +24,7 @@
 #include <map>
 
 enum PositronReachOption {
-  aNo, aFixedUniform, aDensityDep
+  aNo, aFixedUniform, aFixedExponential, aDensityDep
 };
 
 enum PointShape {
@@ -92,14 +92,8 @@ public:
   void SetPointPromptSize(G4int pointID, const G4ThreeVector& size) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).sizeOfPointPrompt = size; };
   void SetPointOrientation(G4int pointID, const G4ThreeVector& orient) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).orientationOfPoint = orient; };
   void SetNemaPointShapeInY(G4int pointID, const G4ThreeVector& shape) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).shapeOfPointInY = shape; };
-  void SetPointExperimentalReach(G4int pointID, G4double reach) {
-    if (reach != 0) {
-      fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isPositronReachExp = PositronReachOption::aFixedUniform;
-    } else {
-      fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isPositronReachExp = PositronReachOption::aDensityDep;
-    }
-    fGeneratedPoints.at(fIDPointsConnection.at(pointID)).positronReach = reach;
-  };
+  void SetPointReachShape(G4int pointID, PositronReachOption shape) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isPositronReachExp = shape; };
+  void SetPointExperimentalReach(G4int pointID, G4double reach) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).positronReach = reach; };
   void SetNemaPointDirectLFDependence(G4int pointID, bool isDep) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).directLFDensityDependent = isDep; };
   void SetIsotope(G4int pointID, IsotopeType type) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isotope = type; };
   void SetPhantElementID(G4int pointID, G4int phantomID) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).phantomElementID = phantomID; };
