@@ -87,29 +87,59 @@ PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGenerato
   fNemaSetPosition = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setPosition", this);
   fNemaSetPosition->SetGuidance("Setting the position of a given point in nema generation (int - point, 3Dvector - x, y, z [cm3]). Use it when do you not want default positions of the nema points");
   
+  fNemaSetShape = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setShape", this);
+  fNemaSetShape->SetGuidance("Setting the shape of a given point in nema generation (int - point, string - shape [cylinder, ball, phantom])");
+
   fNemaSetPositionWeight = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setWeight", this);
   fNemaSetPositionWeight->SetGuidance("Setting the weight of a given point in nema generation (int - point, int - weight), if 0 it removes a point from generation");
   
-  fNemaSetPositionLifetime = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setLifetime", this);
-  fNemaSetPositionLifetime->SetGuidance("Setting the mean lifetime of a given point in nema generation (int - point, double - lifetime), lifetime should be positive, instead generated with default value 0.3 ns");
+  fNemaSetPositionOPSLifetime = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setOPsLifetime", this);
+  fNemaSetPositionOPSLifetime->SetGuidance("Setting the mean ortho-Ps lifetime of a given point in nema generation (int - point, double - lifetime), lifetime should be positive, instead generated with default value 0.3 ns");
   
-  fNemaSetPosition3GOption = new G4UIcmdWithAnInteger("/jpetmc/source/nema/mixed/allow3G", this);
+  fNemaSetPositionPPSLifetime = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setPPsLifetime", this);
+  fNemaSetPositionPPSLifetime->SetGuidance("Setting the mean para-Ps lifetime of a given point in nema generation (int - point, double - lifetime), lifetime should be positive, instead generated with default value 0.125 ns");
+
+  fNemaSetPositionDirectLifetime = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setDirectLifetime", this);
+  fNemaSetPositionDirectLifetime->SetGuidance("Setting the mean direct annihilation lifetime of a given point in nema generation (int - point, double - lifetime), lifetime should be positive, instead generated with default value 0.4 ns");
+
+  fNemaSetPosition3GOption = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/allow3G", this);
   fNemaSetPosition3GOption->SetGuidance("Setting if the position of a given point in nema generation should have possibility to decay into three photons");
+
+  fNemaSetPositionPPSOption = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/allowPPs", this);
+  fNemaSetPositionPPSOption->SetGuidance("Setting if the position of a given point in nema generation should have possibility to decay by means of para-Ps");
+
+  fNemaSetPositionDirectOption = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/allowDirect", this);
+  fNemaSetPositionDirectOption->SetGuidance("Setting if the position of a given point in nema generation should have possibility to decay directly");
   
-  fNemaSetPositionCylinderSize = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setCylinderSize", this);
-  fNemaSetPositionCylinderSize->SetGuidance("Setting the radius and length of the cylinder in which annihilation position is simulated (int - point, double - radius [cm], double - length [cm])");
+  fNemaSetPositionSize = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setPointSize", this);
+  fNemaSetPositionSize->SetGuidance("Setting the size of the point in which annihilation position is simulated (int - point, double - x/radius [cm], double - y/length [cm], double - z [cm])");
   
-  fNemaSetPositionPromptOption = new G4UIcmdWithAnInteger("/jpetmc/source/nema/mixed/allowPrompt", this);
+  fNemaSetPositionPromptOption = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/allowPrompt", this);
   fNemaSetPositionPromptOption->SetGuidance("Setting if the position of a given point in nema generation should have possibility to emit prompt photon");
   
   fNemaSetPositionPromptSize = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setPromptSourceSize", this);
-  fNemaSetPositionPromptSize->SetGuidance("Setting the radius and length of the cylinder in which prompt photon emission position is simulated (int - point, double - radius [cm], double - length [cm])");
+  fNemaSetPositionPromptSize->SetGuidance("Setting the size of the point in which prompt photon emission position is simulated (int - point, double - x/radius [cm], double - y/length [cm], double - z [cm])");
   
   fNemaSetPositionCylinderRotation = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setCylinderRotation", this);
   fNemaSetPositionCylinderRotation->SetGuidance("Setting the orientation angles of the cylinder in which annihilation position is simulated (int - point, double - theta [deg], double - phi [deg])");
   
   fNemaSetPositionCylinderShapeY = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setCylinderShapeParametersY", this);
   fNemaSetPositionCylinderShapeY->SetGuidance("Setting the shape of the cylinder in Y directory in which annihilation position is simulated (int - point, double - direction of the change, double - power of the shape change, double (0,1) - cut-off of the shape)");
+  
+  fNemaSetPositionPositronReachShape = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setEffectivePositronRangeShape", this);
+  fNemaSetPositionPositronReachShape->SetGuidance("Set effective positron radius shape for given nema point (int, string - sphere, expo, dens or no)");
+  
+  fNemaSetPositionPositronReach = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setEffectivePositronRange", this);
+  fNemaSetPositionPositronReach->SetGuidance("Set effective positron radius for given nema point (int, double)");
+
+  fNemaSetPositionPositronReachDensDep = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence", this);
+  fNemaSetPositionPositronReachDensDep->SetGuidance("Set effective positron radius dependent on the density for given nema point flag");
+
+  fNemaSetPositionIsotopeType = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setIsotopeType", this);
+  fNemaSetPositionIsotopeType->SetGuidance("Setting the type of isotope simulated for a given point (sodium or scandium)");
+  
+  fNemaSetPhantomElementID = new G4UIcmdWithAString("/jpetmc/source/nema/mixed/setPhantomElementID", this);
+  fNemaSetPhantomElementID->SetGuidance("Set phantom element ID to simulate source inside it");
   
   fSetChamberCenter = new G4UIcmdWith3VectorAndUnit("/jpetmc/run/setChamberCenter", this);
   fSetChamberCenter->SetGuidance("Set position of the annihilation chamber");
@@ -144,16 +174,26 @@ PrimaryGeneratorActionMessenger::~PrimaryGeneratorActionMessenger()
   delete fGammaBeamSetMomentum;
   delete fIsotopeSetCenter;
   delete fNemaPosition;
+  delete fNemaSetShape;
   delete fNemaMixed;
   delete fNemaSetPosition;
   delete fNemaSetPositionWeight;
-  delete fNemaSetPositionLifetime;
+  delete fNemaSetPositionOPSLifetime;
+  delete fNemaSetPositionPPSLifetime;
+  delete fNemaSetPositionDirectLifetime;
   delete fNemaSetPosition3GOption;
-  delete fNemaSetPositionCylinderSize;
+  delete fNemaSetPositionPPSOption;
+  delete fNemaSetPositionDirectOption;
+  delete fNemaSetPositionSize;
   delete fNemaSetPositionPromptOption;
   delete fNemaSetPositionPromptSize;
   delete fNemaSetPositionCylinderRotation;
   delete fNemaSetPositionCylinderShapeY;
+  delete fNemaSetPositionPositronReachShape;
+  delete fNemaSetPositionPositronReach;
+  delete fNemaSetPositionPositronReachDensDep;
+  delete fNemaSetPositionIsotopeType;
+  delete fNemaSetPhantomElementID;
   delete fSetChamberCenter;
   delete fSetChamberEffectivePositronRadius;
   delete fCosmicOnly;
@@ -191,7 +231,7 @@ void PrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, G4String
     fPrimGen->SetSourceTypeInfo("nema");
     fPrimGen->SetNemaPoint(fNemaPosition->GetNewIntValue(newValue));
   } else if (command == fNemaMixed) {
-    fPrimGen->SetSourceTypeInfo("nema");
+    fPrimGen->SetSourceTypeInfo("nema-mixed");
   } else if (command == fNemaSetPosition) {
     G4String paramString = newValue;
     std::istringstream is(paramString);
@@ -201,6 +241,13 @@ void PrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, G4String
     G4double z;
     is >> nemaPoint >> x >> y >> z;
     fPrimGen->SetNemaPointPosition(nemaPoint, G4ThreeVector(x*cm, y*cm, z*cm));
+  } else if (command == fNemaSetShape) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    G4String shape;
+    is >> nemaPoint >> shape;
+    fPrimGen->SetPointShape(nemaPoint, shape);
   } else if (command == fNemaSetPositionWeight) {
     G4String paramString = newValue;
     std::istringstream is(paramString);
@@ -208,31 +255,73 @@ void PrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, G4String
     G4double weight;
     is >> nemaPoint >> weight;
     fPrimGen->SetNemaPositionWeight(nemaPoint, weight);
-  } else if (command == fNemaSetPositionLifetime) {
+  } else if (command == fNemaSetPositionOPSLifetime) {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int nemaPoint;
     G4double lifetime;
     is >> nemaPoint >> lifetime;
-    fPrimGen->SetNemaPointLifetime(nemaPoint, lifetime);
-  } else if (command == fNemaSetPosition3GOption) {
-    fPrimGen->SetNemaPoint3GOption(fNemaPosition->GetNewIntValue(newValue));
-  } else if (command == fNemaSetPositionCylinderSize) {
+    fPrimGen->SetNemaPointLifetime(nemaPoint, PositroniumDecayMode::oPs, lifetime);
+  } else if (command == fNemaSetPositionPPSLifetime) {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int nemaPoint;
-    G4double radius, length;
-    is >> nemaPoint >> radius >> length;
-    fPrimGen->SetNemaPointSize(nemaPoint, radius*cm, length*cm);
+    G4double lifetime;
+    is >> nemaPoint >> lifetime;
+    fPrimGen->SetNemaPointLifetime(nemaPoint, PositroniumDecayMode::pPs, lifetime);
+  } else if (command == fNemaSetPositionDirectLifetime) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    G4double lifetime;
+    is >> nemaPoint >> lifetime;
+    fPrimGen->SetNemaPointLifetime(nemaPoint, PositroniumDecayMode::direct, lifetime);
+  } else if (command == fNemaSetPosition3GOption) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    bool option;
+    is >> nemaPoint >> option;
+    fPrimGen->SetNemaPointGenerationOption(nemaPoint, NemaGenerationOption::n3G, option);
+  } else if (command == fNemaSetPositionPPSOption) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    bool option;
+    is >> nemaPoint >> option;
+    fPrimGen->SetNemaPointGenerationOption(nemaPoint, NemaGenerationOption::nPPs, option);
+  } else if (command == fNemaSetPositionDirectOption) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    bool option;
+    is >> nemaPoint >> option;
+    fPrimGen->SetNemaPointGenerationOption(nemaPoint, NemaGenerationOption::nDirect, option);
+  } else if (command == fNemaSetPositionSize) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    G4double x; //radius
+    G4double y; //length
+    G4double z;
+    is >> nemaPoint >> x >> y >> z;
+    fPrimGen->SetNemaPointSize(nemaPoint, x*cm, y*cm, z*cm);
   } else if (command == fNemaSetPositionPromptOption) {
-    fPrimGen->SetNemaPointPromptOption(fNemaPosition->GetNewIntValue(newValue));
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    bool option;
+    is >> nemaPoint >> option;
+    fPrimGen->SetNemaPointGenerationOption(nemaPoint, NemaGenerationOption::nPrompt, option);
   } else if (command == fNemaSetPositionPromptSize) {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int nemaPoint;
-    G4double radius, length;
-    is >> nemaPoint >> radius >> length;
-    fPrimGen->SetNemaPointPromptSize(nemaPoint, radius*cm, length*cm);
+    G4double x; //radius
+    G4double y; //length
+    G4double z;
+    is >> nemaPoint >> x >> y >> z;
+    fPrimGen->SetNemaPointPromptSize(nemaPoint, x*cm, y*cm, z*cm);
   } else if (command == fNemaSetPositionCylinderRotation) {
     G4String paramString = newValue;
     std::istringstream is(paramString);
@@ -247,6 +336,41 @@ void PrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, G4String
     G4double direction, power, length;
     is >> nemaPoint >> direction >> power >> length;
     fPrimGen->SetNemaPointShape(nemaPoint, Dimension::dimY, direction*cm, power, length);
+  } else if (command == fNemaSetPositionPositronReachShape) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    G4String shape;
+    is >> nemaPoint >> shape;
+    fPrimGen->SetPointPositronReachShape(nemaPoint, shape);
+  } else if (command == fNemaSetPositionPositronReach) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    G4double reach;
+    is >> nemaPoint >> reach;
+    fPrimGen->SetPointExperimentalReach(nemaPoint, reach);
+  } else if (command == fNemaSetPositionPositronReachDensDep) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    bool option;
+    is >> nemaPoint >> option;
+    fPrimGen->SetNemaPointGenerationOption(nemaPoint, NemaGenerationOption::nDirectLFDensDep, option);
+  } else if (command == fNemaSetPositionIsotopeType) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    G4String isotopeType;
+    is >> nemaPoint >> isotopeType;
+    fPrimGen->SetNemaPointIsotopeType(nemaPoint, isotopeType);
+  } else if (command == fNemaSetPhantomElementID) {
+    G4String paramString = newValue;
+    std::istringstream is(paramString);
+    G4int nemaPoint;
+    G4int phantomElement;
+    is >> nemaPoint >> phantomElement;
+    fPrimGen->SetPhantomElementIDForNemaPoint(nemaPoint, phantomElement);
   } else if (command == fSetChamberCenter) {
     if (!CheckIfRun()) { ChangeToRun(); }
     DetectorConstants::SetChamberCenter(fSetChamberCenter->GetNew3VectorValue(newValue));
