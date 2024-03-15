@@ -143,14 +143,8 @@ void HistoManager::Book()
   Int_t bufsize = 32000;
   Int_t splitlevel = 2;
   
-  // TODO MT IDEA: 
-  // auto analysisManager =  G4AnalysisManager::Instance();
-  // RunAction::BeginOfRunAction::
-  // analysisManager->SetFileName(...);
-  // analysisManager->OpenFile();
-  // here: analysisManager->CreateNtuple(treeName,treeDescription);
-
-  fTree = new TTree(("T"+thread).c_str(), "Tree keeps output from Geant simulation", splitlevel);
+  fRootFile->cd();
+  fTree = new TTree("T", "Tree keeps output from Geant simulation", splitlevel);
 #ifdef JPETMULTITHREADED
   std::string worker = G4Threading::IsWorkerThread() ? "worker" : "master";
   G4cout << "TTree created (" << worker << " thread)" << G4endl;
@@ -509,6 +503,8 @@ void HistoManager::AddNodeToDecayTree(int nodeID, int trackID)
 void HistoManager::Save()
 {
   if (!fRootFile) return;
+  G4AutoLock lock(&HMutex);
+  fRootFile->cd();
   fTree->Write();
   if (GetMakeControlHisto()) {
     TIterator* it = fStats.MakeIterator();
@@ -516,6 +512,7 @@ void HistoManager::Save()
     while ((obj = it->Next())) obj->Write();
   }
   fRootFile->Close();
+  delete fRootFile;
   G4cout << "\n----> Histograms and ntuples are saved\n" << G4endl;
 }
 

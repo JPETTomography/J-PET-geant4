@@ -58,5 +58,5 @@ void RunAction::BeginOfRunAction(const G4Run*)
 
 // cppcheck-suppress unusedFunction
 void RunAction::EndOfRunAction(const G4Run*) { 
-  // TODO MT fHistoManager->Save();
+  fHistoManager->Save();
   }
