@@ -31,7 +31,7 @@ RunAction::~RunAction() {}
 // cppcheck-suppress unusedFunction
 void RunAction::BeginOfRunAction(const G4Run*)
 {
-  // TODO MT fHistoManager->Book();
+  fHistoManager->Book();
 
   int mask = 01001010;
 

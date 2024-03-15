@@ -21,7 +21,11 @@
 #include <G4UnitsTable.hh>
 #include <vector>
 #include "G4Threading.hh"
+#include "G4AutoLock.hh"
 #include "TROOT.h"
+namespace {
+    G4Mutex HMutex = G4MUTEX_INITIALIZER;
+}
 
 HistoManager::HistoManager() : fMakeControlHisto(true)
 {
@@ -91,6 +95,7 @@ void HistoManager::fillHistogram(
 void HistoManager::Book()
 {
   if (fBookStatus) return;
+  G4AutoLock lock(&HMutex);
 
   G4String fileName = "mcGeant";
 #ifdef JPETMULTITHREADED
@@ -144,7 +149,7 @@ void HistoManager::Book()
 #endif
   //! autosave when 1 Gbyte written
   fTree->SetAutoSave(1000000000);
-  fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
+  // TODO MT DEBUG THIS fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
 
   if (GetMakeControlHisto()) BookHistograms();
   fBookStatus = true;
