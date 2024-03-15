@@ -1,0 +1,25 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11.3
+  - traitlets=5.9.0
+  - jupyter_server=1.23.6
+  - jupyter-server-proxy=3.2.2
+  - jupyter_http_over_ws=0.0.8
+  - root=6.28.0
+  - root_base=6.28.0
+  - xerces-c=3.2.4
+  - pybind11=2.10.4
+  - libffi=3.4.2
+  - gxx=11.3.0
+  - spdlog=1.12.0
+  - gtest=1.14.0
+  - fmt=9.1.0
+  - pydicom=2.4.4
+  - scipy=1.10.1
+  - pandas=2.0.1
+  - polars=0.18
+  - numpy=1.24.3
+  - boost-cpp=1.78.0
+  - pip

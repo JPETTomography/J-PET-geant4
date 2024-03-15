@@ -118,19 +118,7 @@ include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/CADMesh/)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.50 REQUIRED
-             COMPONENTS filesystem
-                        program_options
-                        regex
-                        system
-                        log_setup
-                        log
-                        date_time
-                        thread
-                        chrono
-                        atomic
-                        )
-
+find_package(Boost 1.70 REQUIRED)
 if(NOT TARGET Boost::filesystem)
     add_library(Boost::filesystem IMPORTED INTERFACE)
     set_property(TARGET Boost::filesystem PROPERTY
