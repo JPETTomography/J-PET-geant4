@@ -19,9 +19,17 @@
 #include "../Info/EventMessenger.h"
 #include <G4RunManager.hh>
 
-class RunManager : public G4RunManager
+#ifdef JPETMULTITHREADED
+  #include "G4Threading.hh"
+  #include "G4MTRunManager.hh"
+  class RunManager : public G4MTRunManager
+#else
+  class RunManager : public G4RunManager
+#endif
 {
 public:
+  RunManager();
+  virtual ~RunManager(){}
   void DoEventLoop(G4int n_event, const char* macroFile = 0, G4int n_select = -1) override;
 
 private:

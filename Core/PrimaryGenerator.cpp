@@ -419,7 +419,7 @@ void PrimaryGenerator::GenerateCosmicVertex(SourceParams* sourceParams, G4Event*
   }
   auto cosmicVertex = projectPointToWorldRoof(posInDetector, theta, phi);
 
-  histo->FillCosmicInfo(theta, posInDetector, cosmicVertex->GetPosition());
+  // MT TODO histo->FillCosmicInfo(theta, posInDetector, cosmicVertex->GetPosition());
   VtxInformation* info = new VtxInformation();
   info->SetCosmicGen(true);
   info->SetVtxPosition(cosmicVertex->GetPosition());

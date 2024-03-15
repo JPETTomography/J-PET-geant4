@@ -20,9 +20,12 @@
 #include <G4SystemOfUnits.hh>
 #include <G4UnitsTable.hh>
 #include <vector>
+#include "G4Threading.hh"
+#include "TROOT.h"
 
 HistoManager::HistoManager() : fMakeControlHisto(true)
 {
+  ROOT::EnableThreadSafety();
   fTempDecayTree = new JPetGeantDecayTree();
   fEventPack = new JPetGeantEventPack();
   fGeantInfo = fEventPack->GetEventInformation();
@@ -89,7 +92,12 @@ void HistoManager::Book()
 {
   if (fBookStatus) return;
 
-  G4String fileName = "mcGeant.root";
+  G4String fileName = "mcGeant";
+#ifdef JPETMULTITHREADED
+  if(G4Threading::G4GetThreadId()>-1) // ThreadId: -1 is for the master thread
+    fileName += "_" + std::to_string(G4Threading::G4GetThreadId() );
+#endif
+  fileName += ".root";
 
   if (fEvtMessenger->AddDatetime()) {
     TDatime* now = new TDatime();
@@ -130,6 +138,10 @@ void HistoManager::Book()
   Int_t splitlevel = 2;
 
   fTree = new TTree("T", "Tree keeps output from Geant simulation", splitlevel);
+#ifdef JPETMULTITHREADED
+  std::string worker = G4Threading::IsWorkerThread() ? "worker" : "master";
+  G4cout << "TTree created (" << worker << " thread)" << G4endl;
+#endif
   //! autosave when 1 Gbyte written
   fTree->SetAutoSave(1000000000);
   fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);

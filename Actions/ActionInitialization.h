@@ -17,13 +17,17 @@
 #define ACTIONINITIALIZATION_H 1
 
 #include <G4VUserActionInitialization.hh>
+#include "G4Cache.hh"
 
+class HistoManager;
 /**
  * @class ActionInitialization
  * @brief function inherited from GEANT4; be careful while implementing multithread mode
  */
 class ActionInitialization : public G4VUserActionInitialization
 {
+private:
+  G4Cache<HistoManager*> fHistoManager;
 public:
   ActionInitialization();
   virtual ~ActionInitialization();

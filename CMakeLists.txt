@@ -20,6 +20,14 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 ################################################################################
+# To enable multithreading, run cmake with -DMT=ON
+if(MT)
+  add_compile_definitions(JPETMULTITHREADED)
+  message(STATUS "Multithreading ENABLED!")
+else()
+  message(STATUS "Multithreading DISABLED!")
+endif()
+################################################################################
 ## Specify source folders
 set(FOLDERS_WITH_SOURCE
   Objects/Framework
@@ -56,6 +64,7 @@ set(SCRIPT_FILES
   run5_lifetime.mac
   run6.mac
   run7.mac
+  run12.mac
   nema.mac
   cosmics.mac
   init_vis.mac
