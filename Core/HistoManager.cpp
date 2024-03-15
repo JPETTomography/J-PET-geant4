@@ -22,14 +22,13 @@
 #include <vector>
 #include "G4Threading.hh"
 #include "G4AutoLock.hh"
-#include "TROOT.h"
+
 namespace {
     G4Mutex HMutex = G4MUTEX_INITIALIZER;
 }
 
 HistoManager::HistoManager() : fMakeControlHisto(true)
 {
-  ROOT::EnableThreadSafety();
   fTempDecayTree = new JPetGeantDecayTree();
   fEventPack = new JPetGeantEventPack();
   fGeantInfo = fEventPack->GetEventInformation();
@@ -98,9 +97,11 @@ void HistoManager::Book()
   G4AutoLock lock(&HMutex);
 
   G4String fileName = "mcGeant";
+  G4String thread = "";
 #ifdef JPETMULTITHREADED
   if(G4Threading::G4GetThreadId()>-1) // ThreadId: -1 is for the master thread
     fileName += "_" + std::to_string(G4Threading::G4GetThreadId() );
+    thread = std::to_string(G4Threading::G4GetThreadId() );
 #endif
   fileName += ".root";
 
@@ -141,15 +142,22 @@ void HistoManager::Book()
 
   Int_t bufsize = 32000;
   Int_t splitlevel = 2;
+  
+  // TODO MT IDEA: 
+  // auto analysisManager =  G4AnalysisManager::Instance();
+  // RunAction::BeginOfRunAction::
+  // analysisManager->SetFileName(...);
+  // analysisManager->OpenFile();
+  // here: analysisManager->CreateNtuple(treeName,treeDescription);
 
-  fTree = new TTree("T", "Tree keeps output from Geant simulation", splitlevel);
+  fTree = new TTree(("T"+thread).c_str(), "Tree keeps output from Geant simulation", splitlevel);
 #ifdef JPETMULTITHREADED
   std::string worker = G4Threading::IsWorkerThread() ? "worker" : "master";
   G4cout << "TTree created (" << worker << " thread)" << G4endl;
 #endif
   //! autosave when 1 Gbyte written
   fTree->SetAutoSave(1000000000);
-  // TODO MT DEBUG THIS fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
+  fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
 
   if (GetMakeControlHisto()) BookHistograms();
   fBookStatus = true;
