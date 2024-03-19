@@ -164,6 +164,7 @@ void HistoManager::SaveEvtPack()
     newDecayTree->Clear("C");
     newDecayTree->CopyDecayTree(fTempDecayTree);
   }
+  fRootFile->cd();
   fTree->Fill();
   fTempDecayTree->Clear("C");
   fEmptyEvent = true;

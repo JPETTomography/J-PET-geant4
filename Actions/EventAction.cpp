@@ -42,8 +42,8 @@ void EventAction::BeginOfEventAction(const G4Event*)
     G4String colNam;
     fScinCollID = SDman->GetCollectionID(colNam = "detectorCollection");
   }
-  // TODO MT fHistoManager->Clear();
-  // TODO MT fHistoManager->SetEventNumber(fEventID);
+  fHistoManager->Clear();
+  fHistoManager->SetEventNumber(fEventID);
   fEventID++;
 }
 
@@ -74,16 +74,16 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
     }
   }
 
-  //TODO MT WriteToFile(anEvent);
-  //TODO MT fHistoManager->SetEventNumber(anEvent->GetEventID() + 1);
+  WriteToFile(anEvent);
+  fHistoManager->SetEventNumber(anEvent->GetEventID() + 1);
 }
 
 void EventAction::WriteToFile(const G4Event* anEvent)
 {
   //! save information about generated events
   G4int id = anEvent->GetEventID();
-  // TODO MT fHistoManager->SetEventNumber(id);
-  // TODO MT fHistoManager->FillHistoGenInfo(anEvent);
+  fHistoManager->SetEventNumber(id);
+  fHistoManager->FillHistoGenInfo(anEvent);
 
   //! save information about registered events
   G4HCofThisEvent* HCE = anEvent->GetHCofThisEvent();
@@ -99,12 +99,12 @@ void EventAction::WriteToFile(const G4Event* anEvent)
       // Removing remnants from the energy deposition cut on prim photon
       if (EnergyDeposit < .511 - fEvtMessenger->GetEnergyCut() && fEvtMessenger->GetEnergyCutFlag()) continue;
      
-      // TODO MT fHistoManager->AddNewHit(dh);
+      fHistoManager->AddNewHit(dh);
     }
   }
 
   //! save to output file
-  // TODO MT fHistoManager->SaveEvtPack();
+  fHistoManager->SaveEvtPack();
 }
 
 bool EventAction::Is2gRegistered()
