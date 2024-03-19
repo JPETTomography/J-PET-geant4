@@ -18,7 +18,7 @@
 
 #include <G4VUserActionInitialization.hh>
 #include "G4Cache.hh"
-
+#include <memory>
 class HistoManager;
 /**
  * @class ActionInitialization
@@ -27,7 +27,7 @@ class HistoManager;
 class ActionInitialization : public G4VUserActionInitialization
 {
 private:
-  G4Cache<HistoManager*> fHistoManager;
+  G4Cache<std::shared_ptr<HistoManager>> fHistoManager;
 public:
   ActionInitialization();
   virtual ~ActionInitialization();
