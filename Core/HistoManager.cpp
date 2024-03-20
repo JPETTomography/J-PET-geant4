@@ -22,12 +22,13 @@
 #include <vector>
 #include "G4Threading.hh"
 #include "G4AutoLock.hh"
+#include <TH1.h>
 
 namespace {
     G4Mutex HMutex = G4MUTEX_INITIALIZER;
 }
 
-HistoManager::HistoManager() : fMakeControlHisto(true)
+HistoManager::HistoManager()
 {
   fTempDecayTree = new JPetGeantDecayTree();
   fEventPack = new JPetGeantEventPack();
@@ -35,7 +36,10 @@ HistoManager::HistoManager() : fMakeControlHisto(true)
   fDecayChannel = DecayChannel::kUnknown;
 }
 
-HistoManager::~HistoManager() {}
+HistoManager::~HistoManager() {
+  delete fTempDecayTree;
+  delete fEventPack;
+}
 
 void HistoManager::createHistogramWithAxes(
   TObject* object, TString xAxisName, TString yAxisName, TString zAxisName
@@ -55,14 +59,16 @@ void HistoManager::createHistogramWithAxes(
     tempHisto->GetYaxis()->SetTitle(yAxisName);
     tempHisto->GetZaxis()->SetTitle(zAxisName);
   }
-  fStats.Add(object);
+  fControlHistograms[object->GetName()] = object;
 }
 
 void HistoManager::fillHistogram(
   const char* name, double xValue, doubleCheck yValue, doubleCheck zValue
 ) {
-  TObject* tempObject = getObject<TObject>(name);
-  if (!tempObject) {
+  TObject* tempObject = nullptr;
+  try{ 
+    tempObject = fControlHistograms.at(name);
+  } catch (const std::out_of_range& e) {
     writeError(name, " does not exist");
     return;
   }
@@ -154,11 +160,12 @@ void HistoManager::Book()
   fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
 
   if (GetMakeControlHisto()) BookHistograms();
+  // gObjectTable->Print();
   fBookStatus = true;
 }
 
 void HistoManager::SaveEvtPack() 
-{
+{ 
   if (!fEmptyEvent) {
     JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
     newDecayTree->Clear("C");
@@ -508,13 +515,13 @@ void HistoManager::Save()
   fRootFile->cd();
   fTree->Write();
   if (GetMakeControlHisto()) {
-    TIterator* it = fStats.MakeIterator();
-    TObject* obj;
-    while ((obj = it->Next())) obj->Write();
+    for(const auto& hist: fControlHistograms){
+      hist.second->Write();
+    }
   }
   fRootFile->Close();
   delete fRootFile;
-  G4cout << "\n----> Histograms and ntuples are saved\n" << G4endl;
+  G4cout << "----> Histograms and ntuples are saved\n" << G4endl;
 }
 
 void HistoManager::writeError(const char* nameOfHistogram, const char* messageEnd)

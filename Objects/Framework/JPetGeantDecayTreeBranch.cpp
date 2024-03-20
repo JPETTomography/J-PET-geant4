@@ -14,8 +14,14 @@
  */
 
 #include "JPetGeantDecayTreeBranch.h"
+#include <TObjectTable.h>
 
 ClassImp(JPetGeantDecayTreeBranch)
+
+JPetGeantDecayTreeBranch::JPetGeantDecayTreeBranch()
+{
+  gObjectTable->RemoveQuietly(this);
+}
 
 JPetGeantDecayTreeBranch::~JPetGeantDecayTreeBranch()
 {

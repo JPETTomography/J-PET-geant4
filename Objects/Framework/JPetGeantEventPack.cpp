@@ -14,6 +14,7 @@
  */
 
 #include "JPetGeantEventPack.h"
+#include <TObjectTable.h>
 
 ClassImp(JPetGeantEventPack)
 
@@ -21,6 +22,8 @@ JPetGeantEventPack::JPetGeantEventPack() : fMCHits("JPetGeantScinHits", 10000),
 fMCDecayTrees("JPetGeantDecayTree", 1000), fEvtIndex(0), fHitIndex(0), fMCDecayTreesIndex(0)
 {
   fGenInfo = new JPetGeantEventInformation();
+  gObjectTable->RemoveQuietly(this);
+
 }
 
 JPetGeantScinHits* JPetGeantEventPack::ConstructNextHit()
@@ -41,6 +44,7 @@ JPetGeantEventPack::~JPetGeantEventPack()
   fHitIndex = 0;
   fMCDecayTreesIndex = 0;
   fGenInfo->Clear();
+  delete fGenInfo;
 }
 
 void JPetGeantEventPack::Clear(Option_t *)

@@ -37,7 +37,7 @@ class JPetGeantDecayTreeBranch : public TObject
 {
     
 public:
-  JPetGeantDecayTreeBranch() {};
+  JPetGeantDecayTreeBranch();
   ~JPetGeantDecayTreeBranch();
   
   void Clear(Option_t *);

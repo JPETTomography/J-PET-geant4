@@ -31,10 +31,10 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH3F.h>
-#include <THashTable.h>
 #include <TTree.h>
 #include <globals.hh>
 #include <set>
+#include <unordered_map>
 
 class TFile;
 class TTree;
@@ -86,17 +86,6 @@ public:
   void fillHistogram(const char* name, double xValue, doubleCheck yValue = doubleCheck(), doubleCheck zValue = doubleCheck());
   void writeError(const char* nameOfHistogram, const char* messageEnd);
 
-  template <typename T>
-  T* getObject(const char* name)
-  {
-    TObject* tmp = fStats.FindObject(name);
-    if (!tmp)
-    {
-      return nullptr;
-    }
-    return dynamic_cast<T*>(tmp);
-  }
-
 private:
   HistoManager(const HistoManager& histoManagerToCopy);
 
@@ -105,7 +94,7 @@ private:
   bool fEmptyEvent = true;
   DecayChannel fDecayChannel;
   bool fBookStatus = false;
-  bool fMakeControlHisto = false;
+  bool fMakeControlHisto = true;
   TFile* fRootFile = nullptr;
   TTree* fTree = nullptr;
   TBranch* fBranchTrk = nullptr;
@@ -120,7 +109,7 @@ private:
   void BookHistograms();
 
 protected:
-  THashTable fStats;
+  std::unordered_map<std::basic_string<char>, TObject*> fControlHistograms;
   std::set<std::string> fErrorCounts;
 };
 
