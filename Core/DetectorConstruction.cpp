@@ -41,6 +41,10 @@
 
 namespace pt = boost::property_tree;
 
+namespace {
+  G4Mutex detectorConstructionMutex = G4MUTEX_INITIALIZER;
+}
+
 DetectorConstruction* DetectorConstruction::fInstance = 0;
 
 DetectorConstruction* DetectorConstruction::GetInstance()
@@ -128,27 +132,29 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 // cppcheck-suppress unusedFunction
 void DetectorConstruction::ConstructSDandField()
 {
+  G4AutoLock lock(&detectorConstructionMutex);
+
   if (!fDetectorSD.Get())
   {
     DetectorSD* det = new DetectorSD("/mydet/detector", getNumberOfScintillators(), DetectorConstants::GetMergingTimeValueForScin());
     det->SetHistoManager(fHistoManager);
     fDetectorSD.Put(det);
-  }
 
-  G4SDManager::GetSDMpointer()->AddNewDetector(fDetectorSD.Get());
-  if (fScinLog)
-  {
-    SetSensitiveDetector(fScinLog, fDetectorSD.Get());
-  }
-  if (fScinLogInModule)
-  {
-    SetSensitiveDetector(fScinLogInModule, fDetectorSD.Get());
-  }
-  if (fReadJSONSetup)
-  {
-    for (auto scinLog : fStripsFromSetup)
+    G4SDManager::GetSDMpointer()->AddNewDetector(fDetectorSD.Get());
+    if (fScinLog)
     {
-      SetSensitiveDetector(scinLog, fDetectorSD.Get());
+      SetSensitiveDetector(fScinLog, fDetectorSD.Get());
+    }
+    if (fScinLogInModule)
+    {
+      SetSensitiveDetector(fScinLogInModule, fDetectorSD.Get());
+    }
+    if (fReadJSONSetup)
+    {
+      for (auto scinLog : fStripsFromSetup)
+      {
+        SetSensitiveDetector(scinLog, fDetectorSD.Get());
+      }
     }
   }
 }
