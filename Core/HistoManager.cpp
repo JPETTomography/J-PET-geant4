@@ -166,6 +166,7 @@ void HistoManager::Book()
 
 void HistoManager::SaveEvtPack() 
 { 
+  G4AutoLock lock(&HMutex);
   if (!fEmptyEvent) {
     JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
     newDecayTree->Clear("C");
