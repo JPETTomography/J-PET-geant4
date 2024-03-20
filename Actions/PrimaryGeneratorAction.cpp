@@ -92,7 +92,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
       "Called non-existing source"
     );
   }
-  // TODO MT  fHistoManager->SetDecayChannel(fPrimaryGenerator->GetDecayChannel());
+  fHistoManager->SetDecayChannel(fPrimaryGenerator->GetDecayChannel());
 }
 
 void PrimaryGeneratorAction::SetSourceTypeInfo(G4String newSourceType)

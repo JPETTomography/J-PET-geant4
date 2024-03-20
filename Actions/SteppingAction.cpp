@@ -84,12 +84,12 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     //! particle quanta interact in phantom or frame (but not SD!)
     double momentumChange = abs(aStep->GetPostStepPoint()->GetMomentum().mag2() - aStep->GetPreStepPoint()->GetMomentum().mag2());
     if (momentumChange > EventMessenger::GetEventMessenger()->GetAllowedMomentumTransfer()) {
-      /* TODO MT if (fHistoManager) {
+      if (fHistoManager) {
         fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity());
         fHistoManager->AddNodeToDecayTree(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition, 
                                           aStep->GetTrack()->GetDynamicParticle()->GetPrimaryParticle()->GetTrackID());
         fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition);
-      } */
+      }
       info->SetGammaMultiplicity(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition);
     }
   }
