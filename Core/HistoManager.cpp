@@ -23,10 +23,13 @@
 #include "G4Threading.hh"
 #include "G4AutoLock.hh"
 #include <TH1.h>
+#include <filesystem>
 
 namespace {
     G4Mutex HMutex = G4MUTEX_INITIALIZER;
 }
+
+namespace fs = std::filesystem;
 
 HistoManager::HistoManager()
 {
@@ -125,12 +128,24 @@ void HistoManager::Book()
       std::replace(data_time_str.begin(), data_time_str.end(), ':', '_');
       return data_time_str;
     };
+  
+  auto createDirIfNotExits = [](const std::string& path) {
+    fs::path dp (path);
+    if(!fs::exists (dp)){
+      std::cout << " HistoManager::Book : Created directory: "<< path <<std::endl;
+      fs::create_directories(dp);
+    }
+    return path;
+  };
+
+  std::string path = createDirIfNotExits("./output"); // TODO: This should be configurable
+  createDirIfNotExits(path);
 
   if (fEvtMessenger->AddDatetime()) {
     fileName = currentDateTime()+"."+fileName; 
   }
-  fileName += ".root";
-
+  
+  fileName = path+"/"+fileName+".root";
   fRootFile = new TFile(fileName, "RECREATE");
   if (!fRootFile) {
     G4cout << " HistoManager::Book :" << " problem creating the ROOT TFile " << G4endl;
