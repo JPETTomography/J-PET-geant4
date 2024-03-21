@@ -16,13 +16,6 @@
 #include "../Actions/EventAction.h"
 #include "RunManager.h"
 
-RunManager::RunManager(){
-#ifdef JPETMULTITHREADED
-  G4MTRunManager::SetNumberOfThreads(2);
-#endif
-}
-
-
 // cppcheck-suppress unusedFunction
 void RunManager::DoEventLoop(G4int n_event, const char* macroFile, G4int n_select)
 {

@@ -28,9 +28,15 @@
 #endif
 {
 public:
-  RunManager();
+  RunManager()=default;
   virtual ~RunManager(){}
   void DoEventLoop(G4int n_event, const char* macroFile = 0, G4int n_select = -1) override;
+
+  inline void SetNumberOfThreads(G4int nCPU){
+    #ifdef JPETMULTITHREADED
+      G4MTRunManager::SetNumberOfThreads(nCPU);
+    #endif
+  }
 
 private:
   EventMessenger* fEvtMessenger = EventMessenger::GetEventMessenger();
