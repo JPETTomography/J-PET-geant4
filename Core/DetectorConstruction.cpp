@@ -14,7 +14,7 @@
  */
 
 #include "DetectorConstruction.h"
-#include "../Info/DetectorConstructionMessenger.h"
+#include "DetectorConstructionMessenger.h"
 #include "DetectorConstants.h"
 #include "MaterialExtension.h"
 #include "MaterialParameters.h"
