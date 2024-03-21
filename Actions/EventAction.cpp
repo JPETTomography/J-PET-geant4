@@ -27,6 +27,7 @@
 #include <G4SDManager.hh>
 #include <G4Event.hh>
 #include "G4RunManager.hh"
+#include "G4Run.hh"
 
 EventAction::EventAction() : is2gRec(false), is3gRec(false), fEventID(0)
 {}
@@ -78,6 +79,38 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
 
   WriteToFile(anEvent);
   fHistoManager->SetEventNumber(anEvent->GetEventID() + 1);
+
+  // PRINT PROGRESS
+  auto time_in_HH_MM_SS_MMM = []() {
+    using namespace std::chrono;
+    auto now = system_clock::now();
+    auto current_ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
+    auto timer = system_clock::to_time_t(now);
+    std::tm bt = *std::localtime(&timer);
+    std::ostringstream oss;
+    oss << std::put_time(&bt, "%F %T");  // YY-MM-DD HH:MM:SS
+    oss << '.' << std::setfill('0') << std::setw(3) << current_ms.count();
+    return oss.str();
+  };
+
+  auto eventID = anEvent->GetEventID();
+  double printProgress = 0.05; // Print progrees with 5% frequency
+  auto totalNoOfEvents = G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEventToBeProcessed();
+  if ((eventID % std::lround(printProgress * totalNoOfEvents) == 0)) {
+    std::ostringstream oss;
+    oss << "---> " << 100.0 * printProgress * eventID / std::lround(printProgress * totalNoOfEvents) << " %";
+    oss << " ( Event: " << eventID << " / " << totalNoOfEvents << " )  ";
+    oss << time_in_HH_MM_SS_MMM();
+    oss << G4endl;
+    G4cout << oss.str() << std::flush;
+  } else if (eventID == totalNoOfEvents - 1) {
+    std::ostringstream oss;
+    oss << "---> 100% ( Event: " << eventID << " / " << totalNoOfEvents << " )  ";
+    oss << time_in_HH_MM_SS_MMM();
+    oss << G4endl;
+    G4cout << oss.str() << std::flush;
+  }
+
 }
 
 void EventAction::WriteToFile(const G4Event* anEvent)
