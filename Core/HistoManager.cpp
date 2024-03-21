@@ -109,42 +109,35 @@ void HistoManager::Book()
     fileName += "_" + std::to_string(G4Threading::G4GetThreadId() );
     thread = std::to_string(G4Threading::G4GetThreadId() );
 #endif
-  fileName += ".root";
+
+  auto currentDateTime = []() {
+      // Get current date/time and convert to string
+      time_t     now = time(0);
+      struct tm  tstruct;
+      char       buf[80];
+      tstruct = *localtime(&now);
+      // For more information about date/time format visit:
+      // http://en.cppreference.com/w/cpp/chrono/c/strftime
+      strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+      auto data_time_str = std::string(buf); // returned format is YYYY-MM-DD.HH:mm:ss
+      std::replace(data_time_str.begin(), data_time_str.end(), '-', '_');
+      std::replace(data_time_str.begin(), data_time_str.end(), '.', '-');
+      std::replace(data_time_str.begin(), data_time_str.end(), ':', '_');
+      return data_time_str;
+    };
 
   if (fEvtMessenger->AddDatetime()) {
-    TDatime* now = new TDatime();
-    std::string a_year = std::to_string(now->GetYear());
-    std::string a_month = std::to_string(now->GetMonth());
-    if (a_month.length() == 1) {
-      a_month = std::string("0") + a_month;
-    }
-    std::string a_day = std::to_string(now->GetDay());
-    if (a_day.length() == 1) {
-      a_day = std::string("0") + a_day;
-    }
-    std::string a_hour = std::to_string(now->GetHour());
-    if (a_hour.length() == 1) {
-      a_hour = std::string("0") + a_hour;
-    }
-    std::string a_minute = std::to_string(now->GetMinute());
-    if (a_minute.length() == 1) {
-      a_minute = std::string("0") + a_minute;
-    }
-    std::string a_second = std::to_string(now->GetSecond());
-    if (a_second.length() == 1) {
-      a_second = std::string("0") + a_second;
-    }
-    std::string dateTime =
-      a_year + "_" + a_month + "_" + a_day + "-"
-      + a_hour + "_" + a_minute + "_" + a_second;
-    fileName = dateTime + "." + fileName;
+    fileName = currentDateTime()+"."+fileName; 
   }
+  fileName += ".root";
 
   fRootFile = new TFile(fileName, "RECREATE");
   if (!fRootFile) {
     G4cout << " HistoManager::Book :" << " problem creating the ROOT TFile " << G4endl;
     return;
   }
+  G4cout << " HistoManager::Book: created the ROOT TFile " << fileName << G4endl;
+
 
   Int_t bufsize = 32000;
   Int_t splitlevel = 2;
