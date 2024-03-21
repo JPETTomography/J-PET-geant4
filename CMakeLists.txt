@@ -137,23 +137,6 @@ set(HEADERS_DIR ${PROJECT_SOURCE_DIR}/Core
 include_directories(SYSTEM ${HEADERS_DIR})
 
 ################################################################################
-## Include Boost
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.70 REQUIRED)
-if(NOT TARGET Boost::filesystem)
-    add_library(Boost::filesystem IMPORTED INTERFACE)
-    set_property(TARGET Boost::filesystem PROPERTY
-        INTERFACE_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR})
-    set_property(TARGET Boost::filesystem PROPERTY
-        INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES})
-endif()
-
-include_directories(${Boost_INCLUDE_DIRS})
-add_definitions(${Boost_DEFINITIONS})
-link_directories(${Boost_LIBRARY_DIRS})
-################################################################################
 ## Include ROOT
 find_package(ROOT REQUIRED)
 message(STATUS "ROOT version: ${ROOT_VERSION}")
