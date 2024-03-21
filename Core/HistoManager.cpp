@@ -13,7 +13,13 @@
  *  @file HistoManager.cpp
  */
 
-#include "../Info/PrimaryParticleInformation.h"
+#include "PrimaryParticleInformation.h"
+#include "JPetGeantDecayTreeBranch.h"
+#include "JPetGeantEventInformation.h"
+#include "JPetGeantScinHits.h"
+#include "VtxInformation.h"
+#include "DetectorHit.h"
+
 #include "DetectorConstants.h"
 #include "HistoManager.h"
 

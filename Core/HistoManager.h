@@ -16,15 +16,7 @@
 #ifndef HISTOMANAGER_H
 #define HISTOMANAGER_H 1
 
-#include "../Info/EventMessenger.h"
-#include "../Info/VtxInformation.h"
-#include "../Objects/Framework/JPetGeantDecayTree.h"
-#include "../Objects/Framework/JPetGeantDecayTreeBranch.h"
-#include "../Objects/Framework/JPetGeantEventInformation.h"
-#include "../Objects/Framework/JPetGeantEventPack.h"
-#include "../Objects/Framework/JPetGeantScinHits.h"
-#include "../Objects/Geant4/DetectorHit.h"
-
+#include "EventMessenger.h"
 #include <G4Event.hh>
 #include <G4PrimaryParticle.hh>
 #include <TFile.h>
@@ -35,9 +27,15 @@
 #include <globals.hh>
 #include <set>
 #include <unordered_map>
+#include "JPetGeantDecayTree.h"
+#include "JPetGeantEventPack.h"
 
 class TFile;
 class TTree;
+
+class JPetGeantEventInformation;
+class VtxInformation;
+class DetectorHit;
 
 struct doubleCheck
 {

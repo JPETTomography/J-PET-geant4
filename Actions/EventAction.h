@@ -16,10 +16,10 @@
 #ifndef EVENTACTION_H
 #define EVENTACTION_H 1
 
-#include "../Objects/Framework/JPetGeantDecayTree.h"
-#include "../Objects/Framework/JPetGeantScinHits.h"
-#include "../Info/EventMessenger.h"
-#include "../Core/HistoManager.h"
+#include "JPetGeantDecayTree.h"
+#include "JPetGeantScinHits.h"
+#include "EventMessenger.h"
+#include "HistoManager.h"
 
 #include <G4UserEventAction.hh>
 #include <globals.hh>

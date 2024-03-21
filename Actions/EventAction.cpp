@@ -13,9 +13,11 @@
  *  @file EventAction.cpp
  */
 
-#include "../Info/PrimaryParticleInformation.h"
-#include "../Objects/Geant4/DetectorHit.h"
-#include "../Objects/Geant4/Trajectory.h"
+#include "PrimaryParticleInformation.h"
+#include "DetectorHit.h"
+#include "Trajectory.h"
+#include "VtxInformation.h"
+
 #include "EventAction.h"
 
 #include <G4TrajectoryContainer.hh>
