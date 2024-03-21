@@ -66,5 +66,8 @@ int main (int argc, char** argv)
     file << seed << "\n";
     file.close();
   }
+  #ifdef JPETMULTITHREADED
+    HistoManager::MergeNTuples(true); // merge ntuples and clean up
+  #endif
   return 0;
 }

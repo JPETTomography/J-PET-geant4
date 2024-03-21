@@ -24,12 +24,16 @@
 #include "G4AutoLock.hh"
 #include <TH1.h>
 #include <filesystem>
+#include "TFileMerger.h"
 
 namespace {
     G4Mutex HMutex = G4MUTEX_INITIALIZER;
 }
 
 namespace fs = std::filesystem;
+
+std::string HistoManager::fOuputFile = "mcGeant"; // TODO: This should be configurable
+std::string HistoManager::fOuputDir = "./output"; // TODO: This should be configurable
 
 HistoManager::HistoManager()
 {
@@ -105,7 +109,7 @@ void HistoManager::Book()
   if (fBookStatus) return;
   G4AutoLock lock(&HMutex);
 
-  G4String fileName = "mcGeant";
+  G4String fileName = fOuputFile;
   G4String thread = "";
 #ifdef JPETMULTITHREADED
   if(G4Threading::G4GetThreadId()>-1) // ThreadId: -1 is for the master thread
@@ -138,13 +142,11 @@ void HistoManager::Book()
     return path;
   };
 
-  std::string path = createDirIfNotExits("./output"); // TODO: This should be configurable
-  createDirIfNotExits(path);
-
   if (fEvtMessenger->AddDatetime()) {
     fileName = currentDateTime()+"."+fileName; 
   }
-  
+
+  std::string path = createDirIfNotExits(fOuputDir); 
   fileName = path+"/"+fileName+".root";
   fRootFile = new TFile(fileName, "RECREATE");
   if (!fRootFile) {
@@ -543,3 +545,38 @@ void HistoManager::writeError(const char* nameOfHistogram, const char* messageEn
     << histName << " " << messageEnd << G4endl;
   }
 }
+
+void HistoManager::MergeNTuples(bool cleanUp){
+  auto getFilesInDir = [](const std::string& path, const std::string& extension){
+    std::vector<std::string> files;
+    if(path.empty())
+      return files;
+    for (const auto & file: fs::directory_iterator(path)) {
+      auto file_path = static_cast<std::string>(file.path());
+      if(extension.empty()){
+        files.push_back(file_path);
+      }
+      else {
+        if(file_path.find(extension) != std::string::npos)
+          files.push_back(file_path);
+      }
+    }
+    return files;
+  };
+
+  auto files_to_merge = getFilesInDir(fOuputDir, ".root");
+  TFileMerger fm(kFALSE); // Don't make a local copies of merging files 
+  fm.OutputFile((fOuputFile+"_merged.root").c_str());
+  for(const auto& file : files_to_merge){
+    fm.AddFile((file).c_str());
+  }
+  fm.Merge();
+  G4cout << "NTuples are merged!" << G4endl;
+  if(cleanUp){
+    for(const auto& file : files_to_merge){
+      fs::remove(file);
+    }
+    G4cout << "Cleaning up... - done!\n" << G4endl;
+  }
+}
+
