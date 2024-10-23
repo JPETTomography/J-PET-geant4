@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "wsl-ubuntu2204",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/geant4/include/**",
+                "/home/geant4/miniconda3/envs/j-pet/include/**"
+            ],
+            "defines": [],
+            "compilerPath": "/home/geant4/miniconda3/envs/j-pet/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}
