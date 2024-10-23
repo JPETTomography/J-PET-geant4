@@ -27,7 +27,7 @@
  * e.g. vertices and times distributions for annihilation
  * and prompt gamma photons
  */
-class JPetGeantEventInformation : public TObject
+class JPetGeantEventInformation// : public TObject
 {
 public:
   JPetGeantEventInformation();
@@ -83,7 +83,7 @@ private:
   bool fCosmicEventTag = false;
 
 private:
-  ClassDef(JPetGeantEventInformation, 7)
+  ClassDef(JPetGeantEventInformation, 8)
 };
 
 #endif /* !JPET_GEANT_EVENT_INFORMATION_H */

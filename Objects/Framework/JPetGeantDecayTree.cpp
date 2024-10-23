@@ -30,7 +30,7 @@ JPetGeantDecayTree::~JPetGeantDecayTree()
 {
   fEventID = 0;
   fDecayTreeBranchesIndex = 0;
-  fDecayChannel = DecayChannel::kUnknown;
+  fDecayChannel = DecayChannel::jpgUnknown;
   fDecayTreeBranches.Clear("C");
   fTrackBranchConnection.clear();
 }
@@ -39,7 +39,7 @@ void JPetGeantDecayTree::Clear(Option_t *)
 {
   fEventID = 0;
   fDecayTreeBranchesIndex = 0;
-  fDecayChannel = DecayChannel::kUnknown;
+  fDecayChannel = DecayChannel::jpgUnknown;
   fDecayTreeBranches.Clear("C");
   fTrackBranchConnection.clear();
 }

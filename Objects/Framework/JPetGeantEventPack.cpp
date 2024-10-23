@@ -18,33 +18,53 @@
 
 ClassImp(JPetGeantEventPack)
 
-JPetGeantEventPack::JPetGeantEventPack() : fMCHits("JPetGeantScinHits", 10000),
-fMCDecayTrees("JPetGeantDecayTree", 1000), fEvtIndex(0), fHitIndex(0), fMCDecayTreesIndex(0)
+JPetGeantEventPack::JPetGeantEventPack() : 
+  fMCHits("JPetGeantScinHits", 10000),
+  // fMCDecayTrees("JPetGeantDecayTree", 1000), 
+  fEvtIndex(0), 
+  fHitIndex(0)
+  //  fMCDecayTreesIndex(0)
 {
   fGenInfo = new JPetGeantEventInformation();
   // NOTE: ROOT has a special class, called TObjectTable, 
   // which optionally keeps track of any object that inherits from TObject.
   // To get rid of ROOT garbage collector issues, we need to remove this object from the table
-  gObjectTable->RemoveQuietly(this);
+  //gObjectTable->RemoveQuietly(this);
 }
+
+// void JPetGeantEventPack::Streamer(TBuffer &R__b) {
+//     if (R__b.IsReading()) {
+//         TObject::Streamer(R__b);
+//         R__b >> fMCHits;
+//         R__b >> fGenInfo;
+//         R__b >> fEvtIndex;
+//         R__b >> fHitIndex;
+//     } else {
+//         TObject::Streamer(R__b);
+//         R__b << fMCHits;
+//         R__b << fGenInfo;
+//         R__b << fEvtIndex;
+//         R__b << fHitIndex;
+//     }
+// }
 
 JPetGeantScinHits* JPetGeantEventPack::ConstructNextHit()
 {
   return dynamic_cast<JPetGeantScinHits*>(fMCHits.ConstructedAt(fHitIndex++));
 }
 
-JPetGeantDecayTree* JPetGeantEventPack::ConstructNextDecayTree()
-{
-  return dynamic_cast<JPetGeantDecayTree*>(fMCDecayTrees.ConstructedAt(fMCDecayTreesIndex++));
-}
+// JPetGeantDecayTree* JPetGeantEventPack::ConstructNextDecayTree()
+// {
+//   return dynamic_cast<JPetGeantDecayTree*>(fMCDecayTrees.ConstructedAt(fMCDecayTreesIndex++));
+// }
 
 JPetGeantEventPack::~JPetGeantEventPack()
 {
   fMCHits.Clear("C");
-  fMCDecayTrees.Clear("C");
+  //fMCDecayTrees.Clear("C");
   fEvtIndex = 0;
   fHitIndex = 0;
-  fMCDecayTreesIndex = 0;
+  // fMCDecayTreesIndex = 0;
   fGenInfo->Clear();
   delete fGenInfo;
 }
@@ -52,8 +72,8 @@ JPetGeantEventPack::~JPetGeantEventPack()
 void JPetGeantEventPack::Clear(Option_t *)
 {
   fMCHits.Clear("C");
-  fMCDecayTrees.Clear("C");
+  // fMCDecayTrees.Clear("C");
   fHitIndex = 0;
-  fMCDecayTreesIndex = 0;
+  // fMCDecayTreesIndex = 0;
   fGenInfo->Clear();
 }

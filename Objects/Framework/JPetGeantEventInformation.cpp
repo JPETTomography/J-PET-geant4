@@ -24,7 +24,7 @@ fnRun(0), fLifetime(0), fPromptLifetime(0), fMomentumGamma(4), fCosmicEventTag(f
   // NOTE: ROOT has a special class, called TObjectTable, 
   // which optionally keeps track of any object that inherits from TObject.
   // To get rid of ROOT garbage collector issues, we need to remove this object from the table
-  gObjectTable->RemoveQuietly(this);
+  //gObjectTable->RemoveQuietly(this);
 }
 
 JPetGeantEventInformation::~JPetGeantEventInformation() {}

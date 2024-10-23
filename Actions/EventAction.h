@@ -43,6 +43,10 @@ public:
   bool Is2gRegistered();
   bool Is3gRegistered();
 
+  /// Event Multiplicity cut, default -1, means no cut
+  static int EvtMultCut;
+
+
 private:
   HistoManager* fHistoManager = nullptr;
   G4int fScinCollID;

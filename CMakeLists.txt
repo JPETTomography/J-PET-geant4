@@ -131,7 +131,8 @@ set(HEADERS_DIR ${PROJECT_SOURCE_DIR}/Core
                 ${PROJECT_SOURCE_DIR}/Info
                 ${PROJECT_SOURCE_DIR}/Objects/Framework
                 ${PROJECT_SOURCE_DIR}/Objects/Geant4
-                ${PROJECT_SOURCE_DIR}/CADMesh)
+                ${PROJECT_SOURCE_DIR}/Submodules/CADMesh
+                ${PROJECT_SOURCE_DIR}/Submodules/CxxOpts/include)
 
 ## Include header-only CADMesh library
 include_directories(SYSTEM ${HEADERS_DIR})

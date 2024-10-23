@@ -30,7 +30,7 @@ enum InteractionType
   kScattActivePart,
   kScattNonActivePart,
   kSecondaryPart,
-  kUnknownInteractionType
+  jpgUnknownInteractionType
 };
 
 class JPetGeantDecayTreeBranch : public TObject 

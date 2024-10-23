@@ -29,6 +29,8 @@
 #include "G4RunManager.hh"
 #include "G4Run.hh"
 
+int EventAction::EvtMultCut = -1;
+
 EventAction::EventAction() : is2gRec(false), is3gRec(false), fEventID(0)
 {}
 
@@ -115,6 +117,12 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
 
 void EventAction::WriteToFile(const G4Event* anEvent)
 {
+  auto evt_mult_cut = [](const int& nHit) -> bool {
+    if(EventAction::EvtMultCut<0)
+      return true;
+    return nHit >= EventAction::EvtMultCut ? true : false;
+  };
+
   //! save information about generated events
   G4int id = anEvent->GetEventID();
   fHistoManager->SetEventNumber(id);
@@ -126,6 +134,8 @@ void EventAction::WriteToFile(const G4Event* anEvent)
   if (HCE) {
     DHC = dynamic_cast<DetectorHitsCollection*>(HCE->GetHC(fScinCollID));
     int n_hit = DHC->entries();
+    if(!evt_mult_cut(n_hit))
+      return;
     for (int i = 0; i < n_hit; i++) {
       DetectorHit* dh = dynamic_cast<DetectorHit*>(DHC->GetHit(i));
      

@@ -62,5 +62,5 @@ InteractionType JPetGeantDecayTreeBranch::GetInteractionType(int nodeID) const
     if (fNodeIDs[i-1] == nodeID)
       return fInteractionType[i-1];
   }
-  return kUnknownInteractionType;
+  return jpgUnknownInteractionType;
 }

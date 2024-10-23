@@ -38,19 +38,19 @@ namespace {
 
 namespace fs = std::filesystem;
 
-std::string HistoManager::fOuputFile = "mcGeant"; // TODO: This should be configurable
-std::string HistoManager::fOuputDir = "./output"; // TODO: This should be configurable
+std::string HistoManager::OuputFileName = "mcGeant";
+std::string HistoManager::OuputDir = "./output";
 
 HistoManager::HistoManager()
 {
-  fTempDecayTree = new JPetGeantDecayTree();
+  //fTempDecayTree = new JPetGeantDecayTree();
   fEventPack = new JPetGeantEventPack();
   fGeantInfo = fEventPack->GetEventInformation();
-  fDecayChannel = DecayChannel::kUnknown;
+  fDecayChannel = DecayChannel::jpgUnknown;
 }
 
 HistoManager::~HistoManager() {
-  delete fTempDecayTree;
+  //delete fTempDecayTree;
   delete fEventPack;
 }
 
@@ -115,7 +115,7 @@ void HistoManager::Book()
   if (fBookStatus) return;
   G4AutoLock lock(&HMutex);
 
-  G4String fileName = fOuputFile;
+  G4String fileName = OuputFileName;
   G4String thread = "";
 #ifdef JPETMULTITHREADED
   if(G4Threading::G4GetThreadId()>-1) // ThreadId: -1 is for the master thread
@@ -152,7 +152,7 @@ void HistoManager::Book()
     fileName = currentDateTime()+"."+fileName; 
   }
 
-  std::string path = createDirIfNotExits(fOuputDir); 
+  std::string path = createDirIfNotExits(OuputDir+"/runtime"); 
   fileName = path+"/"+fileName+".root";
   fRootFile = new TFile(fileName, "RECREATE");
   if (!fRootFile) {
@@ -183,14 +183,14 @@ void HistoManager::Book()
 void HistoManager::SaveEvtPack() 
 { 
   G4AutoLock lock(&HMutex);
-  if (!fEmptyEvent) {
-    JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
-    newDecayTree->Clear("C");
-    newDecayTree->CopyDecayTree(fTempDecayTree);
-  }
+  // if (!fEmptyEvent) {
+  //   JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
+  //   newDecayTree->Clear("C");
+  //   newDecayTree->CopyDecayTree(fTempDecayTree);
+  // }
   fRootFile->cd();
   fTree->Fill();
-  fTempDecayTree->Clear("C");
+  //fTempDecayTree->Clear("C");
   fEmptyEvent = true;
 }
 
@@ -563,24 +563,30 @@ void HistoManager::MergeNTuples(bool cleanUp){
         files.push_back(file_path);
       }
       else {
-        if(file_path.find(extension) != std::string::npos)
-          files.push_back(file_path);
+        if(file_path.find(extension) != std::string::npos){
+          if(file_path.find(OuputFileName) != std::string::npos)
+            files.push_back(file_path);
+        }
       }
     }
     return files;
   };
 
-  auto files_to_merge = getFilesInDir(fOuputDir, ".root");
+  auto files_to_merge = getFilesInDir(OuputDir+"/runtime", ".root");
   TFileMerger fm(kFALSE); // Don't make a local copies of merging files 
-  fm.OutputFile((fOuputFile+"_merged.root").c_str());
+  fm.OutputFile((OuputDir+"/"+OuputFileName+"_merged.root").c_str());
   for(const auto& file : files_to_merge){
     fm.AddFile((file).c_str());
   }
   fm.Merge();
   G4cout << "NTuples are merged!" << G4endl;
   if(cleanUp){
-    for(const auto& file : files_to_merge){
+    for(const auto& file : files_to_merge)
       fs::remove(file);
+    try{ // for some reason it may not be empty (e.g. other job name)
+      fs::remove(OuputDir+"/runtime");
+    } catch (const fs::filesystem_error& e) {
+      // do nothing
     }
     G4cout << "Cleaning up... - done!\n" << G4endl;
   }

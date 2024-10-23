@@ -1,3 +1,6 @@
-[submodule "CADMesh"]
-	path = CADMesh
+[submodule "Submodules/CADMesh"]
+	path = Submodules/CADMesh
 	url = https://github.com/christopherpoole/CADMesh.git
+[submodule "Submodules/CxxOpts"]
+	path = Submodules/CxxOpts
+	url = https://github.com/jarro2783/cxxopts.git

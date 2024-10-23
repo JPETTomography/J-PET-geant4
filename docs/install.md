@@ -10,8 +10,15 @@
 * doxygen
 
 ## Environemt setup with CVMFS
-You can fulfill above prerequsities with CernVM File System. See [CVMFS](https://cvmfs.readthedocs.io/en/stable/cpt-quickstart.html) documenttion. An example setup script for Centos 7 OS:  
-`source setups/setup-env-cvmfs-centos7.sh`  
+You can fulfill above prerequsities with CernVM File System. See [CVMFS](https://cvmfs.readthedocs.io/en/stable/cpt-quickstart.html) documenttion. 
+### Centos7:
+For Geant4 v10 `source setups/setup-env-cvmfs-g4v10-centos7.sh`  
+For Geant4 v11 `source setups/setup-env-cvmfs-g4v11-centos7.sh`   
+
+### Debian/Ubunu:
+For Geant4 v10: TODO  
+For Geant4 v11: TODO
+
 Once you run this script you have compiled Geant4 and all depandancies!
 
 ## Environemt setup with Conda
@@ -20,17 +27,16 @@ Once you run this script you have compiled Geant4 and all depandancies!
 Once you install & activate this environment you can build your application!
 
 ## Git submodule
-The CADMesh is being cloned by running the:
-`git submodule init`  
-`git submodule update`
+External submodules can be easly cloned and initialized with running the script:
+`./setups/init_submodules.sh`
 
 ## How to compile?
 `mkdir build`  
 `cd build`  
-`cmake .. -DCMAKE_PREFIX_PATH=path_to_the_directory_containing_cadmesh-config.cmake`  
+`cmake ..`  
 `make`  
 Once you want to compile with **mutlithreded (MT)** mode:  
-`cmake .. -DMT=ON -DCMAKE_PREFIX_PATH=path_to_the_directory_containing_cadmesh-config.cmake`  
+`cmake .. -DMT=ON`  
 `make` 
 
 output file: (in build folder)  
