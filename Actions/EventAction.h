@@ -40,8 +40,9 @@ public:
   virtual ~EventAction();
   virtual void BeginOfEventAction(const G4Event*);
   virtual void EndOfEventAction(const G4Event* anEvent);
-  bool Is2gRegistered();
-  bool Is3gRegistered();
+  bool Is2gRegistered() { return is2gRec; }
+  bool Is3gRegistered() { return is3gRec; }
+  bool IsEnoughSize() { return isEnoughSize; }
 
 private:
   HistoManager* fHistoManager = nullptr;
@@ -51,9 +52,11 @@ private:
 
   bool is2gRec;
   bool is3gRec;
+  bool isEnoughSize;
   int fEventID;
-  void CheckIf3gIsRegistered(const G4Event* anEvent);
   void CheckIf2gIsRegistered(const G4Event* anEvent);
+  void CheckIf3gIsRegistered(const G4Event* anEvent);
+  void CheckIfEventHasEnoughSize(const G4Event* anEvent);
 
 };
 
