@@ -42,7 +42,8 @@ class MaterialParameters
 public:
   enum MaterialID {
     mUnknown, mXAD4, mAl, mKapton, mPlexiglass, mScin, mPA6, mAir,
-    mPolycarbonate, mPolyoxymethylene, mSiliconDioxide, mStainlessSteel 
+    mPolycarbonate, mPolyoxymethylene, mSiliconDioxide, mStainlessSteel,
+    mWater
   };
 
   MaterialParameters();
@@ -96,6 +97,10 @@ public:
   static const G4double fSodiumGammaTau;
   static const G4double fSodiumChanceEC;
   static const G4double fSodiumChanceNoPrompt;
+  static const G4double fScandiumGammaEnergy;
+  static const G4double fScandiumGammaTau;
+  static const G4double fScandiumChanceEC;
+  static const G4double fScandiumChanceNoPrompt;
   static G4String fAnnihlationMode;
   static G4double fpPs3Gfraction;
 

@@ -41,6 +41,23 @@ class DetectorConstructionMessenger;
 struct Layer;
 struct Scin;
 struct Slot;
+struct PhantElem;
+
+enum GeometryCombination {
+  aUnion, aSubtraction, aIntersection
+};
+
+enum GeometryShape {
+  aBox, aSphere, aOrb, aTube, aEllTube
+};
+
+enum PhantomMaterial {
+  aWater, aPlastic, aAlumnium, aSiliconDioxide, aCustom
+};
+
+enum MaterialElementType {
+  aBasic, aIsotope  
+};
 
 //! Flag for debugging purposes
 const G4bool checkOverlaps = false;
@@ -104,10 +121,32 @@ public:
   void setJSONFileName(G4String fileName) { fJSONSetupFileName = fileName; };
   void setJSONSetupRunNum(G4int setJSONSetupRunNum) { fJSONSetupRunNum = setJSONSetupRunNum; };
 
+  void setNemaPhantomFlag(G4bool tf) { fConstructNemaPhantom = tf; };
+
   void ConstructFromSetupFile(G4String fileName);
 
   G4int GetRunNumber() const { return fRunNumber; };
 
+  void addMaterialElementForPhantom(G4String elementName, G4double zNumber, G4double mass);
+  void addMaterialIsotopeForPhantom(G4String elementName, G4double zNumber, G4double nNumber, G4double mass);
+  void addCustomMaterialForPhantom(G4int id);
+  void addElementToCustomMaterialForPhantom(G4int idMaterial, G4String idElement, G4double fraction);
+  void addPhantomElementWithShape(G4int id, G4String shape);
+  void setContructionFlagTrue(G4int id);
+  void setPhantomElementDimensions(G4int id, G4String stringWithParameters);
+  void setPhantomElementLocation(G4int id, G4double x, G4double y, G4double z);
+  void setPhantomElementRotation(G4int id, G4double xRot, G4double yRot, G4double zRot);
+  void setPhantomElementAction(G4int id1, G4int id2, G4String action);
+  void setPhantomElementMaterial(G4int id, G4String materialName, G4double density);
+
+  G4VPhysicalVolume* GetPhantElement(G4int id)
+  {
+    auto search = fPhantomElemIDs.find(id);
+    if (search != fPhantomElemIDs.end()) {
+      return fPhantomElementsPhysVolumes.at(fPhantomElemIDs.at(id));
+    } else
+      return nullptr;
+  }
 private:
   static G4ThreadLocal G4bool fConstructedSDandField;
   static DetectorConstruction* fInstance;
@@ -135,6 +174,7 @@ private:
   void ConstructTargetRun7();
   //! Create target for run12
   void ConstructTargetRun12();
+  void ConstructNemaPhantom();
 
   void ConstructLayers(std::vector<G4double>& radius_dynamic, G4int& numberofModules, G4double& AngDisp_dynamic, G4int& icopyI);
 
@@ -158,6 +198,8 @@ private:
   G4int fJSONSetupRunNum = 999;
   G4int fMaxCreatedScinID = 0;
   std::vector<G4LogicalVolume*> fStripsFromSetup;
+
+  G4bool fConstructNemaPhantom;
 
   G4Box* fWorldSolid = nullptr;
   G4LogicalVolume* fWorldLogical = nullptr;
@@ -194,6 +236,15 @@ private:
   std::vector<Scin> fScinContainer;
   std::vector<Slot> fSlotContainer;
   G4int fLayerNumber = 0;
+
+  std::map<G4int, G4int> fPhantomElemIDs;
+  std::vector<PhantElem> fPhantomElements;
+  std::vector<G4VPhysicalVolume*> fPhantomElementsPhysVolumes;
+  
+  std::map<G4String, G4int> fMaterialElemIDs;
+  std::vector<G4Element*> fMaterialElements;
+  std::map<G4int, G4int> fCustomMatPhantomIDs;
+  std::vector<std::map<G4int, G4double>> fCustomMaterialsCompositionForPhantom;
 };
 
 struct Frame
@@ -238,6 +289,19 @@ struct Scin
       : fID(id), fSlotID(slotID), fHeight(height), fWidth(width), fLength(length), fX_center(x_center), fY_center(y_center), fZ_center(z_center)
   {
   }
+};
+
+struct PhantElem
+{
+  GeometryShape fShape;
+  bool fConstruct;
+  std::vector<double> fDimensions;
+  std::vector<double> fLocation;
+  std::vector<double> fRotation;
+  PhantomMaterial fMaterial;
+  G4int fCustomMaterialID = 0;
+  G4double fDensity;
+  std::vector<std::pair<G4int, GeometryCombination>> fActionCombination;
 };
 
 void replace(std::string& json, const std::string& placeholder);
