@@ -247,7 +247,6 @@ void HistoManager::BookHistograms()
     "E_1 generated [keV]", "Entries"
   );
 
-
   createHistogramWithAxes(
     new TH2D(
       "gen_gamma_multiplicity_vs_lifetime",
@@ -268,29 +267,47 @@ void HistoManager::BookHistograms()
   );
   
   createHistogramWithAxes(
-    new TH1D("cosm_theta", "Cosmics: theta angle", 184, -M_PI/2 - 2.5, M_PI/2 + 1.5),
-    "theta [rad]", "number of entries"
-  );
-  createHistogramWithAxes(
-    new TH2D("cosm_vtx_xy", "Cosmics: generated vertex point XY",
-    204*(DetectorConstants::world_size[1]/m), -1.015*DetectorConstants::world_size[1], 1.025*DetectorConstants::world_size[1],
-    204*(DetectorConstants::world_size[0]/m), -1.015*DetectorConstants::world_size[0], 1.025*DetectorConstants::world_size[0]),
-    "Y position [cm]", "X position [cm]"
+    new TH2D(
+      "gen_event_multiplicity_vs_energy",
+      "Generated event multiplicity vs generated energies of the hits. Bin size: 1 x 100 ps",
+      20, -0.5, 19.5, 750, -1.0, 1499.0
+    ),
+    "Event Multiplicity", "Energy of the hit [keV]"
   );
 
-  createHistogramWithAxes(
-    new TH2D("cosm_vtx_xz", "Cosmics: generated vertex point XZ",
-    204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2],
-    204*(DetectorConstants::world_size[0]/m), -1.015*DetectorConstants::world_size[0], 1.025*DetectorConstants::world_size[0]),
-    "Z position [cm]", "X position [cm]"
-  );
+  if (fMakeCosmicHistos) {
+    createHistogramWithAxes(
+      new TH1D("cosm_theta", "Cosmics: theta angle", 184, -M_PI/2 - 2.5, M_PI/2 + 1.5),
+      "theta [rad]", "number of entries"
+    );
+    createHistogramWithAxes(
+      new TH2D("cosm_vtx_xy", "Cosmics: generated vertex point XY",
+      204*(DetectorConstants::world_size[1]/m), -1.015*DetectorConstants::world_size[1], 1.025*DetectorConstants::world_size[1],
+      204*(DetectorConstants::world_size[0]/m), -1.015*DetectorConstants::world_size[0], 1.025*DetectorConstants::world_size[0]),
+      "Y position [cm]", "X position [cm]"
+    );
 
-  createHistogramWithAxes(
-    new TH2D("cosm_vtx_yz", "Cosmics: generated vertex point YZ",
-    204*(DetectorConstants::world_size[1]/m), -1.015*DetectorConstants::world_size[1], 1.025*DetectorConstants::world_size[1],
-    204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2]),
-    "Y position [cm]", "Z position [cm]"
-  );
+    createHistogramWithAxes(
+      new TH2D("cosm_vtx_xz", "Cosmics: generated vertex point XZ",
+      204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2],
+      204*(DetectorConstants::world_size[0]/m), -1.015*DetectorConstants::world_size[0], 1.025*DetectorConstants::world_size[0]),
+      "Z position [cm]", "X position [cm]"
+    );
+
+    createHistogramWithAxes(
+      new TH2D("cosm_vtx_yz", "Cosmics: generated vertex point YZ",
+      204*(DetectorConstants::world_size[1]/m), -1.015*DetectorConstants::world_size[1], 1.025*DetectorConstants::world_size[1],
+      204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2]),
+      "Y position [cm]", "Z position [cm]"
+    );
+
+    createHistogramWithAxes(
+      new TH2D("cosm_genPoint_yz", "Cosmics: generated 'in the roof' point YZ",
+      204*(DetectorConstants::world_size[1]/m), -1.015*DetectorConstants::world_size[1], 1.025*DetectorConstants::world_size[1],
+      204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2]),
+      "Y position [cm]", "Z position [cm]"
+    );
+  }
 }
 
 void HistoManager::FillHistoGenInfo(const G4Event* anEvent)
@@ -318,10 +335,13 @@ void HistoManager::FillHistoGenInfo(const G4Event* anEvent)
 
 void HistoManager::FillCosmicInfo(G4double theta, G4ThreeVector init, G4ThreeVector orig)
 {
-  fillHistogram("cosm_theta", theta);
-  fillHistogram("cosm_vtx_xy", init.y(), doubleCheck(init.x()));
-  fillHistogram("cosm_vtx_xz", init.z(), doubleCheck(init.x()));
-  fillHistogram("cosm_vtx_yz", init.z(), doubleCheck(init.y()));
+  if (fMakeCosmicHistos) {
+    fillHistogram("cosm_theta", theta);
+    fillHistogram("cosm_vtx_xy", init.y(), doubleCheck(init.x()));
+    fillHistogram("cosm_vtx_xz", init.z(), doubleCheck(init.x()));
+    fillHistogram("cosm_vtx_yz", init.z(), doubleCheck(init.y()));
+    fillHistogram("cosm_genPoint_yz", orig.z(), doubleCheck(orig.y()));
+  }
 }
 
 void HistoManager::AddGenInfoParticles(G4PrimaryParticle* particle)
@@ -446,6 +466,13 @@ void HistoManager::AddNewHit(DetectorHit* hit)
       double signCheck = (hit->GetPosition().getY() >= 0 ? 1 : -1);
       fillHistogram("gen_multiplicity_vs_theta", signCheck*M_PI/2);
     }
+  }
+}
+
+void HistoManager::AddEventInfo(DetectorHit* hit, int eventSize)
+{
+  if (GetMakeControlHisto()) {
+    fillHistogram("gen_event_multiplicity_vs_energy", eventSize, doubleCheck(hit->GetEdep()/keV));
   }
 }
 
