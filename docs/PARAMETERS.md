@@ -20,6 +20,32 @@ Following options can be added to macro files, that are read by Geat4. Example f
  `/jpetmc/detector/jsonSetupFile [fileName]`
 * set the number of Run that is to be loaded from JSON file
  `/jpetmc/detector/jsonSetupRunNum [number]`
+* set the option to construct nema phantom inside the detector
+ `/jpetmc/detector/constructNemaPhantom`
+* add element to the database in order to construct custom materials
+ `/jpetmc/detector/addMaterialElement [name] [z number - number of protons] [mass in g/mol]`
+ or 
+ `/jpetmc/detector/addMaterialIsotopeElement [name] [z number - number of protons] [n number - number of nuclei] [mass in g/mol]`
+* add custom material
+ `/jpetmc/detector/addCustomMaterialWithID [id]`
+* add previously predefined elements to the custom material.
+ `/jpetmc/detector/addElementToCustomMaterial [id of material - int] [name of element - string] [fraction of element - double]`
+* add phantom element with a given shape (box, sphere, tube...)
+ `/jpetmc/detector/addPhantomElementWithShape [id] [shape]`
+* allow to consruct previously defined phantom element
+ `/jpetmc/detector/ConstructPhantomElement [id]`
+* set the dimensions of the phantom element 
+ `/jpetmc/detector/setPhantomElementDimensions [dim1 - in cm] [dim2 - in cm] [dim3 - in cm]`
+* set the dimensions of the phantom element 
+ `/jpetmc/detector/setPhantomElementDimensions [dim1 - in cm] [dim2 - in cm] [dim3 - in cm]`
+* set the location of the phantom element center
+ `/jpetmc/detector/setPhantomElementLocation [x - in cm] [y - in cm] [z - in cm]`
+* set the rotation of the phantom element center
+ `/jpetmc/detector/setPhantomElementRotation [in x - deg] [in y - deg] [in z - deg]`
+* set the interaction between two phantom elements (subtraction, sum or intersection)
+ `/jpetmc/detector/setPhantomElementActionWithOtherElement [id of the base element to interact] [id of the modificator element] [action]`
+* set the material name (water, plastic, ... or custom + id for customs) and density for a given phantom element
+ `/jpetmc/detector/setPhantomElementMaterialAndDensity [id of element] [material name] [density in g/cm3]`
 
 ## General parameters:  
 * Hit merging time:  
@@ -78,20 +104,36 @@ Following options can be added to macro files, that are read by Geat4. Example f
  `/jpetmc/source/nema/mixed/setPosition [point] [x position] [y position] [z position]`__
 * Set weight of a given nema point:  
  `/jpetmc/source/nema/mixed/setWeight [point] [weight - int from 0 to infty, when 0 is removing given point]`  
-* Set mean lifetime of a given nema point:  
+* Set the shape of the nema point:  
+ `/jpetmc/source/nema/mixed/setShape [point] [cylinder, ball or phantom]`  
+* Set mean lifetime of a given nema point (o-Ps, p-Ps, direct):  
  `/jpetmc/source/nema/mixed/setLifetime [point] [lifetime - int from 0 to infty]`  
+ `/jpetmc/source/nema/mixed/setPPsLifetime [point] [lifetime - int from 0 to infty]`  
+ `/jpetmc/source/nema/mixed/setDirectLifetime [point] [lifetime - int from 0 to infty]`  
 * Allow a given point to annihilate into 3 photons based on the mean lifetime set -> Prob3G = lifetime/oPsLifetimevacuum:  
  `/jpetmc/source/nema/mixed/allow3G [point]'  
-* Points are simulated at now only as cylinders. Setting size of that cylinder:  
- `/jpetmc/source/nema/mixed/setCylinderSize [point] [radius] [length]`  
+* Allow a given point to annihilate by p-Ps into two photons based on intensity of o-Ps -> ProbPPs = ProbOPs/3  
+ `/jpetmc/source/nema/mixed/allowPPs [point]'  
+* Allow a given point to annihilate by direct annihilation into two photons  
+ `/jpetmc/source/nema/mixed/allowDirect [point]'  
+* Points are simulated as ball, cylinder or according to phantom element. Setting size of that point:  
+ `/jpetmc/source/nema/mixed/setPointSize [point] [x/radius] [y/length] [z]`  
 * Allow a given point to generate prompt photon (by default it is true):  
  `/jpetmc/source/nema/mixed/allowPrompt [point]'  
-* Points are simulated at now only as cylinders. Setting size of the cylinder for prompt:  
- `/jpetmc/source/nema/mixed/setPromptSourceSize [point] [radius] [length]`  
+* Points are simulated as ball, cylinder in correlation with annihilation point. Setting size of that point for prompt. Now dead command beacuse position of prompt is connected with anihilation one:  
+ `/jpetmc/source/nema/mixed/setPromptSourceSize [point] [x/radius] [y/length] [z]`  
 * Rotating the shape of the nema point:  
  `/jpetmc/source/nema/mixed/setCylinderRotation [point] [phi] [theta]`  
 * Changing the shape of the nema point by shifting position in X:  
  `/jpetmc/source/nema/mixed/setCylinderShapeParametersY [point] [direction and spread] [shape parameter1 - power] [shape parameter2 - range]`  
+* Set the positron range for a given nema point:  
+ `/jpetmc/source/nema/mixed/setEffectivePositronRange [point] [double in milimeters]`  
+* Set the possiblity to calculate the positron range as a function of density:  
+ `/jpetmc/source/nema/mixed/setEffectivePositronRangeDensityDependence [point] 1`  
+* Set the isotope for a given nema point:  
+ `/jpetmc/source/nema/mixed/setIsotopeType [point] [type - Na or Sc]`  
+* Set the possibility to simulate annihilation point in some predefined shape by phantom construction:  
+ `/jpetmc/source/nema/mixed/setPhantomElementID [point] [phantom element ID]`  
 * set parameters of gamma beam:  
  `/jpetmc/source/gammaBeam/setEnergy setPosition setMomentum`  
 * set parameters of the isotope source, shape, if cylinder: radius, z-lenght (half):  

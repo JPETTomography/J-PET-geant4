@@ -33,6 +33,10 @@ const G4double MaterialParameters::fSodiumGammaEnergy = 1.2770 * MeV;
 const G4double MaterialParameters::fSodiumGammaTau = 3.7 * ps;
 const G4double MaterialParameters::fSodiumChanceEC = 0.095;
 const G4double MaterialParameters::fSodiumChanceNoPrompt = 0.005;
+const G4double MaterialParameters::fScandiumGammaEnergy = 1.1570 * MeV;
+const G4double MaterialParameters::fScandiumGammaTau = 2.61 * ps;
+const G4double MaterialParameters::fScandiumChanceEC = 0.09427;
+const G4double MaterialParameters::fScandiumChanceNoPrompt = 0.00225;
 
 G4String MaterialParameters::fAnnihlationMode = "";
 G4double MaterialParameters::fpPs3Gfraction = 0;

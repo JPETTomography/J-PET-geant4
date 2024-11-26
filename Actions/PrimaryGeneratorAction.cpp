@@ -172,7 +172,7 @@ void PrimaryGeneratorAction::SetNemaPointPosition(G4int nemaPoint, const G4Three
   if (nemaPoint < 1) {
     G4Exception(
       "PrimaryGeneratorAction", "PG06", JustWarning,
-      "Nema point for which you want to set position is less than 1. Canno set it now properly."
+      "Nema point for which you want to set position is less than 1. Cannot set it now properly."
     );
   } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
     fNemaGenerator.SetPointPosition(nemaPoint, position);
@@ -187,78 +187,86 @@ void PrimaryGeneratorAction::SetNemaPositionWeight(G4int nemaPoint, G4int weight
   fNemaGenerator.AddPointWeight(nemaPoint, weight);
 }
 
-void PrimaryGeneratorAction::SetNemaPointLifetime(G4int nemaPoint, G4double lifetime)
+void PrimaryGeneratorAction::SetNemaPointLifetime(G4int nemaPoint, PositroniumDecayMode mode, G4double lifetime)
 {
   if (nemaPoint < 1) {
     G4Exception(
       "PrimaryGeneratorAction", "PG07", JustWarning,
-      "Nema point for which you want to set lifetime is less than 1. Canno set it now properly."
+      "Nema point for which you want to set lifetime is less than 1. Cannot set it now properly."
     );
-  } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
-    fNemaGenerator.SetPointLifetime(nemaPoint, lifetime);
-  } else {
+  } else if (!fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
     fNemaGenerator.AddPoint(nemaPoint);
-    fNemaGenerator.SetPointLifetime(nemaPoint, lifetime);
+  }
+  if (mode == PositroniumDecayMode::pPs) {
+    fNemaGenerator.SetPointPPsLifetime(nemaPoint, lifetime);
+  } else if (mode == PositroniumDecayMode::oPs) {
+    fNemaGenerator.SetPointOPsLifetime(nemaPoint, lifetime);
+  } else if (mode == PositroniumDecayMode::direct) {
+    fNemaGenerator.SetPointDirectLifetime(nemaPoint, lifetime);
+  } else {
+    G4Exception(
+      "PrimaryGeneratorAction", "PG07", JustWarning,
+      "Not implemented mode for positronium decay"
+    );
   }
 }
 
-void PrimaryGeneratorAction::SetNemaPoint3GOption(G4int nemaPoint)
+void PrimaryGeneratorAction::SetNemaPointGenerationOption(G4int nemaPoint, NemaGenerationOption which, bool option)
 {
   if (nemaPoint < 1) {
     G4Exception(
       "PrimaryGeneratorAction", "PG08", JustWarning,
-      "Nema point for which you want to set 3G option is less than 1. Canno set it now properly."
+      "Nema point for which you want to set generation option is less than 1. Cannot set it now properly."
     );
-  } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
-    fNemaGenerator.SetPoint3GOption(nemaPoint, true);
-  } else {
+    return;
+  } else if (!fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
     fNemaGenerator.AddPoint(nemaPoint);
-    fNemaGenerator.SetPoint3GOption(nemaPoint, true);
+  }
+  if (which == NemaGenerationOption::n3G) {
+    fNemaGenerator.SetPoint3GOption(nemaPoint, option);
+  } else if (which == NemaGenerationOption::nPPs) {
+    fNemaGenerator.SetPointParaPSOption(nemaPoint, option);
+  } else if (which == NemaGenerationOption::nDirect) {
+    fNemaGenerator.SetPointDirectAnniOption(nemaPoint, option);
+  } else if (which == NemaGenerationOption::nPrompt) {
+    fNemaGenerator.SetPointPromptOption(nemaPoint, option);
+  } else if (which == NemaGenerationOption::nDirectLFDensDep) {
+    fNemaGenerator.SetNemaPointDirectLFDependence(nemaPoint, option);
+  } else {
+    G4Exception(
+      "PrimaryGeneratorAction", "PG10", JustWarning,
+      "Not implemented option for nema point generation"
+    );
   }
 }
 
-void PrimaryGeneratorAction::SetNemaPointSize(G4int nemaPoint, G4double radius, G4double length)
+void PrimaryGeneratorAction::SetNemaPointSize(G4int nemaPoint, G4double x, G4double y, G4double z)
 {
   if (nemaPoint < 1) {
     G4Exception(
       "PrimaryGeneratorAction", "PG09", JustWarning,
-      "Nema point for which you want to set size is less than 1. Canno set it now properly."
+      "Nema point for which you want to set size is less than 1. Cannot set it now properly."
     );
   } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
-    fNemaGenerator.SetPointSize(nemaPoint, G4ThreeVector(radius, radius, length));
+    fNemaGenerator.SetPointSize(nemaPoint, G4ThreeVector(x, y, z));
   } else {
     fNemaGenerator.AddPoint(nemaPoint);
-    fNemaGenerator.SetPointSize(nemaPoint, G4ThreeVector(radius, radius, length));
+    fNemaGenerator.SetPointSize(nemaPoint, G4ThreeVector(x, y, z));
   }
 }
 
-void PrimaryGeneratorAction::SetNemaPointPromptOption(G4int nemaPoint)
+void PrimaryGeneratorAction::SetNemaPointPromptSize(G4int nemaPoint, G4double x, G4double y, G4double z)
 {
   if (nemaPoint < 1) {
     G4Exception(
       "PrimaryGeneratorAction", "PG10", JustWarning,
-      "Nema point for which you want to set prompt option is less than 1. Canno set it now properly."
+      "Nema point for which you want to set prompt generation size is less than 1. Cannot set it now properly."
     );
   } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
-    fNemaGenerator.SetPointPromptOption(nemaPoint, true);
+    fNemaGenerator.SetPointPromptSize(nemaPoint, G4ThreeVector(x, y, z));
   } else {
     fNemaGenerator.AddPoint(nemaPoint);
-    fNemaGenerator.SetPointPromptOption(nemaPoint, true);
-  }
-}
-
-void PrimaryGeneratorAction::SetNemaPointPromptSize(G4int nemaPoint, G4double radius, G4double length)
-{
-  if (nemaPoint < 1) {
-    G4Exception(
-      "PrimaryGeneratorAction", "PG11", JustWarning,
-      "Nema point for which you want to set prompt generation size is less than 1. Canno set it now properly."
-    );
-  } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
-    fNemaGenerator.SetPointPromptSize(nemaPoint, G4ThreeVector(radius, radius, length));
-  } else {
-    fNemaGenerator.AddPoint(nemaPoint);
-    fNemaGenerator.SetPointPromptSize(nemaPoint, G4ThreeVector(radius, radius, length));
+    fNemaGenerator.SetPointPromptSize(nemaPoint, G4ThreeVector(x, y, z));
   }
 }
 
@@ -266,8 +274,8 @@ void PrimaryGeneratorAction::SetNemaPointOrientation(G4int nemaPoint, G4double t
 {
   if (nemaPoint < 1) {
     G4Exception(
-      "PrimaryGeneratorAction", "PG12", JustWarning,
-      "Nema point for which you want to set size is less than 1. Canno set it now properly."
+      "PrimaryGeneratorAction", "PG11", JustWarning,
+      "Nema point for which you want to set size is less than 1. Cannot set it now properly."
     );
   } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
     fNemaGenerator.SetPointOrientation(nemaPoint, G4ThreeVector(theta, phi, 0));
@@ -284,8 +292,8 @@ void PrimaryGeneratorAction::SetNemaPointShape(G4int nemaPoint, Dimension dim, G
     lengthN = lengthN/fabs(lengthN);
   if (nemaPoint < 1) {
     G4Exception(
-      "PrimaryGeneratorAction", "PG13", JustWarning,
-      "Nema point for which you want to set shape is less than 1. Canno set it now properly."
+      "PrimaryGeneratorAction", "PG12", JustWarning,
+      "Nema point for which you want to set shape is less than 1. Cannot set it now properly."
     );
   } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
     if (dim == Dimension::dimY) {
@@ -298,5 +306,92 @@ void PrimaryGeneratorAction::SetNemaPointShape(G4int nemaPoint, Dimension dim, G
       fNemaGenerator.SetNemaPointShapeInY(nemaPoint, G4ThreeVector(direction, power, lengthN));
       fNemaGenerator.GenerateElipseYNorm(nemaPoint);
     }
+  }
+}
+
+void PrimaryGeneratorAction::SetPointPositronReachShape(G4int nemaPoint, G4String shape)
+{
+  if (nemaPoint < 1) {
+    G4Exception(
+      "PrimaryGeneratorAction", "PG13", JustWarning,
+      "Nema point for which you want to set reach shape is less than 1. Cannot set it now properly."
+    );
+  } else {
+    fNemaGenerator.AddPoint(nemaPoint);
+  }
+
+  if (shape == "sphere" || shape == "Sphere")
+    fNemaGenerator.SetPointReachShape(nemaPoint, PositronReachOption::aFixedUniform);
+  else if (shape == "exponential" || shape == "Exponential" || shape == "expo" || shape == "Expo")
+    fNemaGenerator.SetPointReachShape(nemaPoint, PositronReachOption::aFixedExponential);
+  else if (shape == "density" || shape == "Density" || shape == "dens" || shape == "Dens")
+    fNemaGenerator.SetPointReachShape(nemaPoint, PositronReachOption::aDensityDep);
+  else
+    fNemaGenerator.SetPointReachShape(nemaPoint, PositronReachOption::aNo);
+}
+
+void PrimaryGeneratorAction::SetPointExperimentalReach(G4int nemaPoint, G4double reach)
+{
+  if (nemaPoint < 1) {
+    G4Exception(
+      "PrimaryGeneratorAction", "PG14", JustWarning,
+      "Nema point for which you want to set reach is less than 1. Cannot set it now properly."
+    );
+  } else if (fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
+    fNemaGenerator.SetPointExperimentalReach(nemaPoint, reach);
+  } else {
+    fNemaGenerator.AddPoint(nemaPoint);
+    fNemaGenerator.SetPointExperimentalReach(nemaPoint, reach);
+  }
+}
+
+void PrimaryGeneratorAction::SetPointShape(G4int nemaPoint, G4String shape)
+{
+  if (nemaPoint < 1) {
+    G4Exception(
+      "PrimaryGeneratorAction", "PG15", JustWarning,
+      "Nema point for which you want to set shape is less than 1. Cannot set it now properly."
+    );
+  } else if (!fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
+    fNemaGenerator.AddPoint(nemaPoint);
+  }
+
+  if (shape == "cylinder" || shape == "Cylinder")
+    fNemaGenerator.SetPointShape(nemaPoint, PointShape::aCylinder);
+  else if (shape == "ball" || shape == "Ball")
+    fNemaGenerator.SetPointShape(nemaPoint, PointShape::aBall);
+  else
+    fNemaGenerator.SetPointShape(nemaPoint, PointShape::aPhantom);
+}
+
+void PrimaryGeneratorAction::SetNemaPointIsotopeType(G4int nemaPoint, G4String type)
+{
+  if (nemaPoint < 1) {
+    G4Exception(
+      "PrimaryGeneratorAction", "PG16", JustWarning,
+      "Nema point for which you want to set isotope is less than 1. Cannot set it now properly."
+    );
+  } else if (!fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
+    fNemaGenerator.AddPoint(nemaPoint);
+  }
+
+  if (type == "22Na" || type == "Na" || type == "sodium" || type == "Sodium" || type == "sodium-22" || type == "Sodium-22")
+    fNemaGenerator.SetIsotope(nemaPoint, IsotopeType::i22Na);
+  else
+    fNemaGenerator.SetIsotope(nemaPoint, IsotopeType::i44Sc);
+}
+
+void PrimaryGeneratorAction::SetPhantomElementIDForNemaPoint(G4int nemaPoint, G4int phantomElement)
+{
+  if (nemaPoint < 1) {
+    G4Exception(
+      "PrimaryGeneratorAction", "PG17", JustWarning,
+      "Nema point for which you want to set phantom element is less than 1. Cannot set it now properly."
+    );
+  } else if (!fNemaGenerator.DoesPointExistAlready(nemaPoint)) {
+    fNemaGenerator.AddPoint(nemaPoint);
+    fNemaGenerator.SetPhantElementID(nemaPoint, phantomElement);
+  } else {
+    fNemaGenerator.SetPhantElementID(nemaPoint, phantomElement);
   }
 }
