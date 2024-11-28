@@ -5,6 +5,10 @@
 cmake_minimum_required (VERSION 2.6)
 project(jpet_mc LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_DEFAULT 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
 ################################################################################
 ## Det default build type to "Release"
 set(default_build_type "Release")
@@ -119,33 +123,34 @@ include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/CADMesh/)
 
 ################################################################################
 ## Include Boost
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.50 REQUIRED
-             COMPONENTS filesystem
-                        program_options
-                        regex
-                        system
-                        log_setup
-                        log
-                        date_time
-                        thread
-                        chrono
-                        atomic
-                        )
+#set(Boost_USE_STATIC_LIBS OFF)
+#set(Boost_USE_MULTITHREADED ON)
+#set(Boost_USE_STATIC_RUNTIME OFF)
+#find_package(Boost 1.50 REQUIRED
+#             COMPONENTS filesystem
+#                        program_options
+#                        regex
+#                        system
+#                        log_setup
+#                        log
+#                        date_time
+#                        thread
+#                        chrono
+#                        atomic
+#                        )
 
-if(NOT TARGET Boost::filesystem)
-    add_library(Boost::filesystem IMPORTED INTERFACE)
-    set_property(TARGET Boost::filesystem PROPERTY
-        INTERFACE_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR})
-    set_property(TARGET Boost::filesystem PROPERTY
-        INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES})
-endif()
+#if(NOT TARGET Boost::filesystem)
+#    add_library(Boost::filesystem IMPORTED INTERFACE)
+#    set_property(TARGET Boost::filesystem PROPERTY
+#        INTERFACE_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR})
+#    set_property(TARGET Boost::filesystem PROPERTY
+#        INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES})
+#endif()
 
-include_directories(${Boost_INCLUDE_DIRS})
-add_definitions(${Boost_DEFINITIONS})
-link_directories(${Boost_LIBRARY_DIRS})
+#include_directories(${Boost_INCLUDE_DIRS})
+#add_definitions(${Boost_DEFINITIONS})
+#link_directories(${Boost_LIBRARY_DIRS})
+
 ################################################################################
 ## Include ROOT
 find_package(ROOT REQUIRED)
@@ -194,7 +199,7 @@ add_executable(jpet_mc JPetMC.cpp ${SOURCES})
 target_compile_options(jpet_mc PRIVATE -Wno-shadow)
 
 target_link_libraries(
-  jpet_mc 
+  jpet_mc
   ${ROOT_LIBRARIES}
   ${Geant4_LIBRARIES}
   JPetMCClassesDict
@@ -237,4 +242,3 @@ add_custom_command(
   ${CMAKE_CURRENT_SOURCE_DIR}/docs/manual_v4.pdf
   ${CMAKE_CURRENT_BINARY_DIR}/bin
 )
-

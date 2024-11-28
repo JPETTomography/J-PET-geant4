@@ -20,32 +20,29 @@
 #include "MaterialParameters.h"
 #include "RunManager.h"
 
+#include <CADMesh.hh>
+#include <G4Box.hh>
+#include <G4EllipticalTube.hh>
+#include <G4IntersectionSolid.hh>
 #include <G4LogicalVolumeStore.hh>
+#include <G4Material.hh>
+#include <G4Orb.hh>
 #include <G4PhysicalVolumeStore.hh>
+#include <G4Polycone.hh>
 #include <G4RegionStore.hh>
 #include <G4SolidStore.hh>
-#include <G4Material.hh>
-#include <G4Box.hh>
-#include <G4Orb.hh>
-#include <G4Tubs.hh>
 #include <G4Sphere.hh>
-#include <G4Polycone.hh>
-#include <G4EllipticalTube.hh>
-#include <G4UnionSolid.hh>
 #include <G4SubtractionSolid.hh>
-#include <G4IntersectionSolid.hh>
-#include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
-#include <boost/optional.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <G4Tubs.hh>
+#include <G4UnionSolid.hh>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <vector>
+// #include <nlohmann/json.hpp>
 #include <string>
-#include <CADMesh.hh>
+#include <vector>
 
-namespace pt = boost::property_tree;
+// using json = nlohmann::json;
 
 DetectorConstruction* DetectorConstruction::fInstance = 0;
 
@@ -57,7 +54,8 @@ DetectorConstruction* DetectorConstruction::GetInstance()
 }
 
 DetectorConstruction::DetectorConstruction()
-    : G4VUserDetectorConstruction(), fRunNumber(0), fLoadScintillators(true), fLoadCADFrame(false), fLoadWrapping(true), fLoadModularLayer(false), fConstructNemaPhantom(false)
+    : G4VUserDetectorConstruction(), fRunNumber(0), fLoadScintillators(true), fLoadCADFrame(false), fLoadWrapping(true), fLoadModularLayer(false),
+      fConstructNemaPhantom(false)
 {
   InitializeMaterials();
   fMessenger = new DetectorConstructionMessenger(this);
@@ -126,8 +124,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   else if (fRunNumber == 12)
   {
     ConstructTargetRun12();
-  } else { //Treated for fRunNumber = 0
-    if (fConstructNemaPhantom) {
+  }
+  else
+  { // Treated for fRunNumber = 0
+    if (fConstructNemaPhantom)
+    {
       ConstructNemaPhantom();
     }
   }
@@ -414,7 +415,7 @@ void DetectorConstruction::ConstructScintillators()
         G4VSolid* unionSolid = new G4SubtractionSolid("wrapping", wrappingBox, scinBoxFree);
         wrappingLog = new G4LogicalVolume(unionSolid, fKapton, "wrappingLogical");
         wrappingLog->SetVisAttributes(boxVisAttWrapping);
-        
+
         G4String nameWrapping = "wrapping_" + G4UIcommand::ConvertToString(fMaxScinID);
         new G4PVPlacement(transform, wrappingLog, nameWrapping, fWorldLogical, true, fMaxScinID, checkOverlaps);
       }
@@ -541,75 +542,94 @@ void DetectorConstruction::ConstructLayers(std::vector<G4double>& radius_dynamic
   }
 }
 
+// TODO
+// Commented out for now
 void DetectorConstruction::ConstructFromSetupFile(G4String fileName)
 {
-  //! Reading JSON file to BOOST property tree
-  pt::ptree tree;
-  pt::read_json(fileName, tree);
-
-  //! Attribute definitions (outside of the loop)
-  G4VisAttributes* boxVisAtt = new G4VisAttributes(G4Colour(0.447059, 0.623529, 0.811765));
-  boxVisAtt->SetForceWireframe(true);
-  boxVisAtt->SetForceSolid(true);
-
-  G4VisAttributes* boxVisAttWrapping = new G4VisAttributes(G4Colour(0.447059, 0.623529, 0.811765));
-  boxVisAttWrapping->SetForceWireframe(true);
-  boxVisAttWrapping->SetForceSolid(true);
-
-  BOOST_FOREACH (pt::ptree::value_type& scin, tree.get_child(G4UIcommand::ConvertToString(fJSONSetupRunNum) + ".scin"))
-  {
-    //! Reading parameters of the scintillator from property tree
-    int id = scin.second.get<int>("id");
-    G4double height = scin.second.get<double>("height") * cm;
-    G4double width = scin.second.get<double>("width") * cm;
-    G4double length = scin.second.get<double>("length") * cm;
-    G4double xcenter = scin.second.get<double>("xcenter") * cm;
-    G4double ycenter = scin.second.get<double>("ycenter") * cm;
-    G4double zcenter = scin.second.get<double>("zcenter") * cm;
-    G4double rot_x = scin.second.get<double>("rot_x");
-    G4double rot_y = scin.second.get<double>("rot_y");
-    G4double rot_z = scin.second.get<double>("rot_z");
-
-    //! Updating maximum scin ID
-    if (fMaxCreatedScinID < id)
-    {
-      fMaxCreatedScinID = id;
-    }
-
-    G4String name = "scin_" + G4UIcommand::ConvertToString(id);
-    G4Box* scinBox = new G4Box(name + "_box", height / 2.0, width / 2.0, length / 2.0);
-    G4LogicalVolume* scinLog = new G4LogicalVolume(scinBox, fScinMaterial, name + "_logical");
-    scinLog->SetVisAttributes(boxVisAtt);
-
-    //! Rotation matrix and translation of the strip
-    //! Angles in the file are writtern in degrees, converting to radians
-    G4RotationMatrix rot = G4RotationMatrix();
-    rot.rotateX(TMath::DegToRad() * rot_x);
-    rot.rotateY(TMath::DegToRad() * rot_y);
-    rot.rotateZ(TMath::DegToRad() * rot_z);
-
-    G4ThreeVector loc = G4ThreeVector(xcenter, ycenter, zcenter);
-    G4Transform3D transform(rot, loc);
-
-    //! Adding scintillator to detector construction
-    new G4PVPlacement(transform, scinLog, name + "_phys", fWorldLogical, true, id, checkOverlaps);
-    fStripsFromSetup.push_back(scinLog);
-
-    //! Additional wrapping of the strips
-    if (fLoadWrapping)
-    {
-      G4Box* scinBoxFree = new G4Box(name + "_box_free", height / 2.0 + DetectorConstants::wrappingShift,
-                                     width / 2.0 + DetectorConstants::wrappingShift, length / 2.0);
-
-      G4Box* wrappingBox = new G4Box(name + "_wrapping_box", height / 2.0 + DetectorConstants::wrappingThickness,
-                                     width / 2.0 + DetectorConstants::wrappingThickness, length / 2.0 - 1 * cm);
-
-      G4VSolid* unionSolid = new G4SubtractionSolid(name + "_wrapping_union", wrappingBox, scinBoxFree);
-      G4LogicalVolume* wrappingLog = new G4LogicalVolume(unionSolid, fKapton, name + "_wrapping_logical");
-      wrappingLog->SetVisAttributes(boxVisAttWrapping);
-      new G4PVPlacement(transform, wrappingLog, name + "_wrapping_physical", fWorldLogical, true, id, checkOverlaps);
-    }
-  }
+  // ! Reading JSON file
+  // std::ifstream file(fileName);
+  //
+  // G4cout << "********************* " << G4endl;
+  // G4cout << "********************* " << G4endl;
+  // G4cout << "JSON File: " << fileName << G4endl;
+  // G4cout << "********************* " << G4endl;
+  // G4cout << "********************* " << G4endl;
+  //
+  // try
+  // {
+  //   json setup = json::parse(file);
+  //   json scins = setup[G4UIcommand::ConvertToString(fJSONSetupRunNum)]["scin"];
+  //
+  //   //! Attribute definitions (outside of the loop)
+  //   G4VisAttributes* boxVisAtt = new G4VisAttributes(G4Colour(0.447059, 0.623529, 0.811765));
+  //   boxVisAtt->SetForceWireframe(true);
+  //   boxVisAtt->SetForceSolid(true);
+  //
+  //   G4VisAttributes* boxVisAttWrapping = new G4VisAttributes(G4Colour(0.447059, 0.623529, 0.811765));
+  //   boxVisAttWrapping->SetForceWireframe(true);
+  //   boxVisAttWrapping->SetForceSolid(true);
+  //
+  //   for (auto scin : scins)
+  //   {
+  //     //! Reading parameters of the scintillator from property tree
+  //     int id = scin["id"].template get<int>();
+  //     double height = scin["height"].template get<double>() * cm;
+  //     double width = scin["width"].template get<double>() * cm;
+  //     double length = scin["length"].template get<double>() * cm;
+  //     double xcenter = scin["xcenter"].template get<double>() * cm;
+  //     double ycenter = scin["ycenter"].template get<double>() * cm;
+  //     double zcenter = scin["zcenter"].template get<double>() * cm;
+  //     double rot_x = scin["rot_x"].template get<double>();
+  //     double rot_y = scin["rot_y"].template get<double>();
+  //     double rot_z = scin["rot_z"].template get<double>();
+  //
+  //     G4cout << "Scin created: " << id << " x " << xcenter << " y " << ycenter << " z " << zcenter << G4endl;
+  //
+  //     //! Updating maximum scin ID
+  //     if (fMaxCreatedScinID < id)
+  //     {
+  //       fMaxCreatedScinID = id;
+  //     }
+  //
+  //     G4String name = "scin_" + G4UIcommand::ConvertToString(id);
+  //     G4Box* scinBox = new G4Box(name + "_box", height / 2.0, width / 2.0, length / 2.0);
+  //     G4LogicalVolume* scinLog = new G4LogicalVolume(scinBox, fScinMaterial, name + "_logical");
+  //     scinLog->SetVisAttributes(boxVisAtt);
+  //
+  //     //! Rotation matrix and translation of the strip
+  //     //! Angles in the file are writtern in degrees, converting to radians
+  //     G4RotationMatrix rot = G4RotationMatrix();
+  //     rot.rotateX(TMath::DegToRad() * rot_x);
+  //     rot.rotateY(TMath::DegToRad() * rot_y);
+  //     rot.rotateZ(TMath::DegToRad() * rot_z);
+  //
+  //     G4ThreeVector loc = G4ThreeVector(xcenter, ycenter, zcenter);
+  //     G4Transform3D transform(rot, loc);
+  //
+  //     //! Adding scintillator to detector construction
+  //     new G4PVPlacement(transform, scinLog, name + "_phys", fWorldLogical, true, id, checkOverlaps);
+  //     fStripsFromSetup.push_back(scinLog);
+  //
+  //     //! Additional wrapping of the strips
+  //     if (fLoadWrapping)
+  //     {
+  //       G4Box* scinBoxFree = new G4Box(name + "_box_free", height / 2.0 + DetectorConstants::wrappingShift,
+  //                                      width / 2.0 + DetectorConstants::wrappingShift, length / 2.0);
+  //
+  //       G4Box* wrappingBox = new G4Box(name + "_wrapping_box", height / 2.0 + DetectorConstants::wrappingThickness,
+  //                                      width / 2.0 + DetectorConstants::wrappingThickness, length / 2.0 - 1 * cm);
+  //
+  //       G4VSolid* unionSolid = new G4SubtractionSolid(name + "_wrapping_union", wrappingBox, scinBoxFree);
+  //       G4LogicalVolume* wrappingLog = new G4LogicalVolume(unionSolid, fKapton, name + "_wrapping_logical");
+  //       wrappingLog->SetVisAttributes(boxVisAttWrapping);
+  //       new G4PVPlacement(transform, wrappingLog, name + "_wrapping_physical", fWorldLogical, true, id, checkOverlaps);
+  //     }
+  //   }
+  // }
+  // catch (const json::parse_error& e)
+  // {
+  //   G4cout << "Error parsing json setup: " << e.what() << G4endl;
+  // }
 }
 
 /**
@@ -1143,221 +1163,58 @@ void DetectorConstruction::ConstructTargetRun12()
 
 void DetectorConstruction::CreateGeometryFile()
 {
-  using namespace std;
-
-  G4cout << "--- Saving simulated geometry to " << fGeometryFileName << " ---" << G4endl;
-  auto runNumStr = to_string(fRunNumber + 90);
-  pt::ptree jsonFile, full, partial, element;
-
-  if (fGeometryFileType == "barrel")
-  {
-    G4cout << "--- Creating geometry file in Framework Big Barrel Format ---" << G4endl;
-
-    //! Adding Frame object - only one, always the same
-    element.put("id", 1);
-    element.put("creator_id", 1);
-    element.put("status", "OK");
-    element.put("description", "Setup generated with J-PET Geant4 software");
-    element.put("active", "true");
-    element.put("version", 1);
-    partial.push_back(make_pair("", element));
-    full.add_child("frames", partial);
-
-    //! Adding scintillators from collection of Scin objects added during construction
-    partial.clear();
-    for (unsigned i = 0; i < fScinContainer.size(); i++)
-    {
-      auto id = to_string(fScinContainer[i].fID);
-      auto bsID = to_string(fScinContainer[i].fSlotID);
-      auto height = to_string(fScinContainer[i].fHeight);
-      height = height.substr(0, height.find(".", 0) + 3);
-      auto width = to_string(fScinContainer[i].fWidth);
-      width = width.substr(0, width.find(".", 0) + 3);
-      auto length = to_string(fScinContainer[i].fLength);
-      length = length.substr(0, length.find(".", 0) + 3);
-
-      element.clear();
-      element.put("id", id);
-      element.put("barrelSlots_id", bsID);
-      element.put("height", height);
-      element.put("width", width);
-      element.put("length", length);
-      element.put("attenuation_length", "0");
-      partial.push_back(make_pair("", element));
-    }
-    full.add_child("scintillators", partial);
-
-    //! Adding slots
-    partial.clear();
-    for (unsigned i = 0; i < fSlotContainer.size(); i++)
-    {
-      auto id = to_string(fSlotContainer[i].fID);
-      auto layerID = to_string(fSlotContainer[i].fLayerID);
-      auto theta = to_string(fSlotContainer[i].fTheta);
-      theta = theta.substr(0, theta.find(".", 0) + 3);
-
-      element.clear();
-      element.put("id", id);
-      element.put("frame_id", "1");
-      element.put("name", "1");
-      element.put("layers_id", layerID);
-      element.put("theta1", theta);
-      element.put("active", "true");
-
-      partial.push_back(make_pair("", element));
-    }
-    full.add_child("barrelSlots", partial);
-
-    //! Adding layers
-    partial.clear();
-    for (unsigned i = 0; i < fLayerContainer.size(); i++)
-    {
-      auto id = to_string(fLayerContainer[i].fID);
-      auto name = fLayerContainer[i].fName;
-      auto radius = to_string(fLayerContainer[i].fRadius);
-      radius = radius.substr(0, radius.find(".", 0) + 3);
-      auto frameID = to_string(fLayerContainer[i].fSetupID);
-
-      element.clear();
-      element.put("id", id);
-      element.put("name", name);
-      element.put("radius", radius);
-      element.put("frames_id", frameID);
-      element.put("active", "true");
-
-      partial.push_back(make_pair("", element));
-    }
-    full.add_child("layers", partial);
-
-    jsonFile.add_child(runNumStr, full);
-    pt::write_json(fGeometryFileName, jsonFile);
-  }
-  else if (fGeometryFileType == "modular")
-  {
-
-    G4cout << "--- Creating geometry file in Framework Modular Format ---" << G4endl;
-
-    //! Adding Setup object - only one, always the same
-    element.put("id", 1);
-    element.put("description", "Setup generated with J-PET Geant4 software");
-    partial.push_back(make_pair("", element));
-    full.add_child("setup", partial);
-
-    //! Adding Layers
-    partial.clear();
-    for (unsigned i = 0; i < fLayerContainer.size(); i++)
-    {
-      auto id = to_string(fLayerContainer[i].fID);
-      auto name = fLayerContainer[i].fName;
-      auto radius = to_string(fLayerContainer[i].fRadius);
-      radius = radius.substr(0, radius.find(".", 0) + 3);
-      auto setupID = to_string(fLayerContainer[i].fSetupID);
-
-      element.clear();
-      element.put("id", id);
-      element.put("name", name);
-      element.put("radius", radius);
-      element.put("setup_id", setupID);
-      partial.push_back(make_pair("", element));
-    }
-    full.add_child("layer", partial);
-
-    //! Adding scintillators
-    partial.clear();
-    for (unsigned i = 0; i < fScinContainer.size(); i++)
-    {
-      auto id = to_string(fScinContainer[i].fID);
-      auto slotID = to_string(fScinContainer[i].fSlotID);
-      auto height = to_string(fScinContainer[i].fHeight);
-      height = height.substr(0, height.find(".", 0) + 3);
-      auto width = to_string(fScinContainer[i].fWidth);
-      width = width.substr(0, width.find(".", 0) + 3);
-      auto length = to_string(fScinContainer[i].fLength);
-      length = length.substr(0, length.find(".", 0) + 3);
-      auto x_center = to_string(fScinContainer[i].fX_center);
-      x_center = x_center.substr(0, x_center.find(".", 0) + 3);
-      auto y_center = to_string(fScinContainer[i].fY_center);
-      y_center = y_center.substr(0, y_center.find(".", 0) + 3);
-      auto z_center = to_string(fScinContainer[i].fZ_center);
-      z_center = z_center.substr(0, z_center.find(".", 0) + 3);
-
-      element.clear();
-      element.put("id", id);
-      element.put("slot_id", slotID);
-      element.put("height", height);
-      element.put("width", width);
-      element.put("length", length);
-      element.put("xcenter", x_center);
-      element.put("ycenter", y_center);
-      element.put("zcenter", z_center);
-      partial.push_back(make_pair("", element));
-    }
-    full.add_child("scin", partial);
-
-    //! Adding slots
-    partial.clear();
-    for (unsigned i = 0; i < fSlotContainer.size(); i++)
-    {
-      auto id = to_string(fSlotContainer[i].fID);
-      auto layerID = to_string(fSlotContainer[i].fLayerID);
-      auto theta = to_string(fSlotContainer[i].fTheta);
-      theta = theta.substr(0, theta.find(".", 0) + 3);
-      auto type = fSlotContainer[i].fType;
-
-      element.clear();
-      element.put("id", id);
-      element.put("layer_id", layerID);
-      element.put("theta", theta);
-      element.put("type", type);
-      partial.push_back(make_pair("", element));
-    }
-    full.add_child("slot", partial);
-
-    jsonFile.add_child(runNumStr, full);
-    pt::write_json(fGeometryFileName, jsonFile);
-  }
-  else
-  {
-    G4Exception("DetectorConstruction", "DC03", JustWarning, "Unrecognized geometry file type, accepted formats: barrel, modular.");
-  }
+  // TODO - possibly to be deprecated
 }
-
 
 void DetectorConstruction::ConstructNemaPhantom()
 {
-  for (unsigned i=0; i<fPhantomElements.size(); i++) {
-    if (fPhantomElements.at(i).fConstruct && fPhantomElements.at(i).fDimensions.size()) {
+  for (unsigned i = 0; i < fPhantomElements.size(); i++)
+  {
+    if (fPhantomElements.at(i).fConstruct && fPhantomElements.at(i).fDimensions.size())
+    {
       G4VSolid* newElem = nullptr;
       G4Material* phantomElementMaterial = nullptr;
       G4Material* phantMatExt = nullptr;
       G4LogicalVolume* phantomElementLogic = nullptr;
       G4RotationMatrix* rotMat = new G4RotationMatrix();
 
-      if (fPhantomElements.at(i).fRotation.size() > 0) {
-        rotMat->rotateX(fPhantomElements.at(i).fRotation.at(0)*deg);
-        rotMat->rotateY(fPhantomElements.at(i).fRotation.at(1)*deg);
-        rotMat->rotateZ(fPhantomElements.at(i).fRotation.at(2)*deg);
+      if (fPhantomElements.at(i).fRotation.size() > 0)
+      {
+        rotMat->rotateX(fPhantomElements.at(i).fRotation.at(0) * deg);
+        rotMat->rotateY(fPhantomElements.at(i).fRotation.at(1) * deg);
+        rotMat->rotateZ(fPhantomElements.at(i).fRotation.at(2) * deg);
       }
 
       GeometryShape elementShape = fPhantomElements.at(i).fShape;
-      if (elementShape == GeometryShape::aBox) {
+      if (elementShape == GeometryShape::aBox)
+      {
         newElem = new G4Box("newElem", fPhantomElements.at(i).fDimensions.at(0) * cm, fPhantomElements.at(i).fDimensions.at(1) * cm,
                             fPhantomElements.at(i).fDimensions.at(2) * cm);
-      } else if (elementShape == GeometryShape::aSphere) {
-        newElem = new G4Sphere("newElem", fPhantomElements.at(i).fDimensions.at(0) * cm, fPhantomElements.at(i).fDimensions.at(1) * cm,
-                               0, 360*deg, 0, 360*deg);
-      } else if (elementShape == GeometryShape::aOrb) {
+      }
+      else if (elementShape == GeometryShape::aSphere)
+      {
+        newElem = new G4Sphere("newElem", fPhantomElements.at(i).fDimensions.at(0) * cm, fPhantomElements.at(i).fDimensions.at(1) * cm, 0, 360 * deg,
+                               0, 360 * deg);
+      }
+      else if (elementShape == GeometryShape::aOrb)
+      {
         newElem = new G4Orb("newElem", fPhantomElements.at(i).fDimensions.at(0) * cm);
-      } else if (elementShape == GeometryShape::aTube) {
+      }
+      else if (elementShape == GeometryShape::aTube)
+      {
         newElem = new G4Tubs("newElem", fPhantomElements.at(i).fDimensions.at(0) * cm, fPhantomElements.at(i).fDimensions.at(1) * cm,
-                             fPhantomElements.at(i).fDimensions.at(2) * cm, 0., 360.*deg);
-      } else if (elementShape == GeometryShape::aEllTube) {
+                             fPhantomElements.at(i).fDimensions.at(2) * cm, 0., 360. * deg);
+      }
+      else if (elementShape == GeometryShape::aEllTube)
+      {
         newElem = new G4EllipticalTube("newElem", fPhantomElements.at(i).fDimensions.at(0) * cm, fPhantomElements.at(i).fDimensions.at(1) * cm,
-                            fPhantomElements.at(i).fDimensions.at(2) * cm);
+                                       fPhantomElements.at(i).fDimensions.at(2) * cm);
       }
 
-      if (newElem != nullptr) {
-        for (unsigned j=0; j<fPhantomElements.at(i).fActionCombination.size(); j++) {//Complicated shapes
+      if (newElem != nullptr)
+      {
+        for (unsigned j = 0; j < fPhantomElements.at(i).fActionCombination.size(); j++)
+        { // Complicated shapes
           G4int idToCombine = fPhantomElements.at(i).fActionCombination.at(j).first;
           GeometryCombination action = fPhantomElements.at(i).fActionCombination.at(j).second;
           G4VSolid* newElemFragment = nullptr;
@@ -1370,119 +1227,139 @@ void DetectorConstruction::ConstructNemaPhantom()
           if (dimensionsNew.size() == 0)
             continue;
 
-          if (elementShape == GeometryShape::aBox) {
-            newElemFragment = new G4Box("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm,
-                                        dimensionsNew.at(2) * cm);
-          } else if (elementShape == GeometryShape::aSphere) {
-            newElemFragment = new G4Sphere("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm,
-                                           0, 360*deg, 0, 360*deg);
-          } else if (elementShape == GeometryShape::aOrb) {
+          if (elementShape == GeometryShape::aBox)
+          {
+            newElemFragment = new G4Box("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm, dimensionsNew.at(2) * cm);
+          }
+          else if (elementShape == GeometryShape::aSphere)
+          {
+            newElemFragment = new G4Sphere("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm, 0, 360 * deg, 0, 360 * deg);
+          }
+          else if (elementShape == GeometryShape::aOrb)
+          {
             newElemFragment = new G4Orb("newElemFrag", dimensionsNew.at(0) * cm);
-          } else if (elementShape == GeometryShape::aTube) {
-            newElemFragment = new G4Tubs("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm,
-                                         dimensionsNew.at(2) * cm, 0., 360.*deg);
-          } else if (elementShape == GeometryShape::aEllTube) {
-            newElemFragment = new G4EllipticalTube("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm,
-                                                   dimensionsNew.at(2) * cm);
+          }
+          else if (elementShape == GeometryShape::aTube)
+          {
+            newElemFragment = new G4Tubs("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm, dimensionsNew.at(2) * cm, 0., 360. * deg);
+          }
+          else if (elementShape == GeometryShape::aEllTube)
+          {
+            newElemFragment = new G4EllipticalTube("newElemFrag", dimensionsNew.at(0) * cm, dimensionsNew.at(1) * cm, dimensionsNew.at(2) * cm);
           }
 
           G4RotationMatrix* rotMatNew = new G4RotationMatrix();
-          if (fPhantomElements.at(fPhantomElemIDs.at(idToCombine)).fRotation.size() > 0) {
-            rotMatNew->rotateX(fPhantomElements.at(fPhantomElemIDs.at(idToCombine)).fRotation.at(0)*deg);
-            rotMatNew->rotateY(fPhantomElements.at(fPhantomElemIDs.at(idToCombine)).fRotation.at(1)*deg);
-            rotMatNew->rotateZ(fPhantomElements.at(fPhantomElemIDs.at(idToCombine)).fRotation.at(2)*deg);
+          if (fPhantomElements.at(fPhantomElemIDs.at(idToCombine)).fRotation.size() > 0)
+          {
+            rotMatNew->rotateX(fPhantomElements.at(fPhantomElemIDs.at(idToCombine)).fRotation.at(0) * deg);
+            rotMatNew->rotateY(fPhantomElements.at(fPhantomElemIDs.at(idToCombine)).fRotation.at(1) * deg);
+            rotMatNew->rotateZ(fPhantomElements.at(fPhantomElemIDs.at(idToCombine)).fRotation.at(2) * deg);
           }
 
-          if (action == GeometryCombination::aUnion) {
+          if (action == GeometryCombination::aUnion)
+          {
             newElem = new G4UnionSolid("newUnion", newElem, newElemFragment, rotMatNew,
                                        G4ThreeVector(locationNew.at(0) * cm, locationNew.at(1) * cm, locationNew.at(2) * cm));
-          } else if (action == GeometryCombination::aSubtraction) {
+          }
+          else if (action == GeometryCombination::aSubtraction)
+          {
             newElem = new G4SubtractionSolid("newSubtraction", newElem, newElemFragment, rotMatNew,
                                              G4ThreeVector(locationNew.at(0) * cm, locationNew.at(1) * cm, locationNew.at(2) * cm));
-          } else if (action == GeometryCombination::aIntersection) {
+          }
+          else if (action == GeometryCombination::aIntersection)
+          {
             newElem = new G4IntersectionSolid("newIntersection", newElem, newElemFragment, rotMatNew,
                                               G4ThreeVector(locationNew.at(0) * cm, locationNew.at(1) * cm, locationNew.at(2) * cm));
           }
         }
       }
 
-      if (newElem != nullptr) {
+      if (newElem != nullptr)
+      {
         PhantomMaterial elementMaterial = fPhantomElements.at(i).fMaterial;
         phantomElementMaterial = vacuum;
         phantMatExt = fVacuum;
 
         double z, a;
-        if (elementMaterial == PhantomMaterial::aWater) {
-          G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
-          G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
-          phantomElementMaterial = new G4Material("Water", fPhantomElements.at(i).fDensity*g/cm3, 2);
+        if (elementMaterial == PhantomMaterial::aWater)
+        {
+          G4Element* elH = new G4Element("Hydrogen", "H", z = 1, 1.01 * g / mole);
+          G4Element* elO = new G4Element("Oxygen", "O", z = 8, 16 * g / mole);
+          phantomElementMaterial = new G4Material("Water", fPhantomElements.at(i).fDensity * g / cm3, 2);
           phantomElementMaterial->AddElement(elH, 2);
           phantomElementMaterial->AddElement(elO, 1);
-          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mWater,
-                                              "water" + std::to_string(i), phantomElementMaterial);
-        } else if (elementMaterial == PhantomMaterial::aPlastic) {
-          G4Element* elC = new G4Element("Carbon", "C", z=6., a=12.0107*g/mole);
-          G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
-          phantomElementMaterial = new G4Material("Plastic", fPhantomElements.at(i).fDensity*g/cm3, 2);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mWater, "water" + std::to_string(i), phantomElementMaterial);
+        }
+        else if (elementMaterial == PhantomMaterial::aPlastic)
+        {
+          G4Element* elC = new G4Element("Carbon", "C", z = 6., a = 12.0107 * g / mole);
+          G4Element* elH = new G4Element("Hydrogen", "H", z = 1, 1.01 * g / mole);
+          phantomElementMaterial = new G4Material("Plastic", fPhantomElements.at(i).fDensity * g / cm3, 2);
           phantomElementMaterial->AddElement(elC, 2);
           phantomElementMaterial->AddElement(elH, 4);
-          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mScin,
-                                              "plastic" + std::to_string(i), phantomElementMaterial);
-        } else if (elementMaterial == PhantomMaterial::aAlumnium) {
-          phantomElementMaterial = new G4Material("Al", z=13., a=26.981539*g/mole, fPhantomElements.at(i).fDensity*g/cm3);
-          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mAl,
-                                              "aluminum" + std::to_string(i), phantomElementMaterial);
-        } else if (elementMaterial == PhantomMaterial::aSiliconDioxide) {
-          G4Element* elSi = new G4Element("Silicon", "Si", z=14., a=28.0855*g/mole);
-          G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
-          phantomElementMaterial = new G4Material("SiliconDioxide", fPhantomElements.at(i).fDensity*g/cm3, 2);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mScin, "plastic" + std::to_string(i), phantomElementMaterial);
+        }
+        else if (elementMaterial == PhantomMaterial::aAlumnium)
+        {
+          phantomElementMaterial = new G4Material("Al", z = 13., a = 26.981539 * g / mole, fPhantomElements.at(i).fDensity * g / cm3);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mAl, "aluminum" + std::to_string(i), phantomElementMaterial);
+        }
+        else if (elementMaterial == PhantomMaterial::aSiliconDioxide)
+        {
+          G4Element* elSi = new G4Element("Silicon", "Si", z = 14., a = 28.0855 * g / mole);
+          G4Element* elO = new G4Element("Oxygen", "O", z = 8, 16 * g / mole);
+          phantomElementMaterial = new G4Material("SiliconDioxide", fPhantomElements.at(i).fDensity * g / cm3, 2);
           phantomElementMaterial->AddElement(elSi, 1);
           phantomElementMaterial->AddElement(elO, 4);
-          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mSiliconDioxide,
-                                              "silica" + std::to_string(i), phantomElementMaterial);
-        } else if (elementMaterial == PhantomMaterial::aCustom) {
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mSiliconDioxide, "silica" + std::to_string(i), phantomElementMaterial);
+        }
+        else if (elementMaterial == PhantomMaterial::aCustom)
+        {
           G4int customMatID = fPhantomElements.at(i).fCustomMaterialID;
           G4String matName = "Custom" + std::to_string(customMatID);
           G4int numberOfElements = fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(customMatID)).size();
-          phantomElementMaterial = new G4Material(matName, fPhantomElements.at(i).fDensity*g/cm3, numberOfElements);
-          for (auto mapIterator=fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(customMatID)).begin(); 
-               mapIterator!=fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(customMatID)).end(); mapIterator++) {
+          phantomElementMaterial = new G4Material(matName, fPhantomElements.at(i).fDensity * g / cm3, numberOfElements);
+          for (auto mapIterator = fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(customMatID)).begin();
+               mapIterator != fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(customMatID)).end(); mapIterator++)
+          {
             phantomElementMaterial->AddElement(fMaterialElements.at(mapIterator->first), mapIterator->second);
           }
-          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mUnknown,
-                                              matName, phantomElementMaterial);
-        } else {//temporary until finding better default material
-          G4Element* elH = new G4Element("Hydrogen", "H", z=1, 1.01*g/mole);
-          G4Element* elO = new G4Element("Oxygen", "O", z=8, 16*g/mole);
-          phantomElementMaterial = new G4Material("Water", fPhantomElements.at(i).fDensity*g/cm3, 2);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mUnknown, matName, phantomElementMaterial);
+        }
+        else
+        { // temporary until finding better default material
+          G4Element* elH = new G4Element("Hydrogen", "H", z = 1, 1.01 * g / mole);
+          G4Element* elO = new G4Element("Oxygen", "O", z = 8, 16 * g / mole);
+          phantomElementMaterial = new G4Material("Water", fPhantomElements.at(i).fDensity * g / cm3, 2);
           phantomElementMaterial->AddElement(elH, 2);
           phantomElementMaterial->AddElement(elO, 1);
-          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mWater,
-                                              "water" + std::to_string(i), phantomElementMaterial);
+          phantMatExt = new MaterialExtension(MaterialParameters::MaterialID::mWater, "water" + std::to_string(i), phantomElementMaterial);
         }
 
-        if (phantomElementMaterial != nullptr) {
+        if (phantomElementMaterial != nullptr)
+        {
           phantomElementLogic = new G4LogicalVolume(newElem, phantMatExt, "phanElem");
-          double colorParam = phantomElementMaterial->GetDensity()/5;
-          double colorParam2 = 1 - phantomElementMaterial->GetDensity()/5;
-          double colorParam3 = phantomElementMaterial->GetDensity()/2.5;
+          double colorParam = phantomElementMaterial->GetDensity() / 5;
+          double colorParam2 = 1 - phantomElementMaterial->GetDensity() / 5;
+          double colorParam3 = phantomElementMaterial->GetDensity() / 2.5;
           G4VisAttributes* detVisAtt = new G4VisAttributes(G4Colour(colorParam, colorParam2, colorParam3));
           detVisAtt->SetForceWireframe(true);
           detVisAtt->SetForceSolid(true);
           phantomElementLogic->SetVisAttributes(detVisAtt);
-	}
+        }
       }
 
-      if (fPhantomElements.at(i).fLocation.size() == 0) {
-        fPhantomElements.at(i).fLocation = {0,0,0};
+      if (fPhantomElements.at(i).fLocation.size() == 0)
+      {
+        fPhantomElements.at(i).fLocation = {0, 0, 0};
       }
-      if (phantomElementLogic != nullptr) {
-        fPhantomElementsPhysVolumes.push_back(new G4PVPlacement(rotMat, G4ThreeVector(fPhantomElements.at(i).fLocation.at(0)*cm,
-                                                                                     fPhantomElements.at(i).fLocation.at(1)*cm,
-                                                                                     fPhantomElements.at(i).fLocation.at(2)*cm),
-                                                               phantomElementLogic, "PhantElemID" + std::to_string(i), fWorldLogical,
-                                                               true, 0, checkOverlaps)
-                                            );
+      if (phantomElementLogic != nullptr)
+      {
+        fPhantomElementsPhysVolumes.push_back(
+            new G4PVPlacement(rotMat,
+                              G4ThreeVector(fPhantomElements.at(i).fLocation.at(0) * cm, fPhantomElements.at(i).fLocation.at(1) * cm,
+                                            fPhantomElements.at(i).fLocation.at(2) * cm),
+                              phantomElementLogic, "PhantElemID" + std::to_string(i), fWorldLogical, true, 0, checkOverlaps));
       }
     }
   }
@@ -1491,7 +1368,7 @@ void DetectorConstruction::ConstructNemaPhantom()
 void DetectorConstruction::addMaterialElementForPhantom(G4String elementName, G4double zNumber, G4double mass)
 {
   G4String customElementName = "custom" + elementName;
-  G4Element* newElem = new G4Element(customElementName, elementName, zNumber, mass*g/mole);
+  G4Element* newElem = new G4Element(customElementName, elementName, zNumber, mass * g / mole);
   fMaterialElemIDs.insert({elementName, fMaterialElemIDs.size()});
   fMaterialElements.push_back(newElem);
 }
@@ -1499,7 +1376,7 @@ void DetectorConstruction::addMaterialElementForPhantom(G4String elementName, G4
 void DetectorConstruction::addMaterialIsotopeForPhantom(G4String elementName, G4double zNumber, G4double nNumber, G4double mass)
 {
   G4String customElementName = "custom" + elementName;
-  G4Isotope* iso = new G4Isotope("Isotope", zNumber, nNumber, mass*g/mole);
+  G4Isotope* iso = new G4Isotope("Isotope", zNumber, nNumber, mass * g / mole);
   G4Element* newElem = new G4Element(customElementName, elementName, 1);
   newElem->AddIsotope(iso, 1);
   fMaterialElemIDs.insert({elementName, fMaterialElemIDs.size()});
@@ -1516,18 +1393,23 @@ void DetectorConstruction::addCustomMaterialForPhantom(G4int id)
 void DetectorConstruction::addElementToCustomMaterialForPhantom(G4int idMaterial, G4String idElement, G4double fraction)
 {
   auto search = fCustomMatPhantomIDs.find(idMaterial);
-  if (search == fCustomMatPhantomIDs.end()) {
+  if (search == fCustomMatPhantomIDs.end())
+  {
     fCustomMatPhantomIDs.insert({idMaterial, fCustomMatPhantomIDs.size()});
     std::map<G4int, G4double> temp;
     auto searchElement = fMaterialElemIDs.find(idElement);
-    if (searchElement != fMaterialElemIDs.end()) {
+    if (searchElement != fMaterialElemIDs.end())
+    {
       G4int idElem = fMaterialElemIDs.at(idElement);
       temp.insert(std::make_pair(idElem, fraction));
       fCustomMaterialsCompositionForPhantom.push_back(temp);
     }
-  } else {
+  }
+  else
+  {
     auto searchElement = fMaterialElemIDs.find(idElement);
-    if (searchElement != fMaterialElemIDs.end()) {
+    if (searchElement != fMaterialElemIDs.end())
+    {
       G4int idElem = fMaterialElemIDs.at(idElement);
       fCustomMaterialsCompositionForPhantom.at(fCustomMatPhantomIDs.at(idMaterial)).insert(std::make_pair(idElem, fraction));
     }
@@ -1537,18 +1419,29 @@ void DetectorConstruction::addElementToCustomMaterialForPhantom(G4int idMaterial
 void DetectorConstruction::addPhantomElementWithShape(G4int id, G4String elementShape)
 {
   PhantElem newElem;
-  if (elementShape == "G4Box" || elementShape == "G4box" || elementShape == "box") {
+  if (elementShape == "G4Box" || elementShape == "G4box" || elementShape == "box")
+  {
     newElem.fShape = GeometryShape::aBox;
-  } else if (elementShape == "G4Sphere" || elementShape == "G4sphere" || elementShape == "sphere") {
+  }
+  else if (elementShape == "G4Sphere" || elementShape == "G4sphere" || elementShape == "sphere")
+  {
     newElem.fShape = GeometryShape::aSphere;
-  } else if (elementShape == "G4Orb" || elementShape == "G4orb" || elementShape == "orb" || elementShape == "ball") {
+  }
+  else if (elementShape == "G4Orb" || elementShape == "G4orb" || elementShape == "orb" || elementShape == "ball")
+  {
     newElem.fShape = GeometryShape::aOrb;
-  } else if (elementShape == "G4Tubs" || elementShape == "G4tubs" || elementShape == "tube" || elementShape == "cylinder") {
+  }
+  else if (elementShape == "G4Tubs" || elementShape == "G4tubs" || elementShape == "tube" || elementShape == "cylinder")
+  {
     newElem.fShape = GeometryShape::aTube;
-  } else if (elementShape == "G4EllipticalTube" || elementShape == "G4ellipticalTube" ||
-             elementShape == "ellipticalTube" || elementShape == "elipticalTube") {
+  }
+  else if (elementShape == "G4EllipticalTube" || elementShape == "G4ellipticalTube" || elementShape == "ellipticalTube" ||
+           elementShape == "elipticalTube")
+  {
     newElem.fShape = GeometryShape::aEllTube;
-  } else {
+  }
+  else
+  {
     G4Exception("DetectorConstruction", "DC04", JustWarning, "Unrecognized shape of the phantom element");
   }
 
@@ -1557,10 +1450,7 @@ void DetectorConstruction::addPhantomElementWithShape(G4int id, G4String element
   fPhantomElements.push_back(newElem);
 }
 
-void DetectorConstruction::setContructionFlagTrue(G4int id)
-{
-  fPhantomElements.at(fPhantomElemIDs.at(id)).fConstruct = true;
-}
+void DetectorConstruction::setContructionFlagTrue(G4int id) { fPhantomElements.at(fPhantomElemIDs.at(id)).fConstruct = true; }
 
 void DetectorConstruction::setPhantomElementDimensions(G4int id, G4String stringWithParameters)
 {
@@ -1568,19 +1458,26 @@ void DetectorConstruction::setPhantomElementDimensions(G4int id, G4String string
   std::istringstream is(stringWithParameters);
   std::vector<double> dimTemp;
   int ID;
-  if (elementShape == GeometryShape::aBox || elementShape == GeometryShape::aEllTube) {
+  if (elementShape == GeometryShape::aBox || elementShape == GeometryShape::aEllTube)
+  {
     G4double xHalfLength, yHalfLength, zHalfLength;
     is >> ID >> xHalfLength >> yHalfLength >> zHalfLength;
     dimTemp = {xHalfLength, yHalfLength, zHalfLength};
-  } else if (elementShape == GeometryShape::aSphere) {
+  }
+  else if (elementShape == GeometryShape::aSphere)
+  {
     G4double rMin, rMax;
     is >> ID >> rMin >> rMax;
     dimTemp = {rMin, rMax};
-  } else if (elementShape == GeometryShape::aOrb) {
+  }
+  else if (elementShape == GeometryShape::aOrb)
+  {
     G4double rMax;
     is >> ID >> rMax;
     dimTemp = {rMax};
-  } else if (elementShape == GeometryShape::aTube) {
+  }
+  else if (elementShape == GeometryShape::aTube)
+  {
     G4double rMin, rMax, zHalfLength;
     is >> ID >> rMin >> rMax >> zHalfLength;
     dimTemp = {rMin, rMax, zHalfLength};
@@ -1602,31 +1499,48 @@ void DetectorConstruction::setPhantomElementRotation(G4int id, G4double xRot, G4
 
 void DetectorConstruction::setPhantomElementAction(G4int id1, G4int id2, G4String action)
 {
-  if (action == "union") {
+  if (action == "union")
+  {
     fPhantomElements.at(fPhantomElemIDs.at(id1)).fActionCombination.push_back(std::make_pair(id2, GeometryCombination::aUnion));
-  } else if (action == "subtraction") {
+  }
+  else if (action == "subtraction")
+  {
     fPhantomElements.at(fPhantomElemIDs.at(id1)).fActionCombination.push_back(std::make_pair(id2, GeometryCombination::aSubtraction));
-  } else if (action == "intersection") {
+  }
+  else if (action == "intersection")
+  {
     fPhantomElements.at(fPhantomElemIDs.at(id1)).fActionCombination.push_back(std::make_pair(id2, GeometryCombination::aIntersection));
-  } else {
-    G4Exception("DetectorConstruction", "DC05", JustWarning, "Bad action fo the phantom element creation. Should be one of following: union, subtraction, intersection.");
+  }
+  else
+  {
+    G4Exception("DetectorConstruction", "DC05", JustWarning,
+                "Bad action fo the phantom element creation. Should be one of following: union, subtraction, intersection.");
   }
 }
 
 void DetectorConstruction::setPhantomElementMaterial(G4int id, G4String materialName, G4double density)
 {
-  std::string customName = "custom";
-  if (materialName == "water" || materialName == "Water" || materialName == "H2O" || materialName == "h20") {
+  G4String customName = "custom";
+  if (materialName == "water" || materialName == "Water" || materialName == "H2O" || materialName == "h20")
+  {
     fPhantomElements.at(fPhantomElemIDs.at(id)).fMaterial = PhantomMaterial::aWater;
-  } else if (materialName == "plastic" || materialName == "Plastic" || materialName == "polymer" || materialName == "Polymer") {
+  }
+  else if (materialName == "plastic" || materialName == "Plastic" || materialName == "polymer" || materialName == "Polymer")
+  {
     fPhantomElements.at(fPhantomElemIDs.at(id)).fMaterial = PhantomMaterial::aPlastic;
-  } else if (materialName == "Al" || materialName == "al" || materialName == "Aluminium" || materialName == "aluminium") {
+  }
+  else if (materialName == "Al" || materialName == "al" || materialName == "Aluminium" || materialName == "aluminium")
+  {
     fPhantomElements.at(fPhantomElemIDs.at(id)).fMaterial = PhantomMaterial::aAlumnium;
-  } else if (materialName == "SiO2" || materialName == "sio2" || materialName == "SiliconDioxide" || materialName == "siliconDioxide") {
+  }
+  else if (materialName == "SiO2" || materialName == "sio2" || materialName == "SiliconDioxide" || materialName == "siliconDioxide")
+  {
     fPhantomElements.at(fPhantomElemIDs.at(id)).fMaterial = PhantomMaterial::aSiliconDioxide;
-  } else if (materialName.contains(std::string("custom")) || materialName.contains(std::string("Custom"))) {
+  }
+  else if (G4StrUtil::contains(materialName, customName) || G4StrUtil::contains(materialName, G4String("Custom")))
+  {
     fPhantomElements.at(fPhantomElemIDs.at(id)).fMaterial = PhantomMaterial::aCustom;
-    G4String customID = materialName.remove(0, customName.size());
+    G4String customID = materialName.erase(0, customName.size());
     fPhantomElements.at(fPhantomElemIDs.at(id)).fCustomMaterialID = std::stoi(customID);
   }
   fPhantomElements.at(fPhantomElemIDs.at(id)).fDensity = density;
