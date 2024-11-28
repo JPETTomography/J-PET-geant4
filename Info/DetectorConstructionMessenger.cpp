@@ -43,7 +43,7 @@ DetectorConstructionMessenger::DetectorConstructionMessenger(DetectorConstructio
   //! Bool converted into string
   fLoadModularLayer = new G4UIcmdWithAString("/jpetmc/detector/loadModularLayer", this);
   fLoadModularLayer->SetGuidance("Load additional layer made out of modules");
-  
+
   fLoadModularLayerOnly = new G4UIcmdWithoutParameter("/jpetmc/detector/loadModularLayerOnly", this);
   fLoadModularLayerOnly->SetGuidance("Do not load other layers of detectors");
 
@@ -75,16 +75,17 @@ DetectorConstructionMessenger::DetectorConstructionMessenger(DetectorConstructio
 
   fAddMaterialElement = new G4UIcmdWithAString("/jpetmc/detector/addMaterialElement", this);
   fAddMaterialElement->SetGuidance("Adding the element for custom material (name) (z number) (mass in g/mol)");
-  
+
   fAddMaterialIsotopeElement = new G4UIcmdWithAString("/jpetmc/detector/addMaterialIsotopeElement", this);
   fAddMaterialIsotopeElement->SetGuidance("Adding the element but isotope for custom material (name) (z number) (n number) (mass in g/mol)");
-  
+
   fAddCustomMaterialWithID = new G4UIcmdWithAnInteger("/jpetmc/detector/addCustomMaterialWithID", this);
   fAddCustomMaterialWithID->SetGuidance("Adding the custom material with id - int");
-  
+
   fAddElementToCustomMaterial = new G4UIcmdWithAString("/jpetmc/detector/addElementToCustomMaterial", this);
-  fAddElementToCustomMaterial->SetGuidance("Adding the element to custom material (id of material - int) (id of element - string) (fraction of element)");
-  
+  fAddElementToCustomMaterial->SetGuidance(
+      "Adding the element to custom material (id of material - int) (id of element - string) (fraction of element)");
+
   fAddPhantomElementWithShape = new G4UIcmdWithAString("/jpetmc/detector/addPhantomElementWithShape", this);
   fAddPhantomElementWithShape->SetGuidance("Adding the phantom element with shape (box, sphere, ...)");
 
@@ -139,73 +140,112 @@ DetectorConstructionMessenger::~DetectorConstructionMessenger()
 // cppcheck-suppress unusedFunction
 void DetectorConstructionMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
-  if (command == fLoadTargetForRun) {
+  if (command == fLoadTargetForRun)
+  {
     fDetector->LoadGeometryForRun(fLoadTargetForRun->GetNewIntValue(newValue));
     fDetector->UpdateGeometry();
-  } else if (command == fLoadIdealGeometry) {
+  }
+  else if (command == fLoadIdealGeometry)
+  {
     G4Exception("DetectorConstructionMessenger", "DCM01", JustWarning, "Option is not yet implemented");
-  } else if (command == fLoadJPetBasicGeometry) {
+  }
+  else if (command == fLoadJPetBasicGeometry)
+  {
     fDetector->ConstructBasicGeometry(true);
     fDetector->LoadFrame(true);
     fDetector->UpdateGeometry();
-  } else if (command == fLoadOnlyScintillators) {
+  }
+  else if (command == fLoadOnlyScintillators)
+  {
     fDetector->LoadFrame(false);
     fDetector->UpdateGeometry();
-  } else if (command == fLoadWrapping) {
+  }
+  else if (command == fLoadWrapping)
+  {
     fDetector->LoadWrapping(fLoadWrapping->GetNewBoolValue(newValue));
-  } else if (command == fLoadModularLayer) {
+  }
+  else if (command == fLoadModularLayer)
+  {
     fDetector->ConstructModularLayer(newValue);
     fDetector->UpdateGeometry();
-  } else if (command == fLoadModularLayerOnly) {
+  }
+  else if (command == fLoadModularLayerOnly)
+  {
     fDetector->ConstructBasicGeometry(false);
     fDetector->UpdateGeometry();
-  } else if (command == fScinHitMergingTime) {
+  }
+  else if (command == fScinHitMergingTime)
+  {
     DetectorConstants::SetMergingTimeValueForScin(fScinHitMergingTime->GetNewDoubleValue(newValue));
     fDetector->UpdateGeometry();
-  } else if (command == fGeometryFileName) {
+  }
+  else if (command == fGeometryFileName)
+  {
     fDetector->CreateGeometryFileFlag(true);
-    if (!newValue.contains(".json")) {
+    if (!G4StrUtil::contains(newValue, ".json"))
+    {
       newValue.append(".json");
     }
     fDetector->SetGeometryFileName(newValue);
-  } else if (command == fCreateGeometryType) {
+  }
+  else if (command == fCreateGeometryType)
+  {
     fDetector->CreateGeometryFileFlag(true);
     fDetector->SetGeometryFileType(newValue);
-  } else if (command == fJSONSetupFile) {
+  }
+  else if (command == fJSONSetupFile)
+  {
     std::ifstream file(newValue.c_str());
-    if (file.good()) {
+    if (file.good())
+    {
       fDetector->readJSONSetup(true);
       fDetector->setJSONFileName(newValue);
       fDetector->UpdateGeometry();
-    } else {
+    }
+    else
+    {
       G4Exception("DetectorConstructionMessenger", "DCM02", FatalException, "Provided JSON file does not exist.");
     }
-  } else if (command == fJSONSetupRunNum) {
+  }
+  else if (command == fJSONSetupRunNum)
+  {
     fDetector->setJSONSetupRunNum(fJSONSetupRunNum->GetNewIntValue(newValue));
-  } else if (command == fPressureInChamber) {
+  }
+  else if (command == fPressureInChamber)
+  {
     fDetector->SetPressureInChamber(fPressureInChamber->GetNewDoubleValue(newValue));
-  } else if (command == fConstructNemaPhantom) {
+  }
+  else if (command == fConstructNemaPhantom)
+  {
     fDetector->setNemaPhantomFlag(true);
-  } else if (command == fAddMaterialElement) {
+  }
+  else if (command == fAddMaterialElement)
+  {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4String nameID;
     G4double zNumber;
-    G4double mass; //in g/mole
+    G4double mass; // in g/mole
     is >> nameID >> zNumber >> mass;
     fDetector->addMaterialElementForPhantom(nameID, zNumber, mass);
-  } else if (command == fAddMaterialIsotopeElement) {
+  }
+  else if (command == fAddMaterialIsotopeElement)
+  {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4String nameID;
     G4double zNumber;
     G4double nNumber;
-    G4double mass; //in g/mole
+    G4double mass; // in g/mole
     is >> nameID >> zNumber >> nNumber >> mass;
     fDetector->addMaterialIsotopeForPhantom(nameID, zNumber, nNumber, mass);
-  } else if (command == fAddCustomMaterialWithID) {
+  }
+  else if (command == fAddCustomMaterialWithID)
+  {
     fDetector->addCustomMaterialForPhantom(fConstructPhantomElement->GetNewIntValue(newValue));
-  } else if (command == fAddElementToCustomMaterial) {
+  }
+  else if (command == fAddElementToCustomMaterial)
+  {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int id;
@@ -213,37 +253,49 @@ void DetectorConstructionMessenger::SetNewValue(G4UIcommand* command, G4String n
     G4double fraction;
     is >> id >> elementID >> fraction;
     fDetector->addElementToCustomMaterialForPhantom(id, elementID, fraction);
-  } else if (command == fAddPhantomElementWithShape) {
+  }
+  else if (command == fAddPhantomElementWithShape)
+  {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int ID;
     G4String shape;
     is >> ID >> shape;
     fDetector->addPhantomElementWithShape(ID, shape);
-  } else if (command == fConstructPhantomElement) {
+  }
+  else if (command == fConstructPhantomElement)
+  {
     fDetector->setContructionFlagTrue(fConstructPhantomElement->GetNewIntValue(newValue));
-  } else if (command == fSetPhantomElementDimensions) {
+  }
+  else if (command == fSetPhantomElementDimensions)
+  {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int ID;
     G4String dimensions;
     is >> ID >> dimensions;
     fDetector->setPhantomElementDimensions(ID, newValue);
-  } else if (command == fSetPhantomElementLocation) {
+  }
+  else if (command == fSetPhantomElementLocation)
+  {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int ID;
     G4double x, y, z;
     is >> ID >> x >> y >> z;
     fDetector->setPhantomElementLocation(ID, x, y, z);
-  } else if (command == fSetPhantomElementRotation) {
+  }
+  else if (command == fSetPhantomElementRotation)
+  {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int ID;
     G4double xRot, yRot, zRot;
     is >> ID >> xRot >> yRot >> zRot;
     fDetector->setPhantomElementRotation(ID, xRot, yRot, zRot);
-  } else if (command == fSetPhantomElementAction) {
+  }
+  else if (command == fSetPhantomElementAction)
+  {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int ID1;
@@ -251,7 +303,9 @@ void DetectorConstructionMessenger::SetNewValue(G4UIcommand* command, G4String n
     G4String action;
     is >> ID1 >> ID2 >> action;
     fDetector->setPhantomElementAction(ID1, ID2, action);
-  } else if (command == fSetPhantomElementMaterialAndDensity) {
+  }
+  else if (command == fSetPhantomElementMaterialAndDensity)
+  {
     G4String paramString = newValue;
     std::istringstream is(paramString);
     G4int ID;

@@ -85,7 +85,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
   } else if (GetSourceTypeInfo() == ("nema-mixed")) {
     fPrimaryGenerator->GenerateNema(event, &fNemaGenerator);
   } else if (GetSourceTypeInfo() == ("cosmics")) {
-    fPrimaryGenerator->GenerateCosmicVertex(fIsotope, event, fHistoManager); 
+    fPrimaryGenerator->GenerateCosmicVertex(fIsotope, event, fHistoManager);
   } else {
     G4Exception(
       "PrimaryGeneratorAction", "PG05", FatalException,
@@ -105,6 +105,8 @@ void PrimaryGeneratorAction::SetSourceTypeInfo(G4String newSourceType)
       fGenerateSourceType = newSourceType;
       if (newSourceType == "nema") {
         GenerateDefaultNemaPositions();
+      } else if (newSourceType == "cosmics") {
+        fHistoManager->SetCosmicHistoCreation(true);
       }
     } else if (nRun > 0) {
       fGenerateSourceType = "run";
