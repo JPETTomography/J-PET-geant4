@@ -23,19 +23,43 @@
 #include <TF1.h>
 #include <map>
 
+enum PositronReachOption {
+  aNo, aFixedUniform, aFixedExponential, aDensityDep
+};
+
+enum PointShape {
+  aCylinder, aBall, aPhantom
+};
+
+enum IsotopeType {
+  i22Na, i44Sc  
+};
+
 struct NemaPoint
 {
   NemaPoint();
   
+  PointShape shape = PointShape::aCylinder;
   G4ThreeVector position;
-  G4double lifetime = 2;
+  G4double oPslifetime = 2; //ns
+  G4double pPsLifetime = 0.125; //ns
+  G4double directLifetime = 0.4; //ns
   bool is3GAllowed = false;
+  bool isParaPSAllowed = false;
+  bool isDirectAllowed = false;
   G4ThreeVector sizeOfPoint;
   bool isPromptAllowed = true;
   G4ThreeVector sizeOfPointPrompt;
   G4ThreeVector orientationOfPoint;
   G4ThreeVector shapeOfPointInY;
   TF1* elipseYNorm = nullptr;
+
+  PositronReachOption isPositronReachExp = PositronReachOption::aNo;
+  G4double positronReach = 0.5;
+  bool directLFDensityDependent = false;
+  
+  IsotopeType isotope = IsotopeType::i22Na;
+  G4int phantomElementID = 0;
 };
 
 class NemaGenerator
@@ -55,14 +79,25 @@ public:
   void AddPoint(G4int pointID);
   void AddPointWeight(G4int pointID, G4int weight);
   void SetOnePointOnly(G4int pointID);
+  void SetPointShape(G4int pointID, PointShape shapeParam) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).shape = shapeParam; };
   void SetPointPosition(G4int pointID, const G4ThreeVector& pos) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).position = pos; };
-  void SetPointLifetime(G4int pointID, G4double lf) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).lifetime = lf; };
+  void SetPointOPsLifetime(G4int pointID, G4double lf) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).oPslifetime = lf; };
+  void SetPointPPsLifetime(G4int pointID, G4double lf) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).pPsLifetime = lf; };
+  void SetPointDirectLifetime(G4int pointID, G4double lf) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).directLifetime = lf; };
   void SetPoint3GOption(G4int pointID, bool is3G) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).is3GAllowed = is3G; };
+  void SetPointParaPSOption(G4int pointID, bool isPPS) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isParaPSAllowed = isPPS; };
+  void SetPointDirectAnniOption(G4int pointID, bool isDirect) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isDirectAllowed = isDirect; };
   void SetPointSize(G4int pointID, const G4ThreeVector& size) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).sizeOfPoint = size; };
   void SetPointPromptOption(G4int pointID, bool isPrompt) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isPromptAllowed = isPrompt; };
   void SetPointPromptSize(G4int pointID, const G4ThreeVector& size) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).sizeOfPointPrompt = size; };
   void SetPointOrientation(G4int pointID, const G4ThreeVector& orient) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).orientationOfPoint = orient; };
   void SetNemaPointShapeInY(G4int pointID, const G4ThreeVector& shape) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).shapeOfPointInY = shape; };
+  void SetPointReachShape(G4int pointID, PositronReachOption shape) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isPositronReachExp = shape; };
+  void SetPointExperimentalReach(G4int pointID, G4double reach) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).positronReach = reach; };
+  void SetNemaPointDirectLFDependence(G4int pointID, bool isDep) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).directLFDensityDependent = isDep; };
+  void SetIsotope(G4int pointID, IsotopeType type) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).isotope = type; };
+  void SetPhantElementID(G4int pointID, G4int phantomID) { fGeneratedPoints.at(fIDPointsConnection.at(pointID)).phantomElementID = phantomID; };
+  
   bool DoesPointExistAlready(G4int pointID) const;
   NemaPoint GetPoint(G4int pointID) const;
   NemaPoint GetRandomPoint() const;

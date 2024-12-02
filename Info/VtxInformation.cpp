@@ -17,7 +17,7 @@
 
 VtxInformation::VtxInformation() :
 fVtxPosition(0), fTwoGammaGen(false), fThreeGammaGen(false),
-fPromptGammaGen(false), fCosmicGen(false), fnRun(0), fLifetime(0) {}
+fPromptGammaGen(false), fCosmicGen(false), fnRun(0), fLifetime(0), fDensity(0) {}
 
 VtxInformation::~VtxInformation() {}
 
@@ -41,6 +41,7 @@ void VtxInformation::Clear()
   fCosmicGen = false;
   fnRun = 0;
   fLifetime = 0.;
+  fDensity = 0.;
   fVtxPosition.setX(0);
   fVtxPosition.setY(0);
   fVtxPosition.setZ(0);

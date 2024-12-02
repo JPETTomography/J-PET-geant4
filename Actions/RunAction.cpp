@@ -15,12 +15,13 @@
 
 #include "RunAction.h"
 
+#include <G4Run.hh>
 #include <G4SystemOfUnits.hh>
 #include <G4UnitsTable.hh>
 #include <Randomize.hh>
 #include <TRandom3.h>
-#include <G4Run.hh>
 #include <chrono>
+#include <unistd.h>
 
 RunAction::RunAction() {}
 
@@ -35,14 +36,15 @@ void RunAction::BeginOfRunAction(const G4Run*)
 
   int mask = 01001010;
 
-  if (fEvtMessenger->GetSeed() == 0) {
+  if (fEvtMessenger->GetSeed() == 0)
+  {
     /**
      * If seed 0 is used we are seeding random generator with a number which is a
      * combination of current time and process PID. Bu doing so seed is unique in
      * time and space.
      * Number 667 (123th prime number) is chosen to secure that different processes
      * run at the same time don't have seeds that are close to each other - otherwise
-     * it may cause random nummber sequences to be also close to each other.
+     * it may cause random nummber sequences.
      *
      */
     using namespace std::chrono;
@@ -50,7 +52,9 @@ void RunAction::BeginOfRunAction(const G4Run*)
     long seed = (UInt_t)(system_clock::to_time_t(now)) * 677 * ::getpid();
     G4Random::setTheSeed(seed);
     gRandom->SetSeed(seed ^ mask);
-  } else {
+  }
+  else
+  {
     gRandom->SetSeed(fEvtMessenger->GetSeed());
     G4Random::setTheSeed(fEvtMessenger->GetSeed() ^ mask);
   }
