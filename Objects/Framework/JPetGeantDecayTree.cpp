@@ -14,23 +14,17 @@
  */
 
 #include "JPetGeantDecayTree.h"
-#include <TObjectTable.h>
 
 ClassImp(JPetGeantDecayTree)
 
-JPetGeantDecayTree::JPetGeantDecayTree(): fDecayTreeBranches("JPetGeantDecayTreeBranch", 1000)
-{
-  // NOTE: ROOT has a special class, called TObjectTable, 
-  // which optionally keeps track of any object that inherits from TObject.
-  // To get rid of ROOT garbage collector issues, we need to remove this object from the table
-  gObjectTable->RemoveQuietly(this);
-}
+JPetGeantDecayTree::JPetGeantDecayTree()  : fDecayTreeBranches("JPetGeantDecayTreeBranch", 1000)
+{}
 
 JPetGeantDecayTree::~JPetGeantDecayTree()
 {
   fEventID = 0;
   fDecayTreeBranchesIndex = 0;
-  fDecayChannel = DecayChannel::jpgUnknown;
+  fDecayChannel = DecayChannel::kUnknown;
   fDecayTreeBranches.Clear("C");
   fTrackBranchConnection.clear();
 }
@@ -39,7 +33,7 @@ void JPetGeantDecayTree::Clear(Option_t *)
 {
   fEventID = 0;
   fDecayTreeBranchesIndex = 0;
-  fDecayChannel = DecayChannel::jpgUnknown;
+  fDecayChannel = DecayChannel::kUnknown;
   fDecayTreeBranches.Clear("C");
   fTrackBranchConnection.clear();
 }

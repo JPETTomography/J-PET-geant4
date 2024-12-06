@@ -23,7 +23,6 @@
 #include <TVector3.h>
 #include <TObject.h>
 #include <TBits.h>
-#include "TBuffer.h"
 
 /**
  * @class JPetGeantEventPack
@@ -33,7 +32,7 @@
  *  and decay tree (in JPetGeantDecayTree)
  *  Class is directly processed in JPetGeantParser
  */
-class JPetGeantEventPack //: public TObject
+class JPetGeantEventPack : public TObject
 {
 public:
   JPetGeantEventPack();
@@ -41,31 +40,28 @@ public:
   void Clear(Option_t* = "");
 
   JPetGeantScinHits* ConstructNextHit();
-  // JPetGeantDecayTree* ConstructNextDecayTree();
+  JPetGeantDecayTree* ConstructNextDecayTree();
   JPetGeantScinHits* GetHit(int i) {
     return dynamic_cast<JPetGeantScinHits*>(fMCHits[i]);
   };
-  // JPetGeantDecayTree* GetDecayTree(int i) {
-  //   return dynamic_cast<JPetGeantDecayTree*>(fMCDecayTrees[i]);
-  // };
+  JPetGeantDecayTree* GetDecayTree(int i) {
+    return dynamic_cast<JPetGeantDecayTree*>(fMCDecayTrees[i]);
+  };
   JPetGeantEventInformation* GetEventInformation() { return fGenInfo; };
   unsigned int GetNumberOfHits() { return fHitIndex; };
-  // unsigned int GetNumberOfDecayTrees() { return fMCDecayTreesIndex; };
+  unsigned int GetNumberOfDecayTrees() { return fMCDecayTreesIndex; };
   unsigned int GetEventNumber() { return fEvtIndex; };
   void SetEventNumber(int x) { fEvtIndex = x; };
 
-  // Override Streamer method
-  // void Streamer(TBuffer &R__b);
-
 private:
   TClonesArray fMCHits;
-  //TClonesArray fMCDecayTrees;
+  TClonesArray fMCDecayTrees;
   JPetGeantEventInformation* fGenInfo;
   unsigned int fEvtIndex;
   unsigned int fHitIndex;
-  // unsigned int fMCDecayTreesIndex;
+  unsigned int fMCDecayTreesIndex;
 
-  ClassDef(JPetGeantEventPack, 4)
+  ClassDef(JPetGeantEventPack, 3)
 };
 
 #endif /* !JPETGEANTEVENTPACK_H */

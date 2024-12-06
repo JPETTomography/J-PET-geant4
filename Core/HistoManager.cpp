@@ -35,17 +35,17 @@ namespace fs = std::filesystem;
 std::string HistoManager::OuputFileName = "mcGeant";
 std::string HistoManager::OuputDir = "./output";
 
-HistoManager::HistoManager()
+HistoManager::HistoManager(): fMakeControlHisto(true)
 {
-  //fTempDecayTree = new JPetGeantDecayTree();
+  fTempDecayTree = new JPetGeantDecayTree();
   fEventPack = new JPetGeantEventPack();
   fGeantInfo = fEventPack->GetEventInformation();
-  fDecayChannel = DecayChannel::jpgUnknown;
+  fDecayChannel = DecayChannel::kUnknown;
 }
 
 HistoManager::~HistoManager() {
   //delete fTempDecayTree;
-  delete fEventPack;
+//   delete fEventPack;
 }
 
 void HistoManager::createHistogramWithAxes(TObject* object, TString xAxisName, TString yAxisName, TString zAxisName)
@@ -70,7 +70,7 @@ void HistoManager::createHistogramWithAxes(TObject* object, TString xAxisName, T
     tempHisto->GetYaxis()->SetTitle(yAxisName);
     tempHisto->GetZaxis()->SetTitle(zAxisName);
   }
-  fControlHistograms[object->GetName()] = object;
+  fStats.Add(object);
 }
 
 void HistoManager::fillHistogram(const char* name, double xValue, doubleCheck yValue, doubleCheck zValue)
@@ -204,7 +204,7 @@ void HistoManager::SaveEvtPack()
   }
   fRootFile->cd();
   fTree->Fill();
-  //fTempDecayTree->Clear("C");
+  fTempDecayTree->Clear("C");
   fEmptyEvent = true;
 }
 
