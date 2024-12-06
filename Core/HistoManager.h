@@ -16,13 +16,22 @@
 #ifndef HISTOMANAGER_H
 #define HISTOMANAGER_H 1
 
-#include "EventMessenger.h"
+#include "../Info/EventMessenger.h"
+#include "../Info/VtxInformation.h"
+#include "../Objects/Framework/JPetGeantDecayTree.h"
+#include "../Objects/Framework/JPetGeantDecayTreeBranch.h"
+#include "../Objects/Framework/JPetGeantEventInformation.h"
+#include "../Objects/Framework/JPetGeantEventPack.h"
+#include "../Objects/Framework/JPetGeantScinHits.h"
+#include "../Objects/Geant4/DetectorHit.h"
+
 #include <G4Event.hh>
 #include <G4PrimaryParticle.hh>
 #include <TFile.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH3F.h>
+#include <THashTable.h>
 #include <TTree.h>
 #include <globals.hh>
 #include <set>
@@ -89,6 +98,16 @@ public:
   static void MergeNTuples(bool cleanUp=false);
   static std::string OuputFileName;
   static std::string OuputDir;
+  template <typename T>
+  T* getObject(const char* name)
+  {
+    TObject* tmp = fStats.FindObject(name);
+    if (!tmp)
+    {
+      return nullptr;
+    }
+    return dynamic_cast<T*>(tmp);
+  }
 
 private:
   HistoManager(const HistoManager& histoManagerToCopy);
@@ -115,7 +134,7 @@ private:
   void BookHistograms();
 
 protected:
-  std::unordered_map<std::basic_string<char>, TObject*> fControlHistograms;
+  THashTable fStats;
   std::set<std::string> fErrorCounts;
 };
 
