@@ -40,12 +40,9 @@ public:
 
 private:
   HistoManager* fHistoManager = nullptr;
-  EventMessenger* fEvtMessenger = EventMessenger::GetEventMessenger();
+  EventMessenger* fEvtMessenger{EventMessenger::GetEventMessenger()};
+  G4AnalysisManager* m_anaG4Mngr{G4AnalysisManager::Instance()};
   G4Timer fTimer;
-  G4AnalysisManager* m_AnalysisManager = nullptr;
-
-
-  
 };
 
 #endif /* !RUNACTION_H */

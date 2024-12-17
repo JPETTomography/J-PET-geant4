@@ -36,8 +36,8 @@ void ActionInitialization::BuildForMaster() const {
 void ActionInitialization::Build() const
 {
   // fHistoManager.Put(std::make_shared<HistoManager>());
-  SetUserAction(new EventAction());
   SetUserAction(new RunAction());
+  SetUserAction(new EventAction());
   SetUserAction(new PrimaryGeneratorAction());
   SetUserAction(new TrackingAction);
   SetUserAction(new SteppingAction());

@@ -17,7 +17,7 @@
 #include "DetectorHit.h"
 #include "Trajectory.h"
 #include "VtxInformation.h"
-
+#include "../Core/Analysis/NTupleEventAnalysis.h"
 #include "EventAction.h"
 
 #include <G4TrajectoryContainer.hh>
@@ -51,7 +51,7 @@ void EventAction::BeginOfEventAction(const G4Event*)
   //fHistoManager->SetEventNumber(fEventID);
   fEventID++;
 }
-#include "G4AnalysisManager.hh"
+
 // cppcheck-suppress unusedFunction
 void EventAction::EndOfEventAction(const G4Event* anEvent)
 {
@@ -85,6 +85,8 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
       G4RunManager::GetRunManager()->AbortEvent();
     }
   }
+
+  NTupleEventAnalysis::GetInstance()->EndOfEventAction(anEvent);
 
   // PRINT PROGRESS
   auto time_in_HH_MM_SS_MMM = []() {
@@ -122,9 +124,6 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
     //fHistoManager->SetEventNumber(anEvent->GetEventID() + 1);
   // } else
     // fHistoManager->DontSaveEvent();
-    auto m_analysisManager = G4AnalysisManager::Instance();
-    m_analysisManager->FillNtupleIColumn(0, anEvent->GetEventID() + 1);
-    m_analysisManager->AddNtupleRow(); //
 
 }
 

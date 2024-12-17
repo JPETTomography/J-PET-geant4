@@ -14,7 +14,8 @@
  */
 
 #include "RunAction.h"
-
+#include "../Core/Analysis/NTupleEventAnalysis.h"
+#include "G4Threading.hh"
 #include <G4Run.hh>
 #include <G4SystemOfUnits.hh>
 #include <G4UnitsTable.hh>
@@ -24,10 +25,8 @@
 #include <unistd.h>
 
 RunAction::RunAction() {
-  m_AnalysisManager = G4AnalysisManager::Instance();
-  	// m_AnalysisManager->SetNtupleMerging(false);
-  	m_AnalysisManager->SetNtupleMerging(true);
-  	m_AnalysisManager->SetVerboseLevel(2);
+  m_anaG4Mngr->SetNtupleMerging(NTupleEventAnalysis::NTupleMerging);
+  m_anaG4Mngr->SetVerboseLevel(2);
 }
 
 // RunAction::RunAction(HistoManager* histo) : G4UserRunAction(), fHistoManager(histo) {}
@@ -35,15 +34,18 @@ RunAction::RunAction() {
 RunAction::~RunAction() {}
 
 // cppcheck-suppress unusedFunction
-void RunAction::BeginOfRunAction(const G4Run*)
+void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
   // fHistoManager->Book();
 
-  m_AnalysisManager->OpenFile("mcGeant4.root");
+  m_anaG4Mngr->OpenFile("mcGeant4.root");
 
-  auto ntupleId = m_AnalysisManager->CreateNtuple("T","My Tree");
-  m_AnalysisManager->CreateNtupleIColumn(ntupleId, "G4EvtId");
-  m_AnalysisManager->FinishNtuple(ntupleId);
+  if (IsMaster())
+    G4cout << "### Run #" << aRun->GetRunID() << " starts (master)." << G4endl;
+  else
+    G4cout << "### Run #" << aRun->GetRunID() << " starts (worker #"<< G4Threading::G4GetThreadId() << ")." << G4endl;
+  
+  NTupleEventAnalysis::GetInstance()->BeginOfRunAction(aRun, IsMaster());
 
   int mask = 01001010;
 
@@ -84,6 +86,6 @@ void RunAction::EndOfRunAction(const G4Run*)
     G4cout << "Local-loop elapsed time [s] : " << loopRealElapsedTime << G4endl;
 
   // fHistoManager->Save();
-  m_AnalysisManager->Write();
-  m_AnalysisManager->CloseFile();
+  m_anaG4Mngr->Write();
+  m_anaG4Mngr->CloseFile();
 }

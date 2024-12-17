@@ -33,6 +33,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 ################################################################################
 # To enable multithreading, run cmake with -DMT=ON
+set(MT ON)
 if(MT)
   add_compile_definitions(JPETMULTITHREADED)
   message(STATUS "Multithreading ENABLED!")
@@ -46,6 +47,7 @@ set(FOLDERS_WITH_SOURCE
   Objects/Geant4
   Actions
   Core
+  Core/Analysis
   Info
 )
 
@@ -136,6 +138,7 @@ include(${Geant4_USE_FILE})
 
 ################################################################################
 set(HEADERS_DIR ${PROJECT_SOURCE_DIR}/Core
+                ${PROJECT_SOURCE_DIR}/Core/Analysis
                 ${PROJECT_SOURCE_DIR}/Info
                 ${PROJECT_SOURCE_DIR}/Objects/Framework
                 ${PROJECT_SOURCE_DIR}/Objects/Geant4
