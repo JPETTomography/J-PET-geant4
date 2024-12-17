@@ -6,6 +6,9 @@ dependencies:
   - root=6.32.2
   - traitlets=5.7.1
   - xerces-c=3.2.5
+  - xorg-libx11=1.8.10
+  - xorg-util-macros=1.20.2
+  - xorg-xproto=7.0.31
   - libffi=3.4.4
   - gxx=12.4.0
   - make=4.4.1
