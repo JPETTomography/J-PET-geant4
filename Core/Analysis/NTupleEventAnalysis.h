@@ -82,7 +82,14 @@ class NTupleEventAnalysis {
     G4Cache<ScinHitCollection> m_scinHitCollection;
 
     ///
-    void ClearScinHitCollection();
+    void ResetScinHitCollection();
+
+    ///
+    template <typename T>
+    void ClearAndReserve(std::vector<T>& data){
+      data.clear();
+      data.reserve(10);
+    }
     
     ///
     G4Cache<G4AnalysisManager*> m_analysisManager;

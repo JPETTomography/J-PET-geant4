@@ -77,45 +77,39 @@ void NTupleEventAnalysis::CreateNTuple(){
     createNtupleVecDColumn("ScinHitMomentumOutY",threadLocalScinHitColl.MomentumOutY);
     createNtupleVecDColumn("ScinHitMomentumOutZ",threadLocalScinHitColl.MomentumOutZ);
 
+    //
     threadLocalAnaG4Mngr->FinishNtuple(ntupleId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
-void NTupleEventAnalysis::ClearScinHitCollection(){
-    // TODO: ClearAndReserve 
-    //       -> reserve memory in advance for a std::vector<int> using the reserve()
+void NTupleEventAnalysis::ResetScinHitCollection(){
     auto& threadLocalScinHitColl = m_scinHitCollection.Get();
-
-    threadLocalScinHitColl.ScinId.clear();
-    threadLocalScinHitColl.TrkId.clear();
-    threadLocalScinHitColl.TrkPDG.clear();
-    threadLocalScinHitColl.NumOfInteractions.clear();
-    threadLocalScinHitColl.GenGammaIndex.clear();
-    threadLocalScinHitColl.GenGammaMultiplicity.clear();
-    threadLocalScinHitColl.EneDep.clear();
-    threadLocalScinHitColl.Time.clear();
-    
-    threadLocalScinHitColl.PositionX.clear();
-    threadLocalScinHitColl.PositionY.clear();
-    threadLocalScinHitColl.PositionZ.clear();
-
-    threadLocalScinHitColl.PolarizationInX.clear();
-    threadLocalScinHitColl.PolarizationInY.clear();
-    threadLocalScinHitColl.PolarizationInZ.clear();
-
-    threadLocalScinHitColl.PolarizationOutX.clear();
-    threadLocalScinHitColl.PolarizationOutY.clear();
-    threadLocalScinHitColl.PolarizationOutZ.clear();
-
-    threadLocalScinHitColl.MomentumInX.clear();
-    threadLocalScinHitColl.MomentumInY.clear();
-    threadLocalScinHitColl.MomentumInZ.clear();
-
-    threadLocalScinHitColl.MomentumOutX.clear();
-    threadLocalScinHitColl.MomentumOutY.clear();
-    threadLocalScinHitColl.MomentumOutZ.clear();
-
+    if(threadLocalScinHitColl.ScinId.size()>0){ // otherwise nothing to do!
+        ClearAndReserve<int>(threadLocalScinHitColl.ScinId);
+        ClearAndReserve<int>(threadLocalScinHitColl.TrkId);
+        ClearAndReserve<int>(threadLocalScinHitColl.TrkPDG);
+        ClearAndReserve<int>(threadLocalScinHitColl.NumOfInteractions);
+        ClearAndReserve<int>(threadLocalScinHitColl.GenGammaIndex);
+        ClearAndReserve<int>(threadLocalScinHitColl.GenGammaMultiplicity);
+        ClearAndReserve<double>(threadLocalScinHitColl.EneDep);
+        ClearAndReserve<double>(threadLocalScinHitColl.Time);
+        ClearAndReserve<double>(threadLocalScinHitColl.PositionX);
+        ClearAndReserve<double>(threadLocalScinHitColl.PositionY);
+        ClearAndReserve<double>(threadLocalScinHitColl.PositionZ);
+        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationInX);
+        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationInY);
+        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationInZ);
+        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationOutX);
+        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationOutY);
+        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationOutZ);
+        ClearAndReserve<double>(threadLocalScinHitColl.MomentumInX);
+        ClearAndReserve<double>(threadLocalScinHitColl.MomentumInY);
+        ClearAndReserve<double>(threadLocalScinHitColl.MomentumInZ);
+        ClearAndReserve<double>(threadLocalScinHitColl.MomentumOutX);
+        ClearAndReserve<double>(threadLocalScinHitColl.MomentumOutY);
+        ClearAndReserve<double>(threadLocalScinHitColl.MomentumOutZ);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +139,7 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
     };
 
     if (hitsColl) {
-        ClearScinHitCollection();
+        ResetScinHitCollection();
         int n_hit = hitsColl->entries();
         auto& threadLocalScinHitColl = m_scinHitCollection.Get();
         for (int i = 0; i < n_hit; i++) {
