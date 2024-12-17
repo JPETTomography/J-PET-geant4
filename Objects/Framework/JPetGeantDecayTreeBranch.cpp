@@ -16,7 +16,7 @@
 #include "JPetGeantDecayTreeBranch.h"
 #include <TObjectTable.h>
 
-ClassImp(JPetGeantDecayTreeBranch)
+// ClassImp(JPetGeantDecayTreeBranch)
 
 JPetGeantDecayTreeBranch::JPetGeantDecayTreeBranch()
 {

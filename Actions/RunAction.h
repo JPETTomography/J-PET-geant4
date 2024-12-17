@@ -21,6 +21,7 @@
 #include <G4UserRunAction.hh>
 #include <globals.hh>
 #include "G4Timer.hh"
+#include "G4AnalysisManager.hh"
 
 class G4Run;
 
@@ -32,7 +33,7 @@ class RunAction : public G4UserRunAction
 {
 public:
   RunAction();
-  explicit RunAction(HistoManager* histo);
+  // explicit RunAction(HistoManager* histo);
   virtual ~RunAction();
   virtual void BeginOfRunAction(const G4Run*);
   virtual void EndOfRunAction(const G4Run*);
@@ -41,6 +42,8 @@ private:
   HistoManager* fHistoManager = nullptr;
   EventMessenger* fEvtMessenger = EventMessenger::GetEventMessenger();
   G4Timer fTimer;
+  G4AnalysisManager* m_AnalysisManager = nullptr;
+
 
   
 };

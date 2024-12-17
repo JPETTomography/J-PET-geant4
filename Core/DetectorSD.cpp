@@ -119,26 +119,26 @@ G4bool DetectorSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
         newHit->SetGenGammaIndex(info->GetIndex());
         //! should be marked as scattering
         info->SetGammaMultiplicity(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInActivePartAddition);
-        if (fHistoManager)
-        {
-          fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity() - PrimaryParticleInformation::kScatteringInActivePartAddition);
-          fHistoManager->AddNodeToDecayTree(info->GetGammaMultiplicity(), aStep->GetTrack()->GetTrackID());
-          fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity());
-        }
+        // if (fHistoManager)
+        // {
+        //   fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity() - PrimaryParticleInformation::kScatteringInActivePartAddition);
+        //   fHistoManager->AddNodeToDecayTree(info->GetGammaMultiplicity(), aStep->GetTrack()->GetTrackID());
+        //   fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity());
+        // }
       }
     }
-    else
-    {
+    // else
+    // {
       //! This is multiple scattering and compton that does not come from generated primary gamma
       //! (pair creation, electron scattering, multiple scatterings)
-      if (fHistoManager)
-      {
-        fHistoManager->AddNodeToDecayTree(fHistoManager->GetParentIDofPhoton() * PrimaryParticleInformation::kSecondaryParticleMultiplication,
-                                          aStep->GetTrack()->GetTrackID());
-        fHistoManager->SetParentIDofPhoton(fHistoManager->GetParentIDofPhoton() * PrimaryParticleInformation::kSecondaryParticleMultiplication);
-      }
-      newHit->SetGenGammaMultiplicity(fHistoManager->GetParentIDofPhoton());
-    }
+      // if (fHistoManager)
+      // {
+      //   fHistoManager->AddNodeToDecayTree(fHistoManager->GetParentIDofPhoton() * PrimaryParticleInformation::kSecondaryParticleMultiplication,
+      //                                     aStep->GetTrack()->GetTrackID());
+      //   fHistoManager->SetParentIDofPhoton(fHistoManager->GetParentIDofPhoton() * PrimaryParticleInformation::kSecondaryParticleMultiplication);
+      // }
+      // newHit->SetGenGammaMultiplicity(fHistoManager->GetParentIDofPhoton());
+    // }
     G4int id = fDetectorCollection->insert(newHit);
     fPreviousHits[currentScinCopy].fID = id - 1;
     fPreviousHits[currentScinCopy].fTime = currentTime;

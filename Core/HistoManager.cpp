@@ -37,9 +37,9 @@ std::string HistoManager::OuputDir = "./output";
 
 HistoManager::HistoManager(): fMakeControlHisto(true)
 {
-  fTempDecayTree = new JPetGeantDecayTree();
-  fEventPack = new JPetGeantEventPack();
-  fGeantInfo = fEventPack->GetEventInformation();
+  //fTempDecayTree = new JPetGeantDecayTree();
+  //fEventPack = new JPetGeantEventPack();
+  //fGeantInfo = fEventPack->GetEventInformation();
   fDecayChannel = DecayChannel::kUnknown;
 }
 
@@ -186,7 +186,7 @@ void HistoManager::Book()
 #endif
   //! autosave when 1 Gbyte written
   fTree->SetAutoSave(1000000000);
-  fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
+  //fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
 
   if (GetMakeControlHisto()) 
     BookHistograms();
@@ -196,15 +196,15 @@ void HistoManager::Book()
 void HistoManager::SaveEvtPack()
 {
   G4AutoLock lock(&HMutex);
-  if (!fEmptyEvent)
-  {
-    JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
-    newDecayTree->Clear("C");
-    newDecayTree->CopyDecayTree(fTempDecayTree);
-  }
+  // if (!fEmptyEvent)
+  // {
+  //   //JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
+  //   newDecayTree->Clear("C");
+  //   newDecayTree->CopyDecayTree(fTempDecayTree);
+  // }
   fRootFile->cd();
   fTree->Fill();
-  fTempDecayTree->Clear("C");
+  //fTempDecayTree->Clear("C");
   fEmptyEvent = true;
 }
 
@@ -446,18 +446,18 @@ void HistoManager::AddGenInfo(VtxInformation* info)
 
 void HistoManager::AddNewHit(DetectorHit* hit)
 {
-  JPetGeantScinHits* geantHit = fEventPack->ConstructNextHit();
-  geantHit->Fill(fEventPack->GetEventNumber(), hit->GetScinID(), hit->GetTrackID(), hit->GetTrackPDG(), hit->GetNumInteractions(),
-                 hit->GetEdep() / keV, hit->GetTime() / ps);
+  //JPetGeantScinHits* geantHit = fEventPack->ConstructNextHit();
+  //geantHit->Fill(fEventPack->GetEventNumber(), hit->GetScinID(), hit->GetTrackID(), hit->GetTrackPDG(), hit->GetNumInteractions(),
+  //               hit->GetEdep() / keV, hit->GetTime() / ps);
 
   //! Converting G4Vector into root TVector3
-  geantHit->SetHitPosition(hit->GetPosition().getX() / cm, hit->GetPosition().getY() / cm, hit->GetPosition().getZ() / cm);
-  geantHit->SetPolarizationIn(hit->GetPolarizationIn().getX(), hit->GetPolarizationIn().getY(), hit->GetPolarizationIn().getZ());
-  geantHit->SetPolarizationOut(hit->GetPolarizationOut().getX(), hit->GetPolarizationOut().getY(), hit->GetPolarizationOut().getZ());
-  geantHit->SetMomentumIn(hit->GetMomentumIn().getX() / keV, hit->GetMomentumIn().getY() / keV, hit->GetMomentumIn().getZ() / keV);
-  geantHit->SetMomentumOut(hit->GetMomentumOut().getX() / keV, hit->GetMomentumOut().getY() / keV, hit->GetMomentumOut().getZ() / keV);
-  geantHit->SetGenGammaMultiplicity(hit->GetGenGammaMultiplicity());
-  geantHit->SetGenGammaIndex(hit->GetGenGammaIndex());
+  // geantHit->SetHitPosition(hit->GetPosition().getX() / cm, hit->GetPosition().getY() / cm, hit->GetPosition().getZ() / cm);
+  // geantHit->SetPolarizationIn(hit->GetPolarizationIn().getX(), hit->GetPolarizationIn().getY(), hit->GetPolarizationIn().getZ());
+  // geantHit->SetPolarizationOut(hit->GetPolarizationOut().getX(), hit->GetPolarizationOut().getY(), hit->GetPolarizationOut().getZ());
+  // geantHit->SetMomentumIn(hit->GetMomentumIn().getX() / keV, hit->GetMomentumIn().getY() / keV, hit->GetMomentumIn().getZ() / keV);
+  // geantHit->SetMomentumOut(hit->GetMomentumOut().getX() / keV, hit->GetMomentumOut().getY() / keV, hit->GetMomentumOut().getZ() / keV);
+  // geantHit->SetGenGammaMultiplicity(hit->GetGenGammaMultiplicity());
+  // geantHit->SetGenGammaIndex(hit->GetGenGammaIndex());
 
   if (GetMakeControlHisto())
   {
@@ -503,26 +503,26 @@ void HistoManager::AddNodeToDecayTree(int nodeID, int trackID)
   if (interactionType == InteractionType::kScattActivePart)
     fEmptyEvent = false;
   bool firstInteraction = (fParentIDofPhoton < 10 ? true : false);
-  if (fEndOfEvent)
-  {
-    fEndOfEvent = false;
-    fTempDecayTree->Clear("C");
-    fTempDecayTree->SetEventNumber(GetEventNumber());
-    fTempDecayTree->SetDecayChannel(fDecayChannel);
-    if (firstInteraction)
-    {
-      fTempDecayTree->AddNodeToBranch(fParentIDofPhoton, trackID, InteractionType::kPrimaryGamma);
-    }
-    fTempDecayTree->AddNodeToBranch(nodeID, trackID, interactionType);
-  }
-  else
-  {
-    if (firstInteraction)
-    {
-      fTempDecayTree->AddNodeToBranch(fParentIDofPhoton, trackID, InteractionType::kPrimaryGamma);
-    }
-    fTempDecayTree->AddNodeToBranch(nodeID, trackID, interactionType);
-  }
+  // if (fEndOfEvent)
+  // {
+  //   fEndOfEvent = false;
+  //   //fTempDecayTree->Clear("C");
+  //   // fTempDecayTree->SetEventNumber(GetEventNumber());
+  //   //fTempDecayTree->SetDecayChannel(fDecayChannel);
+  //   // if (firstInteraction)
+  //   // {
+  //   //   fTempDecayTree->AddNodeToBranch(fParentIDofPhoton, trackID, InteractionType::kPrimaryGamma);
+  //   // }
+  //   // fTempDecayTree->AddNodeToBranch(nodeID, trackID, interactionType);
+  // }
+  // else
+  // {
+  //   if (firstInteraction)
+  //   {
+  //     fTempDecayTree->AddNodeToBranch(fParentIDofPhoton, trackID, InteractionType::kPrimaryGamma);
+  //   }
+  //   fTempDecayTree->AddNodeToBranch(nodeID, trackID, interactionType);
+  // }
 }
 
 void HistoManager::Save()

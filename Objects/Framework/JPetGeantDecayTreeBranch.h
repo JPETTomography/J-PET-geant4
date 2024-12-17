@@ -59,7 +59,7 @@ private:
   std::vector<int> fNodeIDs = {};    //container for all of the nodes
   std::vector<InteractionType> fInteractionType = {};
   
-  ClassDef(JPetGeantDecayTreeBranch,1)
+  // ClassDef(JPetGeantDecayTreeBranch,1)
     
 };
 

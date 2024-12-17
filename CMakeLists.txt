@@ -161,28 +161,28 @@ include_directories(SYSTEM ${Geant4_INCLUDE_DIR} ${ROOT_INCLUDE_DIR})
 
 ################################################################################
 ## Create ROOT dictionaries
-ROOT_GENERATE_DICTIONARY(
-  JPetMCClasses
-  Objects/Framework/JPetGeantEventInformation.h
-  Objects/Framework/JPetGeantDecayTreeBranch.h
-  Objects/Framework/JPetGeantDecayTree.h
-  Objects/Framework/JPetGeantEventPack.h
-  Objects/Framework/JPetGeantScinHits.h
-  LINKDEF
-  LinkDef.h
-)
-## Create a shared library with geneated dictionary
-add_library(
-  JPetMCClassesDict
-  SHARED
-  Objects/Framework/JPetGeantEventInformation.cpp
-  Objects/Framework/JPetGeantDecayTreeBranch.cpp
-  Objects/Framework/JPetGeantDecayTree.cpp
-  Objects/Framework/JPetGeantEventPack.cpp
-  Objects/Framework/JPetGeantScinHits.cpp
-  JPetMCClasses.cxx
-)
-target_link_libraries(JPetMCClassesDict ${ROOT_LIBRARIES})
+# ROOT_GENERATE_DICTIONARY(
+#   JPetMCClasses
+#   Objects/Framework/JPetGeantEventInformation.h
+#   Objects/Framework/JPetGeantDecayTreeBranch.h
+#   Objects/Framework/JPetGeantDecayTree.h
+#   Objects/Framework/JPetGeantEventPack.h
+#   Objects/Framework/JPetGeantScinHits.h
+#   LINKDEF
+#   LinkDef.h
+# )
+# ## Create a shared library with geneated dictionary
+# add_library(
+#   JPetMCClassesDict
+#   SHARED
+#   Objects/Framework/JPetGeantEventInformation.cpp
+#   Objects/Framework/JPetGeantDecayTreeBranch.cpp
+#   Objects/Framework/JPetGeantDecayTree.cpp
+#   Objects/Framework/JPetGeantEventPack.cpp
+#   Objects/Framework/JPetGeantScinHits.cpp
+#   JPetMCClasses.cxx
+# )
+# target_link_libraries(JPetMCClassesDict ${ROOT_LIBRARIES})
 
 ################################################################################
 ## Create a main program using the library
@@ -196,7 +196,7 @@ target_link_libraries(
   jpet_mc
   ${ROOT_LIBRARIES}
   ${Geant4_LIBRARIES}
-  JPetMCClassesDict
+  #JPetMCClassesDict
   )
 
 ## Copy script files to bin directory

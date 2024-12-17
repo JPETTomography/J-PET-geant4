@@ -66,7 +66,7 @@ private:
   TClonesArray fDecayTreeBranches;
   unsigned int fDecayTreeBranchesIndex = 0;
      
-  ClassDef(JPetGeantDecayTree,3)
+  // ClassDef(JPetGeantDecayTree,3)
 
 };
 

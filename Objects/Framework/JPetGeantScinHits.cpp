@@ -16,7 +16,7 @@
 #include "JPetGeantScinHits.h"
 #include <TObjectTable.h>
 
-ClassImp(JPetGeantScinHits)
+// ClassImp(JPetGeantScinHits)
 
 JPetGeantScinHits::JPetGeantScinHits() :
 TObject(), fEvtID(0), fScinID(0), fTrackID(0), fTrackPDGencoding(0),

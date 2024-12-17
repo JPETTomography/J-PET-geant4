@@ -83,7 +83,7 @@ private:
   bool fCosmicEventTag = false;
 
 private:
-  ClassDef(JPetGeantEventInformation, 8)
+  // ClassDef(JPetGeantEventInformation, 8)
 };
 
 #endif /* !JPET_GEANT_EVENT_INFORMATION_H */

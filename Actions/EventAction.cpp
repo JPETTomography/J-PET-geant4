@@ -31,11 +31,11 @@
 
 int EventAction::EvtMultCut = -1;
 
-EventAction::EventAction() : is2gRec(false), is3gRec(false), isEnoughSize(false), fEventID(0)
-{}
+// EventAction::EventAction() : is2gRec(false), is3gRec(false), isEnoughSize(false), fEventID(0)
+// {}
 
-EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false), isEnoughSize(false), fEventID(0)
-{}
+// EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false), isEnoughSize(false), fEventID(0)
+// {}
 
 EventAction::~EventAction() {}
 
@@ -47,11 +47,11 @@ void EventAction::BeginOfEventAction(const G4Event*)
     G4String colNam;
     fScinCollID = SDman->GetCollectionID(colNam = "detectorCollection");
   }
-  fHistoManager->Clear();
-  fHistoManager->SetEventNumber(fEventID);
+  //fHistoManager->Clear();
+  //fHistoManager->SetEventNumber(fEventID);
   fEventID++;
 }
-
+#include "G4AnalysisManager.hh"
 // cppcheck-suppress unusedFunction
 void EventAction::EndOfEventAction(const G4Event* anEvent)
 {
@@ -117,12 +117,17 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
     G4cout << oss.str() << std::flush;
   }
 
-  if (saveEvt) {
-    WriteToFile(anEvent);
-    fHistoManager->SetEventNumber(anEvent->GetEventID() + 1);
-  } else
-    fHistoManager->DontSaveEvent();
+  // if (saveEvt) {
+    // WriteToFile(anEvent);
+    //fHistoManager->SetEventNumber(anEvent->GetEventID() + 1);
+  // } else
+    // fHistoManager->DontSaveEvent();
+    auto m_analysisManager = G4AnalysisManager::Instance();
+    m_analysisManager->FillNtupleIColumn(0, anEvent->GetEventID() + 1);
+    m_analysisManager->AddNtupleRow(); //
+
 }
+
 
 void EventAction::WriteToFile(const G4Event* anEvent)
 {
@@ -134,7 +139,7 @@ void EventAction::WriteToFile(const G4Event* anEvent)
 
   //! save information about generated events
   G4int id = anEvent->GetEventID();
-  fHistoManager->SetEventNumber(id);
+  //fHistoManager->SetEventNumber(id);
   fHistoManager->FillHistoGenInfo(anEvent);
 
   //! save information about registered events

@@ -23,16 +23,27 @@
 #include <chrono>
 #include <unistd.h>
 
-RunAction::RunAction() {}
+RunAction::RunAction() {
+  m_AnalysisManager = G4AnalysisManager::Instance();
+  	// m_AnalysisManager->SetNtupleMerging(false);
+  	m_AnalysisManager->SetNtupleMerging(true);
+  	m_AnalysisManager->SetVerboseLevel(2);
+}
 
-RunAction::RunAction(HistoManager* histo) : G4UserRunAction(), fHistoManager(histo) {}
+// RunAction::RunAction(HistoManager* histo) : G4UserRunAction(), fHistoManager(histo) {}
 
 RunAction::~RunAction() {}
 
 // cppcheck-suppress unusedFunction
 void RunAction::BeginOfRunAction(const G4Run*)
 {
-  fHistoManager->Book();
+  // fHistoManager->Book();
+
+  m_AnalysisManager->OpenFile("mcGeant4.root");
+
+  auto ntupleId = m_AnalysisManager->CreateNtuple("T","My Tree");
+  m_AnalysisManager->CreateNtupleIColumn(ntupleId, "G4EvtId");
+  m_AnalysisManager->FinishNtuple(ntupleId);
 
   int mask = 01001010;
 
@@ -72,5 +83,7 @@ void RunAction::EndOfRunAction(const G4Run*)
   else
     G4cout << "Local-loop elapsed time [s] : " << loopRealElapsedTime << G4endl;
 
-  fHistoManager->Save();
+  // fHistoManager->Save();
+  m_AnalysisManager->Write();
+  m_AnalysisManager->CloseFile();
 }

@@ -15,7 +15,7 @@
 
 #include "JPetGeantDecayTree.h"
 
-ClassImp(JPetGeantDecayTree)
+// ClassImp(JPetGeantDecayTree)
 
 JPetGeantDecayTree::JPetGeantDecayTree()  : fDecayTreeBranches("JPetGeantDecayTreeBranch", 1000)
 {}

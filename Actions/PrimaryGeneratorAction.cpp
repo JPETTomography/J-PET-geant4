@@ -19,17 +19,22 @@
 
 #include <G4PrimaryVertex.hh>
 
-PrimaryGeneratorAction::PrimaryGeneratorAction() {}
-
-PrimaryGeneratorAction::PrimaryGeneratorAction(HistoManager* histo) :
-G4VUserPrimaryGeneratorAction(), fPrimaryGenerator(0), fHistoManager(histo)
-{
+PrimaryGeneratorAction::PrimaryGeneratorAction() {
   fPrimaryGenerator = new PrimaryGenerator();
   fBeam = new BeamParams();
   fIsotope = new SourceParams();
   fMessenger = new PrimaryGeneratorActionMessenger(this);
-  DetectorConstruction::GetInstance()->SetHistoManager(histo);
 }
+
+// PrimaryGeneratorAction::PrimaryGeneratorAction(HistoManager* histo) :
+// G4VUserPrimaryGeneratorAction(), fPrimaryGenerator(0), fHistoManager(histo)
+// {
+//   fPrimaryGenerator = new PrimaryGenerator();
+//   fBeam = new BeamParams();
+//   fIsotope = new SourceParams();
+//   fMessenger = new PrimaryGeneratorActionMessenger(this);
+//   DetectorConstruction::GetInstance()->SetHistoManager(histo);
+// }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
@@ -92,7 +97,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
       "Called non-existing source"
     );
   }
-  fHistoManager->SetDecayChannel(fPrimaryGenerator->GetDecayChannel());
+  // fHistoManager->SetDecayChannel(fPrimaryGenerator->GetDecayChannel());
 }
 
 void PrimaryGeneratorAction::SetSourceTypeInfo(G4String newSourceType)
@@ -106,7 +111,7 @@ void PrimaryGeneratorAction::SetSourceTypeInfo(G4String newSourceType)
       if (newSourceType == "nema") {
         GenerateDefaultNemaPositions();
       } else if (newSourceType == "cosmics") {
-        fHistoManager->SetCosmicHistoCreation(true);
+        // fHistoManager->SetCosmicHistoCreation(true);
       }
     } else if (nRun > 0) {
       fGenerateSourceType = "run";

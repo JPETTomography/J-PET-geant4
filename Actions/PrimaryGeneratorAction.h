@@ -52,7 +52,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 public:
   PrimaryGeneratorAction();
-  explicit PrimaryGeneratorAction(HistoManager* histo);
+  // explicit PrimaryGeneratorAction(HistoManager* histo);
   ~PrimaryGeneratorAction();
   virtual void GeneratePrimaries(G4Event*);
   void SetSourceTypeInfo(G4String);

@@ -35,8 +35,8 @@
 class EventAction : public G4UserEventAction
 {
 public:
-  EventAction();
-  explicit EventAction(HistoManager* histo);
+  EventAction() = default;
+  // explicit EventAction(HistoManager* histo);
   virtual ~EventAction();
   virtual void BeginOfEventAction(const G4Event*);
   virtual void EndOfEventAction(const G4Event* anEvent);
@@ -50,18 +50,17 @@ public:
 
 private:
   HistoManager* fHistoManager = nullptr;
-  G4int fScinCollID;
+  G4int fScinCollID = -1;
   EventMessenger* fEvtMessenger = EventMessenger::GetEventMessenger();
   void WriteToFile(const G4Event* anEvent);
 
-  bool is2gRec;
-  bool is3gRec;
-  bool isEnoughSize;
-  int fEventID;
+  bool is2gRec = false;
+  bool is3gRec = false;
+  bool isEnoughSize = false;
+  int fEventID = 0;
   void CheckIf2gIsRegistered(const G4Event* anEvent);
   void CheckIf3gIsRegistered(const G4Event* anEvent);
   void CheckIfEventHasEnoughSize(const G4Event* anEvent);
-
 };
 
 #endif /* !EVENTACTION_H */

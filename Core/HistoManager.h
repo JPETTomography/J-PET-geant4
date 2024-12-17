@@ -72,7 +72,7 @@ public:
   void Book(); //! call once; book (create) all trees and histograms
   void Save(); //! call once; save all trees and histograms
   void SaveEvtPack();
-  void Clear() { fEventPack->Clear(); };
+  //void Clear() { fEventPack->Clear(); };
   void DontSaveEvent() { fEmptyEvent = true; SaveEvtPack(); };
   void AddGenInfo(VtxInformation* info);
   void AddGenInfoParticles(G4PrimaryParticle* particle);
@@ -81,8 +81,8 @@ public:
   void AddNodeToDecayTree(int nodeID, int trackID);
   void SetParentIDofPhoton(int x) { fParentIDofPhoton = x; };
   int GetParentIDofPhoton() const { return fParentIDofPhoton; };
-  void SetEventNumber(int x) { fEventPack->SetEventNumber(x); };
-  int GetEventNumber() { return fEventPack->GetEventNumber(); };
+  //void SetEventNumber(int x) { fEventPack->SetEventNumber(x); };
+  //int GetEventNumber() { return fEventPack->GetEventNumber(); };
   void SetHistogramCreation(bool tf) { fMakeControlHisto = tf; };
   void SetCosmicHistoCreation(bool tf) { fMakeCosmicHistos = tf; };
   bool GetMakeControlHisto() const { return fMakeControlHisto; };
@@ -125,8 +125,8 @@ private:
   TBranch* fBranchScin = nullptr;
   TBranch* fBranchEventPack = nullptr;
 
-  JPetGeantDecayTree* fTempDecayTree = nullptr;
-  JPetGeantEventPack* fEventPack = nullptr;
+  //JPetGeantDecayTree* fTempDecayTree = nullptr;
+  //JPetGeantEventPack* fEventPack = nullptr;
   JPetGeantEventInformation* fGeantInfo = nullptr;
   EventMessenger* fEvtMessenger = EventMessenger::GetEventMessenger();
 

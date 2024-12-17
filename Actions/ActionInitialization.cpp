@@ -28,17 +28,17 @@ ActionInitialization::~ActionInitialization() {}
 
 // cppcheck-suppress unusedFunction
 void ActionInitialization::BuildForMaster() const {
-  fHistoManager.Put(std::make_shared<HistoManager>());
-  SetUserAction(new RunAction(fHistoManager.Get().get()));
+  //fHistoManager.Put(std::make_shared<HistoManager>());
+  SetUserAction(new RunAction());
 }
 
 // cppcheck-suppress unusedFunction
 void ActionInitialization::Build() const
 {
-  fHistoManager.Put(std::make_shared<HistoManager>());
-  SetUserAction(new EventAction(fHistoManager.Get().get()));
-  SetUserAction(new RunAction(fHistoManager.Get().get()));
-  SetUserAction(new PrimaryGeneratorAction(fHistoManager.Get().get()));
+  // fHistoManager.Put(std::make_shared<HistoManager>());
+  SetUserAction(new EventAction());
+  SetUserAction(new RunAction());
+  SetUserAction(new PrimaryGeneratorAction());
   SetUserAction(new TrackingAction);
-  SetUserAction(new SteppingAction(fHistoManager.Get().get()));
+  SetUserAction(new SteppingAction());
 }

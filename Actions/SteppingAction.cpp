@@ -22,11 +22,15 @@
 #include <G4RunManager.hh>
 #include <G4UImanager.hh>
 
-SteppingAction::SteppingAction(HistoManager* histo) : fHistoManager(histo)
-{
-  G4TransportationManager::GetTransportationManager()
-  ->GetNavigatorForTracking()->SetPushVerbosity(0);
+SteppingAction::SteppingAction(){
+  G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->SetPushVerbosity(0);
 }
+
+// SteppingAction::SteppingAction(HistoManager* histo) : fHistoManager(histo)
+// {
+//   G4TransportationManager::GetTransportationManager()
+//   ->GetNavigatorForTracking()->SetPushVerbosity(0);
+// }
 
 SteppingAction::~SteppingAction() {}
 
@@ -84,12 +88,12 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     //! particle quanta interact in phantom or frame (but not SD!)
     double momentumChange = abs(aStep->GetPostStepPoint()->GetMomentum().mag2() - aStep->GetPreStepPoint()->GetMomentum().mag2());
     if (momentumChange > EventMessenger::GetEventMessenger()->GetAllowedMomentumTransfer()) {
-      if (fHistoManager) {
-        fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity());
-        fHistoManager->AddNodeToDecayTree(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition, 
-                                          aStep->GetTrack()->GetDynamicParticle()->GetPrimaryParticle()->GetTrackID());
-        fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition);
-      }
+      // if (fHistoManager) {
+      //   fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity());
+      //   fHistoManager->AddNodeToDecayTree(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition, 
+      //                                     aStep->GetTrack()->GetDynamicParticle()->GetPrimaryParticle()->GetTrackID());
+      //   fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition);
+      // }
       info->SetGammaMultiplicity(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition);
     }
   }

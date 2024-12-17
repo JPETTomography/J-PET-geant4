@@ -16,7 +16,7 @@
 #include "JPetGeantEventInformation.h"
 #include <TObjectTable.h>
 
-ClassImp(JPetGeantEventInformation)
+// ClassImp(JPetGeantEventInformation)
 
 JPetGeantEventInformation::JPetGeantEventInformation() :
 fVtxPosition(0, 0, 0), fVtxPromptPosition(0, 0, 0), fGenGammaNum(fMaxGammaNumberIndex),
