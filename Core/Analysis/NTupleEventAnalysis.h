@@ -99,6 +99,7 @@ class NTupleEventAnalysis {
     /// it is essential to know the ID associated with the corresponding column. To simplify this process 
     /// and ensure correct mapping, we create a map that links each column to its respective ID.
     G4MapCache<const char*, G4int> m_treeColumnId;
+    G4MapCache<const char*, G4int> m_histId;
 
     ///
     EventMessenger* m_EvtMessenger = EventMessenger::GetEventMessenger();
@@ -108,6 +109,12 @@ class NTupleEventAnalysis {
 
     ///
     void FillNTupleEvent(const G4int& evtId);
+
+    ///
+    void CreateNTuple();
+
+    ///
+    void CreateHistograms();
 
 
     public:
@@ -122,9 +129,6 @@ class NTupleEventAnalysis {
 
       ///
       void EndOfEventAction(const G4Event *evt);
-
-      ///
-      void CreateNTuple();
 };
 
 #endif /* !EVENT_ANALYSIS_HH */

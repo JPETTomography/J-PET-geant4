@@ -5,7 +5,7 @@
 #include <TTree.h>
 #include <TFile.h>
 
-bool NTupleEventAnalysis::NTupleMerging = false;
+bool NTupleEventAnalysis::NTupleMerging = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -21,6 +21,7 @@ void NTupleEventAnalysis::BeginOfRunAction(const G4Run* runPtr, G4bool isMaster)
     m_scinHitCollection.Put(ScinHitCollection());
     m_scinHitCollection.Get().runId = runPtr->GetRunID();
     CreateNTuple();
+    CreateHistograms();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +82,22 @@ void NTupleEventAnalysis::CreateNTuple(){
     threadLocalAnaG4Mngr->FinishNtuple(ntupleId);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+///
+void NTupleEventAnalysis::CreateHistograms(){
+    const auto& threadLocalAnaG4Mngr = m_analysisManager.Get();
+
+    auto createH1 = [&](const char* name, const char* title, const char* xLabel, const char* yLabel, int nBins, double min, double max){
+        auto histId = threadLocalAnaG4Mngr->CreateH1(name,title,nBins,min,max);
+        m_histId.Insert(name,histId);
+        threadLocalAnaG4Mngr->SetH1XAxisTitle(histId,xLabel);
+        threadLocalAnaG4Mngr->SetH1YAxisTitle(histId,yLabel);
+    };
+    
+    createH1("gen_gamma_multiplicity", "Generated gammas multiplicity. Bin size: 1",
+                                       "Gamma quanta multiplicity: 1=prompt; 2=2g; 3=3g", "Entries", 10, -0.5, 9.5);
+}
 ////////////////////////////////////////////////////////////////////////////////
 ///
 void NTupleEventAnalysis::ResetScinHitCollection(){
@@ -177,8 +194,11 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
                                      threadLocalScinHitColl.MomentumOutY,
                                      threadLocalScinHitColl.MomentumOutZ, hit->GetMomentumOut(),keV);
         }
-        if(threadLocalScinHitColl.ScinId.size()>0)
+        if(threadLocalScinHitColl.ScinId.size()>0){
             FillNTupleEvent(evt->GetEventID()+1);
+            const auto& threadLocalAnaG4Mngr = m_analysisManager.Get();
+            threadLocalAnaG4Mngr->FillH1(m_histId.Get("gen_gamma_multiplicity"),2);
+        }
     }
 }
 
