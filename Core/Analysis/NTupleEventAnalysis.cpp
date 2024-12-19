@@ -94,9 +94,18 @@ void NTupleEventAnalysis::CreateHistograms(){
         threadLocalAnaG4Mngr->SetH1XAxisTitle(histId,xLabel);
         threadLocalAnaG4Mngr->SetH1YAxisTitle(histId,yLabel);
     };
+
+    auto createH2 = [&](const char* name, const char* title, const char* xLabel, const char* yLabel, int nBinsX, double minX, double maxX,
+                                                                                                     int nBinsY, double minY, double maxY){
+        auto histId = threadLocalAnaG4Mngr->CreateH2(name,title,nBinsX,minX,maxX,nBinsY,minY,maxY);
+        m_histId.Insert(name,histId);
+        threadLocalAnaG4Mngr->SetH2XAxisTitle(histId,xLabel);
+        threadLocalAnaG4Mngr->SetH2YAxisTitle(histId,yLabel);
+    };
     
-    createH1("gen_gamma_multiplicity", "Generated gammas multiplicity. Bin size: 1",
-                                       "Gamma quanta multiplicity: 1=prompt; 2=2g; 3=3g", "Entries", 10, -0.5, 9.5);
+    createH1("gen_gamma_multiplicity", "Generated gammas multiplicity. Bin size: 1", "Gamma quanta multiplicity: 1=prompt; 2=2g; 3=3g", "Entries", 10, -0.5, 9.5);
+    
+    createH2("gen_XY", "Generated XY coordinates of annihilation point. Bin size: 0.1 cm x 0.1 cm", "Annihilation point (2/3g) X [cm]", "Annihilation point (2/3g) Y [cm]", 500, -24.95, 25.05, 500, -24.95, 25.05);
 }
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -197,7 +206,10 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
         if(threadLocalScinHitColl.ScinId.size()>0){
             FillNTupleEvent(evt->GetEventID()+1);
             const auto& threadLocalAnaG4Mngr = m_analysisManager.Get();
+            
             threadLocalAnaG4Mngr->FillH1(m_histId.Get("gen_gamma_multiplicity"),2);
+
+            threadLocalAnaG4Mngr->FillH2(m_histId.Get("gen_XY"),2,4);
         }
     }
 }
