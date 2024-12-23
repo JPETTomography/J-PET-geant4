@@ -394,7 +394,6 @@ void DetectorConstruction::ConstructScintillators()
       rot.rotateZ(phi + fi);
 
       G4ThreeVector loc = G4ThreeVector(DetectorConstants::radius[j] * (cos(phi + fi)), DetectorConstants::radius[j] * (sin(phi + fi)), 0.0);
-
       G4Transform3D transform(rot, loc);
       G4String name = "scin_" + G4UIcommand::ConvertToString(fMaxScinID);
 
@@ -515,7 +514,8 @@ void DetectorConstruction::ConstructLayers(std::vector<G4double>& radius_dynamic
   G4int moduleNumber = 0;
   for (int i = 0; i < numberofModules; i++)
   {
-    phi = (i * 2 * M_PI / numberofModules);
+    // Add 7.5 deg to make as the clinical version of the prototype
+    phi = (i * 2 * M_PI / numberofModules) + 7.5 * M_PI / 180.0;
     for (int j = -6; j < 7; j++)
     {
       phi1 = phi + j * angDisp_dynamic;

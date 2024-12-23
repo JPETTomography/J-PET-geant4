@@ -121,24 +121,6 @@ include(${Geant4_USE_FILE})
 ## Include header-only CADMesh library
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/CADMesh/)
 
-################################################################################
-## Include Boost
-#set(Boost_USE_STATIC_LIBS OFF)
-#set(Boost_USE_MULTITHREADED ON)
-#set(Boost_USE_STATIC_RUNTIME OFF)
-#find_package(Boost 1.50 REQUIRED
-#             COMPONENTS filesystem
-#                        program_options
-#                        regex
-#                        system
-#                        log_setup
-#                        log
-#                        date_time
-#                        thread
-#                        chrono
-#                        atomic
-#                        )
-
 #if(NOT TARGET Boost::filesystem)
 #    add_library(Boost::filesystem IMPORTED INTERFACE)
 #    set_property(TARGET Boost::filesystem PROPERTY
