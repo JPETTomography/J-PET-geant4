@@ -521,7 +521,8 @@ void DetectorConstruction::ConstructLayers(std::vector<G4double>& radius_dynamic
   G4int moduleNumber = 0;
   for (int i = 0; i < numberofModules; i++)
   {
-    phi = (i * 2 * M_PI / numberofModules);
+    // Add 7.5 deg to make as the clinical version of the prototype
+    phi = (i * 2 * M_PI / numberofModules) + 7.5 * M_PI / 180.0;
     for (int j = -6; j < 7; j++)
     {
       phi1 = phi + j * angDisp_dynamic;

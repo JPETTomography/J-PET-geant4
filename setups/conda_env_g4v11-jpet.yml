@@ -10,6 +10,5 @@ dependencies:
   - gxx=12.4.0
   - make=4.4.1
   - cmake=3.29.5
-  - boost-cpp=1.82.0
   - pthread-stubs=0.4
   - doxygen=1.10.0
