@@ -394,10 +394,6 @@ void DetectorConstruction::ConstructScintillators()
       rot.rotateZ(phi + fi);
 
       G4ThreeVector loc = G4ThreeVector(DetectorConstants::radius[j] * (cos(phi + fi)), DetectorConstants::radius[j] * (sin(phi + fi)), 0.0);
-
-      std::cout << "scin id " << fMaxScinID << " x " << DetectorConstants::radius[j] * (cos(phi + fi)) << " y "
-                << DetectorConstants::radius[j] * (sin(phi + fi)) << " rotation " << (phi + fi) << std::endl;
-
       G4Transform3D transform(rot, loc);
       G4String name = "scin_" + G4UIcommand::ConvertToString(fMaxScinID);
 
