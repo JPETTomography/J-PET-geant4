@@ -124,6 +124,9 @@ class NTupleEventAnalysis {
       static bool NTupleMerging;
 
       ///
+      static bool Cosmic;
+
+      ///
       void BeginOfRunAction(const G4Run* runPtr, G4bool isMaster);
 
       ///

@@ -16,7 +16,7 @@
 #include "../Core/DetectorConstruction.h"
 #include "../Core/DetectorConstants.h"
 #include "PrimaryGeneratorAction.h"
-
+#include "../Core/Analysis/NTupleEventAnalysis.h"
 #include <G4PrimaryVertex.hh>
 
 PrimaryGeneratorAction::PrimaryGeneratorAction() {
@@ -112,6 +112,7 @@ void PrimaryGeneratorAction::SetSourceTypeInfo(G4String newSourceType)
         GenerateDefaultNemaPositions();
       } else if (newSourceType == "cosmics") {
         // fHistoManager->SetCosmicHistoCreation(true);
+        NTupleEventAnalysis::Cosmic = true;
       }
     } else if (nRun > 0) {
       fGenerateSourceType = "run";
