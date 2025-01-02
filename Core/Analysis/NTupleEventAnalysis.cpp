@@ -7,6 +7,33 @@
 
 bool NTupleEventAnalysis::NTupleMerging = true;
 
+
+void NTupleEventAnalysis::ScinHitCollection::Reset(){
+    ClearAndReserve<int>(ScinId);
+    ClearAndReserve<int>(TrkId);
+    ClearAndReserve<int>(TrkPDG);
+    ClearAndReserve<int>(NumOfInteractions);
+    ClearAndReserve<int>(GenGammaIndex);
+    ClearAndReserve<int>(GenGammaMultiplicity);
+    ClearAndReserve<double>(EneDep);
+    ClearAndReserve<double>(Time);
+    ClearAndReserve<double>(PositionX);
+    ClearAndReserve<double>(PositionY);
+    ClearAndReserve<double>(PositionZ);
+    ClearAndReserve<double>(PolarizationInX);
+    ClearAndReserve<double>(PolarizationInY);
+    ClearAndReserve<double>(PolarizationInZ);
+    ClearAndReserve<double>(PolarizationOutX);
+    ClearAndReserve<double>(PolarizationOutY);
+    ClearAndReserve<double>(PolarizationOutZ);
+    ClearAndReserve<double>(MomentumInX);
+    ClearAndReserve<double>(MomentumInY);
+    ClearAndReserve<double>(MomentumInZ);
+    ClearAndReserve<double>(MomentumOutX);
+    ClearAndReserve<double>(MomentumOutY);
+    ClearAndReserve<double>(MomentumOutZ);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ///
 NTupleEventAnalysis *NTupleEventAnalysis::GetInstance() {
@@ -107,36 +134,6 @@ void NTupleEventAnalysis::CreateHistograms(){
     
     createH2("gen_XY", "Generated XY coordinates of annihilation point. Bin size: 0.1 cm x 0.1 cm", "Annihilation point (2/3g) X [cm]", "Annihilation point (2/3g) Y [cm]", 500, -24.95, 25.05, 500, -24.95, 25.05);
 }
-////////////////////////////////////////////////////////////////////////////////
-///
-void NTupleEventAnalysis::ResetScinHitCollection(){
-    auto& threadLocalScinHitColl = m_scinHitCollection.Get();
-    if(threadLocalScinHitColl.ScinId.size()>0){ // otherwise nothing to do!
-        ClearAndReserve<int>(threadLocalScinHitColl.ScinId);
-        ClearAndReserve<int>(threadLocalScinHitColl.TrkId);
-        ClearAndReserve<int>(threadLocalScinHitColl.TrkPDG);
-        ClearAndReserve<int>(threadLocalScinHitColl.NumOfInteractions);
-        ClearAndReserve<int>(threadLocalScinHitColl.GenGammaIndex);
-        ClearAndReserve<int>(threadLocalScinHitColl.GenGammaMultiplicity);
-        ClearAndReserve<double>(threadLocalScinHitColl.EneDep);
-        ClearAndReserve<double>(threadLocalScinHitColl.Time);
-        ClearAndReserve<double>(threadLocalScinHitColl.PositionX);
-        ClearAndReserve<double>(threadLocalScinHitColl.PositionY);
-        ClearAndReserve<double>(threadLocalScinHitColl.PositionZ);
-        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationInX);
-        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationInY);
-        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationInZ);
-        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationOutX);
-        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationOutY);
-        ClearAndReserve<double>(threadLocalScinHitColl.PolarizationOutZ);
-        ClearAndReserve<double>(threadLocalScinHitColl.MomentumInX);
-        ClearAndReserve<double>(threadLocalScinHitColl.MomentumInY);
-        ClearAndReserve<double>(threadLocalScinHitColl.MomentumInZ);
-        ClearAndReserve<double>(threadLocalScinHitColl.MomentumOutX);
-        ClearAndReserve<double>(threadLocalScinHitColl.MomentumOutY);
-        ClearAndReserve<double>(threadLocalScinHitColl.MomentumOutZ);
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -165,9 +162,9 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
     };
 
     if (hitsColl) {
-        ResetScinHitCollection();
-        int n_hit = hitsColl->entries();
         auto& threadLocalScinHitColl = m_scinHitCollection.Get();
+        threadLocalScinHitColl.Reset();
+        int n_hit = hitsColl->entries();
         for (int i = 0; i < n_hit; i++) {
             auto hit = dynamic_cast<DetectorHit*>(hitsColl->GetHit(i));
 

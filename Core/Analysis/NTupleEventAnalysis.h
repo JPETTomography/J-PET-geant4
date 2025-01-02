@@ -64,6 +64,15 @@ class NTupleEventAnalysis {
 
         std::vector<double> MomentumInX, MomentumInY, MomentumInZ;
         std::vector<double> MomentumOutX, MomentumOutY, MomentumOutZ;
+
+        void Reset();
+        
+      private:
+        template <typename T>
+        void ClearAndReserve(std::vector<T>& data){
+          data.clear();
+          data.reserve(10);
+        }
     };
   
     ///
@@ -80,16 +89,6 @@ class NTupleEventAnalysis {
 
     ///
     G4Cache<ScinHitCollection> m_scinHitCollection;
-
-    ///
-    void ResetScinHitCollection();
-
-    ///
-    template <typename T>
-    void ClearAndReserve(std::vector<T>& data){
-      data.clear();
-      data.reserve(10);
-    }
     
     ///
     G4Cache<G4AnalysisManager*> m_analysisManager;
