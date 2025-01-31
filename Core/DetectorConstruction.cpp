@@ -14,12 +14,11 @@
  */
 
 #include "DetectorConstruction.h"
-#include "DetectorConstructionMessenger.h"
 #include "DetectorConstants.h"
+#include "DetectorConstructionMessenger.h"
 #include "MaterialExtension.h"
 #include "MaterialParameters.h"
 #include "RunManager.h"
-
 #include <CADMesh.hh>
 #include <G4Box.hh>
 #include <G4EllipticalTube.hh>
@@ -44,8 +43,9 @@
 
 // using json = nlohmann::json;
 
-namespace {
-  G4Mutex detectorConstructionMutex = G4MUTEX_INITIALIZER;
+namespace
+{
+G4Mutex detectorConstructionMutex = G4MUTEX_INITIALIZER;
 }
 
 DetectorConstruction* DetectorConstruction::fInstance = 0;
