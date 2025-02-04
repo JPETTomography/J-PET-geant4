@@ -12,33 +12,43 @@ ARG JPET_G4_BRANCH=develop-agh
 ARG JPET_FRAMEWORK_BRANCH=modular
 ARG JPET_FRAMEWORK_EXAMPLE_BRANCH=modular4
 
+ARG MINICONDA_VERSION=py310_23.9.0-0-Linux-x86_64
+
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
+    
+SHELL ["/bin/bash", "-c"]
 
 RUN DEBIAN_FRONTEND=noninteractive && \
   apt-get update && \
-  apt-get install -y gpg && \
-  apt-get install -y cmake && \
+  # apt-get install -y gpg && \
   apt-get install -y git && \
   apt-get install -y wget && \
   apt-get install -y vim && \
-  apt-get install -y file && \
+  # apt-get install -y file && \
   apt-get install -y curl && \
-  apt-get install -y zlib1g-dev && \
   apt-get install -y ca-certificates && \
-  wget --no-check-certificate https://repo.anaconda.com/miniconda/Miniconda3-py310_23.9.0-0-Linux-x86_64.sh -O /opt/miniconda.sh && \
-  /bin/bash /opt/miniconda.sh -b -p /opt/conda; \
-  rm /opt/miniconda.sh
+  # Geant4 is being built with dependencies to X11:
+  apt-get install -y zlib1g-dev libx11-dev libxpm-dev libxt-dev libxmu-dev && \
+  apt-get clean && apt-get autoremove --purge
+  # Install, upgrade and setup conda:
+  wget --no-check-certificate https://repo.anaconda.com/miniconda/Miniconda3-$MINICONDA_VERSION.sh -O /opt/miniconda.sh && \
+  /bin/bash /opt/miniconda.sh -b -p /opt/conda && \
+  rm /opt/miniconda.sh && \
+  source /opt/conda/etc/profile.d/conda.sh && \
+  conda init && \
+  conda update -y -n base conda && \
+  conda install -y -n base conda-libmamba-solver && \
+  conda config --set solver libmamba && \
+  conda config --add channels defaults
 
 ENV CONDA_DIR=/opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
-
 # ----------------------------------------
 # J-PET-geant4
 # ----------------------------------------
-SHELL ["/bin/bash", "-c"]
-RUN conda init && /bin/bash && cd /opt/ && \
-    git clone --single-branch --branch $JPET_G4_BRANCH https://github.com/JPETTomography/J-PET-geant4.git && \
-    conda env create --name jpet -f /opt/J-PET-geant4/setups/conda_env_g4v11-jpet.yml && \
-    source /opt/conda/etc/profile.d/conda.sh && conda activate jpet && cd /opt/J-PET-geant4 && /bin/bash setups/init_submodules.sh && \
-    mkdir build && cd build && cmake ../ -DMT=ON; make -j2
+# RUN conda init && /bin/bash && cd /opt/ && \
+#     git clone --single-branch --branch $JPET_G4_BRANCH https://github.com/JPETTomography/J-PET-geant4.git && \
+#     conda env create --name jpet -f /opt/J-PET-geant4/setups/conda_env_g4v11-jpet.yml && \
+#     conda activate jpet && cd /opt/J-PET-geant4 && /bin/bash setups/init_submodules.sh && \
+#     mkdir build && cd build && cmake ../ -DMT=ON; make -j2
