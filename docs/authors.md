@@ -3,6 +3,7 @@
 # General development
 - [Kamil Dulski](https://github.com/kdulski)
 - [Krzysztof Kacprzak](https://github.com/kkacprzak)
+- [Bartlomiej Rachwal](https://github.com/barachwal)
 
 # Support
 - [Jyoti Chhokar](https://github.com/Jchhokar)

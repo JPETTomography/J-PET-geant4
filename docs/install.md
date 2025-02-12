@@ -1,36 +1,27 @@
 # Installation
 
-## Required packages:  
-* `cmake`  
-* `root 6.0`  
-* [`geant4.10.04`](https://github.com/Geant4/geant4)  
- Built with cmake flags:  
- `-DGEANT4_USE_QT=ON -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_OPENGL_X11=ON -DGEANT4_USE_GDML=ON`  
-* [cadmesh](https://github.com/christopherpoole/CADMesh)
-* doxygen
+## (Ana)conda Package Manager
+For building the application, the Geant4 and ROOT libraries are required. They can be easily installed using the Anaconda package manager.
 
-## Environemt setup with CVMFS
-You can fulfill above prerequsities with CernVM File System. See [CVMFS](https://cvmfs.readthedocs.io/en/stable/cpt-quickstart.html) documenttion. 
-### Centos7:
-For Geant4 v10 `source setups/setup-env-cvmfs-g4v10-centos7.sh`  
-For Geant4 v11 `source setups/setup-env-cvmfs-g4v11-centos7.sh`   
+Current versions used:  
+**Geant4**: 11.2.2  
+**ROOT**:  6.32.2
 
-### Debian/Ubunu:
-For Geant4 v10: TODO  
-For Geant4 v11: TODO
+### Conda in your local machine
+You can easly install it, see [conda/docs](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
-Once you run this script you have compiled Geant4 and all depandancies!
-
-## Environemt setup with Conda
+#### Environemt creation with Conda
 `conda env create --name j-pet --file setups/conda_env_g4v11-jpet.yml`  
 `conda activate j-pet`   
-Once you install & activate this environment you can build your application!
 
-## Git submodule
-External submodules can be easly cloned and initialized with running the script:
-`./setups/init_submodules.sh`
+### Conda at JPSRV04 machine
+A preconfigured central environment is available. You are expected to be a member of the system group `anacondag`. To have conda available for you run: `source /data/3/anaconda/anaconda3/init_conda.sh`. Then activate the environment: `conda activate G4v11.2.2-ROOTv6.32.2`
+
+## Git submodules
+IMPORTANT. External submodules are being used in the project. After cloning the codebase of the application you have to get them into the local repo. They can be easly cloned and initialized with running the script: `./setups/init_submodules.sh`
 
 ## How to compile?
+Once you activate the conda environemt you can build your application!
 `mkdir build`  
 `cd build`  
 `cmake ..`  
@@ -42,29 +33,10 @@ Once you want to compile with **mutlithreded (MT)** mode:
 output file: (in build folder)  
 `bin/jpet_mc`  
 
+## How to run
+You can view the available command-line options by running: `./jpet_mc --help`.
+
 ## How to create documentation?
 (in build folder)  
 `cmake .. && make doc`  
 - open the `doc/html/index.html` in your favorite web browser  
-
-# Advanced installation options
-
-## Statically linking to Geant4 libraries
-Using a statically-linked binary can speed up the execution of J-PET MC simulations by about 10%.
-
-In order to use static Geant4 linkage:
-
-1. Build Geant4 static libraries alongside with the (default) shared
-libraries by passing the following option to CMake in  addition to other flags:
-    ```
-    -DBUILD_STATIC_LIBS=ON
-    ```
-
-    As a result, in the installation directory of Geant4, in the `lib` sudbirectory
-    files with `*.a` extension should be present besides `*.so` files.
-
-2. When running CMake for J-PET-Geant4, pass in the following additional option:
-
-    ```
-    -DLINK_STATIC_GEANT4=ON
-    ```
