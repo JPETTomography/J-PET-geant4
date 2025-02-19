@@ -24,8 +24,23 @@
 #include "G4AnalysisManager.hh"
 #include "EventMessenger.h"
 
+class G4PrimaryParticle;
+class VtxInformation;
 class G4Event;
 class G4Run;
+
+
+/// A wrapper for storing a double value while tracking 
+/// whether it has been modified. 
+struct TrackedDouble {
+  bool isChanged = false;
+  double value = 0.;
+  TrackedDouble() {}
+  explicit TrackedDouble(double newValue){
+    value = newValue;
+    isChanged = true;
+  }
+};
 
 class NTupleEventAnalysis {
 
@@ -110,6 +125,11 @@ class NTupleEventAnalysis {
     void FillNTupleEvent(const G4int& evtId);
 
     ///
+    void FillGenInfo(const G4Event* anEvent);
+    void FillGenVtxInfo(VtxInformation* info);
+    void FillGenParticleInfo(G4PrimaryParticle* particle);
+
+    ///
     void CreateNTuple();
 
     ///
@@ -125,6 +145,7 @@ class NTupleEventAnalysis {
 
       ///
       static bool Cosmic;
+      static bool ControlHisto;
 
       ///
       void BeginOfRunAction(const G4Run* runPtr, G4bool isMaster);

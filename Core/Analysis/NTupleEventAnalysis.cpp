@@ -1,4 +1,6 @@
 #include "NTupleEventAnalysis.h"
+#include "VtxInformation.h"
+#include "PrimaryParticleInformation.h"
 #include "G4Run.hh"
 #include <G4SDManager.hh>
 #include <G4Event.hh>
@@ -8,6 +10,7 @@
 
 bool NTupleEventAnalysis::NTupleMerging = true;
 bool NTupleEventAnalysis::Cosmic = false;
+bool NTupleEventAnalysis::ControlHisto = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -167,19 +170,19 @@ void NTupleEventAnalysis::CreateHistograms(){
     createH2("gen_event_multiplicity_vs_energy", "Generated event multiplicity vs generated energies of the hits. Bin size: 1 x 100 ps", "Event Multiplicity", "Energy of the hit [keV]", 20, -0.5, 19.5, 750, -1.0, 1499.0);
     
     if (NTupleEventAnalysis::Cosmic){
-    createH1("cosm_theta", "Cosmics: theta angle", "theta [rad]", "number of entries", 184, -M_PI / 2 - 2.5, M_PI / 2 + 1.5);
-    createH2("cosm_vtx_xy", "Cosmics: generated vertex point XY", "Y position [cm]", "X position [cm]",
-            204 * (DetectorConstants::world_size[1] / m), -1.015 * DetectorConstants::world_size[1], 1.025 * DetectorConstants::world_size[1],
-            204 * (DetectorConstants::world_size[0] / m), -1.015 * DetectorConstants::world_size[0], 1.025 * DetectorConstants::world_size[0] );
-    createH2("cosm_vtx_xz", "Cosmics: generated vertex point XZ", "Z position [cm]", "X position [cm]",
-            204 * (DetectorConstants::world_size[2] / m), -1.015 * DetectorConstants::world_size[2], 1.025 * DetectorConstants::world_size[2],
-            204 * (DetectorConstants::world_size[0] / m), -1.015 * DetectorConstants::world_size[0], 1.025 * DetectorConstants::world_size[0] );
-    createH2("cosm_vtx_yz", "Cosmics: generated vertex point YZ", "Y position [cm]", "Z position [cm]",
-            204 * (DetectorConstants::world_size[1] / m), -1.015 * DetectorConstants::world_size[1], 1.025 * DetectorConstants::world_size[1],
-            204 * (DetectorConstants::world_size[2] / m), -1.015 * DetectorConstants::world_size[2], 1.025 * DetectorConstants::world_size[2] );
-    createH2("cosm_genPoint_yz", "Cosmics: generated 'in the roof' point YZ", "Y position [cm]", "Z position [cm]",
-            204 * (DetectorConstants::world_size[1] / m), -1.015 * DetectorConstants::world_size[1], 1.025 * DetectorConstants::world_size[1],
-            204 * (DetectorConstants::world_size[2] / m), -1.015 * DetectorConstants::world_size[2], 1.025 * DetectorConstants::world_size[2] );
+        createH1("cosm_theta", "Cosmics: theta angle", "theta [rad]", "number of entries", 184, -M_PI / 2 - 2.5, M_PI / 2 + 1.5);
+        createH2("cosm_vtx_xy", "Cosmics: generated vertex point XY", "Y position [cm]", "X position [cm]",
+                204 * (DetectorConstants::world_size[1] / m), -1.015 * DetectorConstants::world_size[1], 1.025 * DetectorConstants::world_size[1],
+                204 * (DetectorConstants::world_size[0] / m), -1.015 * DetectorConstants::world_size[0], 1.025 * DetectorConstants::world_size[0] );
+        createH2("cosm_vtx_xz", "Cosmics: generated vertex point XZ", "Z position [cm]", "X position [cm]",
+                204 * (DetectorConstants::world_size[2] / m), -1.015 * DetectorConstants::world_size[2], 1.025 * DetectorConstants::world_size[2],
+                204 * (DetectorConstants::world_size[0] / m), -1.015 * DetectorConstants::world_size[0], 1.025 * DetectorConstants::world_size[0] );
+        createH2("cosm_vtx_yz", "Cosmics: generated vertex point YZ", "Y position [cm]", "Z position [cm]",
+                204 * (DetectorConstants::world_size[1] / m), -1.015 * DetectorConstants::world_size[1], 1.025 * DetectorConstants::world_size[1],
+                204 * (DetectorConstants::world_size[2] / m), -1.015 * DetectorConstants::world_size[2], 1.025 * DetectorConstants::world_size[2] );
+        createH2("cosm_genPoint_yz", "Cosmics: generated 'in the roof' point YZ", "Y position [cm]", "Z position [cm]",
+                204 * (DetectorConstants::world_size[1] / m), -1.015 * DetectorConstants::world_size[1], 1.025 * DetectorConstants::world_size[1],
+                204 * (DetectorConstants::world_size[2] / m), -1.015 * DetectorConstants::world_size[2], 1.025 * DetectorConstants::world_size[2] );
     }
 
 }
@@ -196,8 +199,6 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
         G4cout<< "[ERROR]:: NTupleEventAnalysis::EndOfEventAction::G4SDManager err: " << collection_id  << G4endl;
         return;
     }
-    auto hCofThisEvent = evt->GetHCofThisEvent();
-    auto hitsColl = dynamic_cast<DetectorHitsCollection*>(hCofThisEvent->GetHC(collection_id));
 
     auto emplaceBackG4ThreeVector = []( std::vector<double>& x,
                                         std::vector<double>& y,
@@ -210,6 +211,8 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
         z.emplace_back(static_cast<double>(vec.getZ()/unit));
     };
 
+    auto hCofThisEvent = evt->GetHCofThisEvent();
+    auto hitsColl = dynamic_cast<DetectorHitsCollection*>(hCofThisEvent->GetHC(collection_id));
     if (hitsColl) {
         auto& threadLocalScinHitColl = m_scinHitCollection.Get();
         threadLocalScinHitColl.Reset();
@@ -251,13 +254,9 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
         }
         if(threadLocalScinHitColl.ScinId.size()>0){
             FillNTupleEvent(evt->GetEventID()+1);
-            const auto& threadLocalAnaG4Mngr = m_analysisManager.Get();
-            
-            threadLocalAnaG4Mngr->FillH1(m_histId.Get("gen_gamma_multiplicity"),2);
-
-            threadLocalAnaG4Mngr->FillH2(m_histId.Get("gen_XY"),2,4);
+            FillGenInfo(evt);
         }
-    }
+    } //if(hitsColl)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -286,3 +285,109 @@ void NTupleEventAnalysis::FillNTupleEvent(const G4int& evtId){
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+///
+void NTupleEventAnalysis::FillGenInfo(const G4Event* anEvent){
+    for (int i = 0; i < anEvent->GetNumberOfPrimaryVertex(); i++){
+        auto info = dynamic_cast<VtxInformation*>(anEvent->GetPrimaryVertex(i)->GetUserInformation());
+        if (info){
+            FillGenVtxInfo(info);
+        }
+        auto nParticles = anEvent->GetPrimaryVertex(i)->GetNumberOfParticle();
+        for (int j = 0; j < nParticles; j++){
+            auto particle = anEvent->GetPrimaryVertex(i)->GetPrimary(j);
+            if (particle){
+                FillGenParticleInfo(particle);
+            }
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Note about units systems:
+///         time | distance |  energy
+/// Geant:   ns  |  mm      |   MeV
+/// J-PET:   ps  |  cm      |   keV
+/// 
+void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
+    const auto& threadLocalAnaG4Mngr = m_analysisManager.Get();
+    
+    auto fillH1 = [&](const std::string& histName, double value){
+        threadLocalAnaG4Mngr->FillH1(m_histId.Get(histName.c_str()),value);
+    };
+
+    auto fillH2 = [&](const std::string& histName, double valueX, TrackedDouble valueY){
+        if(valueY.isChanged){
+            threadLocalAnaG4Mngr->FillH2(m_histId.Get(histName.c_str()),valueX,valueY.value);
+        } else {
+            //TODO: writeError(histName, " does not received argument for Y axis");
+        }
+    };
+
+    bool is3g = info->GetThreeGammaGen();
+    bool is2g = info->GetTwoGammaGen();
+    bool isPrompt = info->GetPromptGammaGen();
+    bool isCosmic = info->GetCosmicGammaGen();
+
+    if (is2g || is3g)
+    {   
+        //TODO: fGeantInfo = fEventPack->GetEventInformation();
+        // fGeantInfo->SetThreeGammaGen(is3g);
+        // fGeantInfo->SetTwoGammaGen(is2g);
+        // fGeantInfo->SetVtxPosition(info->GetVtxPositionX() / cm, info->GetVtxPositionY() / cm, info->GetVtxPositionZ() / cm);
+        // fGeantInfo->SetLifetime(info->GetLifetime() / ps);
+        // fGeantInfo->SetRunNr(info->GetRunNr());
+
+        if (NTupleEventAnalysis::ControlHisto){
+            fillH1("gen_lifetime", info->GetLifetime() / ps);
+            // fillHistogram("gen_XY", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionY() / cm));
+            // fillHistogram("gen_XZ", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
+            // fillHistogram("gen_YZ", info->GetVtxPositionY() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
+            // fillHistogram("gen_X_vs_lifetime", info->GetVtxPositionX() / cm, doubleCheck(info->GetLifetime() / ps));
+            // fillHistogram("gen_Y_vs_lifetime", info->GetVtxPositionY() / cm, doubleCheck(info->GetLifetime() / ps));
+            // fillHistogram("gen_Z_vs_lifetime", info->GetVtxPositionZ() / cm, doubleCheck(info->GetLifetime() / ps));
+            // fillHistogram("gen_X_vs_density", info->GetVtxPositionX() / cm, doubleCheck(info->GetDensity() / (g / cm3)));
+            // fillHistogram("gen_Y_vs_density", info->GetVtxPositionY() / cm, doubleCheck(info->GetDensity() / (g / cm3)));
+            // fillHistogram("gen_Z_vs_density", info->GetVtxPositionZ() / cm, doubleCheck(info->GetDensity() / (g / cm3)));
+            if (is2g){
+                fillH1("gen_gamma_multiplicity",2);
+                fillH2("gen_gamma_multiplicity_vs_lifetime",2,TrackedDouble(info->GetLifetime()/ps));
+            }
+            if (is3g){
+                fillH1("gen_gamma_multiplicity",3);
+                fillH2("gen_gamma_multiplicity_vs_lifetime",3,TrackedDouble(info->GetLifetime()/ps));
+            }
+        }
+    }
+
+    if (isPrompt){
+        // fGeantInfo->SetPromptGammaGen(isPrompt);
+        // fGeantInfo->SetPromptLifetime(info->GetLifetime() / ps);
+        // fGeantInfo->SetVtxPromptPosition(info->GetVtxPositionX() / cm, info->GetVtxPositionY() / cm, info->GetVtxPositionZ() / cm);
+        // fGeantInfo->SetRunNr(info->GetRunNr());
+
+        if (NTupleEventAnalysis::ControlHisto){
+            // fillHistogram("gen_gamma_multiplicity", 1);
+            // fillHistogram("gen_prompt_lifetime", info->GetLifetime() / ps);
+            // fillHistogram("gen_prompt_XY", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionY() / cm));
+            // fillHistogram("gen_prompt_XZ", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
+            // fillHistogram("gen_prompt_YZ", info->GetVtxPositionY() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
+        }
+    }
+    // TODO:: SetParentIDofPhoton(0);
+    if (isCosmic){
+        // fGeantInfo->setCosmicEventTag(true);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+///
+void NTupleEventAnalysis::FillGenParticleInfo(G4PrimaryParticle* particle){
+  auto infoParticle = dynamic_cast<PrimaryParticleInformation*>(particle->GetUserInformation());
+  if (infoParticle){
+    G4int index = infoParticle->GetIndex();
+    G4ThreeVector genMom = infoParticle->GenGenMomentum();
+    //TODO: fGeantInfo->SetMomentumGamma(index, genMom.x() / keV, genMom.y() / keV, genMom.z() / keV);
+  }
+
+}
