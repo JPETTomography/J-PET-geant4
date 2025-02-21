@@ -116,6 +116,12 @@ class NTupleEventAnalysis {
     G4MapCache<const char*, G4int> m_histId;
 
     ///
+    G4Cache<std::set<std::string>> m_errorCounts;
+
+    ///
+    void WriteError(const std::string& nameOfHistogram, const std::string& messageEnd);
+
+    ///
     EventMessenger* m_EvtMessenger = EventMessenger::GetEventMessenger();
 
     ///

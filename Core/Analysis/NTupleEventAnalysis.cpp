@@ -303,6 +303,16 @@ void NTupleEventAnalysis::FillGenInfo(const G4Event* anEvent){
     }
 }
 
+void NTupleEventAnalysis::WriteError(const std::string& nameOfHistogram, const std::string& messageEnd){
+    auto& errorCounts = m_errorCounts.Get();
+    bool histExists = (errorCounts.find(nameOfHistogram) != errorCounts.end());
+    if (!histExists){
+        errorCounts.insert(nameOfHistogram);
+        G4cout << "!!![Error]!!!  -  Histogram with name " << nameOfHistogram << " " << messageEnd << G4endl;
+    }
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 /// Note about units systems:
 ///         time | distance |  energy
@@ -320,7 +330,7 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
         if(valueY.isChanged){
             threadLocalAnaG4Mngr->FillH2(m_histId.Get(histName.c_str()),valueX,valueY.value);
         } else {
-            //TODO: writeError(histName, " does not received argument for Y axis");
+            WriteError(histName, " does not received argument for Y axis");
         }
     };
 
