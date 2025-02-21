@@ -119,6 +119,12 @@ class NTupleEventAnalysis {
     G4Cache<std::set<std::string>> m_errorCounts;
 
     ///
+    G4Cache<int> m_parentIDofPhoton;
+
+    ///
+    G4Cache<bool> m_emptyEvent;
+
+    ///
     void WriteError(const std::string& nameOfHistogram, const std::string& messageEnd);
 
     ///
@@ -158,6 +164,13 @@ class NTupleEventAnalysis {
 
       ///
       void EndOfEventAction(const G4Event *evt);
+
+      ///
+      void SetParentIDofPhoton(int x) { m_parentIDofPhoton.Put(x); };
+      int GetParentIDofPhoton() const { return m_parentIDofPhoton.Get(); };
+
+      ///
+      void AddNodeToDecayTree(int nodeID, int trackID);
 };
 
 #endif /* !EVENT_ANALYSIS_HH */

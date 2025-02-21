@@ -21,6 +21,7 @@
 #include <G4PrimaryParticle.hh>
 #include <G4RunManager.hh>
 #include <G4UImanager.hh>
+#include "NTupleEventAnalysis.h"
 
 SteppingAction::SteppingAction(){
   G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->SetPushVerbosity(0);
@@ -88,6 +89,12 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     //! particle quanta interact in phantom or frame (but not SD!)
     double momentumChange = abs(aStep->GetPostStepPoint()->GetMomentum().mag2() - aStep->GetPreStepPoint()->GetMomentum().mag2());
     if (momentumChange > EventMessenger::GetEventMessenger()->GetAllowedMomentumTransfer()) {
+      auto ntupleAnalysis = NTupleEventAnalysis::GetInstance();
+      // TODO: Verify if this first call of SetParentIDofPhoton() is needed.
+      ntupleAnalysis->SetParentIDofPhoton(info->GetGammaMultiplicity());
+      ntupleAnalysis->AddNodeToDecayTree(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition, 
+                                          aStep->GetTrack()->GetDynamicParticle()->GetPrimaryParticle()->GetTrackID());
+      ntupleAnalysis->SetParentIDofPhoton(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition);
       // if (fHistoManager) {
       //   fHistoManager->SetParentIDofPhoton(info->GetGammaMultiplicity());
       //   fHistoManager->AddNodeToDecayTree(info->GetGammaMultiplicity() + PrimaryParticleInformation::kScatteringInNonActivePartAddition, 

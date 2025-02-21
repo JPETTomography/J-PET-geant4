@@ -50,6 +50,7 @@ NTupleEventAnalysis *NTupleEventAnalysis::GetInstance() {
 ////////////////////////////////////////////////////////////////////////////////
 ///
 void NTupleEventAnalysis::BeginOfRunAction(const G4Run* runPtr, G4bool isMaster){
+    m_emptyEvent.Put(true);
     m_analysisManager.Put(G4AnalysisManager::Instance());
     m_scinHitCollection.Put(ScinHitCollection());
     m_scinHitCollection.Get().runId = runPtr->GetRunID();
@@ -377,14 +378,14 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
         // fGeantInfo->SetRunNr(info->GetRunNr());
 
         if (NTupleEventAnalysis::ControlHisto){
-            // fillHistogram("gen_gamma_multiplicity", 1);
+            fillH1("gen_gamma_multiplicity", 1);
             // fillHistogram("gen_prompt_lifetime", info->GetLifetime() / ps);
             // fillHistogram("gen_prompt_XY", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionY() / cm));
             // fillHistogram("gen_prompt_XZ", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
             // fillHistogram("gen_prompt_YZ", info->GetVtxPositionY() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
         }
     }
-    // TODO:: SetParentIDofPhoton(0);
+    SetParentIDofPhoton(0);
     if (isCosmic){
         // fGeantInfo->setCosmicEventTag(true);
     }
@@ -401,3 +402,44 @@ void NTupleEventAnalysis::FillGenParticleInfo(G4PrimaryParticle* particle){
   }
 
 }
+
+#include "JPetGeantDecayTree.h"
+#include "JPetGeantDecayTreeBranch.h"
+////////////////////////////////////////////////////////////////////////////////
+/// TODO: Refactor this after JPetGeantDecayTree & JPetGeantDecayTreeBranch redefinition!
+void NTupleEventAnalysis::AddNodeToDecayTree(int nodeID, int trackID){
+    if (!m_EvtMessenger->GetCreateDecayTreeFlag())
+        return;
+
+    auto interactionType = InteractionType::kSecondaryPart;
+    auto parentIDofPhoton = GetParentIDofPhoton();
+    if (nodeID - parentIDofPhoton == 10)
+        interactionType = InteractionType::kScattNonActivePart;
+    else if (nodeID - parentIDofPhoton == 100)
+        interactionType = InteractionType::kScattActivePart;
+
+    if (interactionType == InteractionType::kScattActivePart)
+        m_emptyEvent.Put(false);
+    bool firstInteraction = (parentIDofPhoton < 10 ? true : false);
+    // if (fEndOfEvent) // TODO:: investigate fEndOfEvent logic
+    // {
+    //   fEndOfEvent = false;
+    //   //fTempDecayTree->Clear("C");
+    //   // fTempDecayTree->SetEventNumber(GetEventNumber());
+    //   //fTempDecayTree->SetDecayChannel(fDecayChannel);
+    //   // if (firstInteraction)
+    //   // {
+    //   //   fTempDecayTree->AddNodeToBranch(parentIDofPhoton, trackID, InteractionType::kPrimaryGamma);
+    //   // }
+    //   // fTempDecayTree->AddNodeToBranch(nodeID, trackID, interactionType);
+    // }
+    // else
+    // {
+    //   if (firstInteraction)
+    //   {
+    //     fTempDecayTree->AddNodeToBranch(parentIDofPhoton, trackID, InteractionType::kPrimaryGamma);
+    //   }
+    //   fTempDecayTree->AddNodeToBranch(nodeID, trackID, interactionType);
+    // }    
+}
+
