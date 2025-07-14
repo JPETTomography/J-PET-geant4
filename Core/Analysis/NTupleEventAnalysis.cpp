@@ -289,6 +289,7 @@ void NTupleEventAnalysis::FillNTupleEvent(const G4int& evtId){
 ////////////////////////////////////////////////////////////////////////////////
 ///
 void NTupleEventAnalysis::FillGenInfo(const G4Event* anEvent){
+    // std::cout << "Vrtx multiplicity: " << anEvent->GetNumberOfPrimaryVertex() << std::endl;
     for (int i = 0; i < anEvent->GetNumberOfPrimaryVertex(); i++){
         auto info = dynamic_cast<VtxInformation*>(anEvent->GetPrimaryVertex(i)->GetUserInformation());
         if (info){
