@@ -116,7 +116,7 @@ class NTupleEventAnalysis {
     G4MapCache<const char*, G4int> m_histId;
 
     ///
-    G4Cache<std::set<std::string>> m_errorCounts;
+    G4Cache<std::set<const char*>> m_errorCounts;
 
     ///
     G4Cache<int> m_parentIDofPhoton;
@@ -125,7 +125,7 @@ class NTupleEventAnalysis {
     G4Cache<bool> m_emptyEvent;
 
     ///
-    void WriteError(const std::string& nameOfHistogram, const std::string& messageEnd);
+    void WriteError(const char* nameOfHistogram, const std::string& messageEnd);
 
     ///
     EventMessenger* m_EvtMessenger = EventMessenger::GetEventMessenger();
