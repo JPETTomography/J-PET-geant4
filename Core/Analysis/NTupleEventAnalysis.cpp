@@ -327,7 +327,7 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
         threadLocalAnaG4Mngr->FillH1(m_histId.Get(name),value);
     };
 
-    auto fillH2 = [&](const char* name, double valueX, TrackedDouble valueY){
+    auto fillH2 = [&](const char* name, double valueX, const TrackedDouble& valueY){
         if(valueY.isChanged){
             threadLocalAnaG4Mngr->FillH2(m_histId.Get(name),valueX,valueY.value);
         } else {
@@ -351,23 +351,23 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
 
         if (NTupleEventAnalysis::ControlHisto){
             fillH1("gen_lifetime", info->GetLifetime() / ps);
-            // fillHistogram("gen_XY", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionY() / cm));
-            // fillHistogram("gen_XZ", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
-            // fillHistogram("gen_YZ", info->GetVtxPositionY() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
-            // fillHistogram("gen_X_vs_lifetime", info->GetVtxPositionX() / cm, doubleCheck(info->GetLifetime() / ps));
-            // fillHistogram("gen_Y_vs_lifetime", info->GetVtxPositionY() / cm, doubleCheck(info->GetLifetime() / ps));
-            // fillHistogram("gen_Z_vs_lifetime", info->GetVtxPositionZ() / cm, doubleCheck(info->GetLifetime() / ps));
-            // fillHistogram("gen_X_vs_density", info->GetVtxPositionX() / cm, doubleCheck(info->GetDensity() / (g / cm3)));
-            // fillHistogram("gen_Y_vs_density", info->GetVtxPositionY() / cm, doubleCheck(info->GetDensity() / (g / cm3)));
-            // fillHistogram("gen_Z_vs_density", info->GetVtxPositionZ() / cm, doubleCheck(info->GetDensity() / (g / cm3)));
-            // if (is2g){
-            //     fillH1("gen_gamma_multiplicity",2);
-            //     fillH2("gen_gamma_multiplicity_vs_lifetime",2,TrackedDouble(info->GetLifetime()/ps));
-            // }
-            // if (is3g){
-            //     fillH1("gen_gamma_multiplicity",3);
-            //     fillH2("gen_gamma_multiplicity_vs_lifetime",3,TrackedDouble(info->GetLifetime()/ps));
-            // }
+            fillH2("gen_XY", info->GetVtxPositionX() / cm, TrackedDouble(info->GetVtxPositionY() / cm));
+            fillH2("gen_XZ", info->GetVtxPositionX() / cm, TrackedDouble(info->GetVtxPositionZ() / cm));
+            fillH2("gen_YZ", info->GetVtxPositionY() / cm, TrackedDouble(info->GetVtxPositionZ() / cm));
+            fillH2("gen_X_vs_lifetime", info->GetVtxPositionX() / cm, TrackedDouble(info->GetLifetime() / ps));
+            fillH2("gen_Y_vs_lifetime", info->GetVtxPositionY() / cm, TrackedDouble(info->GetLifetime() / ps));
+            fillH2("gen_Z_vs_lifetime", info->GetVtxPositionZ() / cm, TrackedDouble(info->GetLifetime() / ps));
+            fillH2("gen_X_vs_density", info->GetVtxPositionX()  / cm, TrackedDouble(info->GetDensity()  / (g / cm3)));
+            fillH2("gen_Y_vs_density", info->GetVtxPositionY()  / cm, TrackedDouble(info->GetDensity()  / (g / cm3)));
+            fillH2("gen_Z_vs_density", info->GetVtxPositionZ()  / cm, TrackedDouble(info->GetDensity()  / (g / cm3)));
+            if (is2g){
+                fillH1("gen_gamma_multiplicity",2);
+                fillH2("gen_gamma_multiplicity_vs_lifetime",2,TrackedDouble(info->GetLifetime()/ps));
+            }
+            if (is3g){
+                fillH1("gen_gamma_multiplicity",3);
+                fillH2("gen_gamma_multiplicity_vs_lifetime",3,TrackedDouble(info->GetLifetime()/ps));
+            }
         }
     }
 
@@ -378,11 +378,11 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
         // fGeantInfo->SetRunNr(info->GetRunNr());
 
         if (NTupleEventAnalysis::ControlHisto){
-            // fillH1("gen_gamma_multiplicity", 1);
-            // fillHistogram("gen_prompt_lifetime", info->GetLifetime() / ps);
-            // fillHistogram("gen_prompt_XY", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionY() / cm));
-            // fillHistogram("gen_prompt_XZ", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
-            // fillHistogram("gen_prompt_YZ", info->GetVtxPositionY() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
+            fillH1("gen_gamma_multiplicity", 1);
+            fillH1("gen_prompt_lifetime", info->GetLifetime() / ps);
+            fillH2("gen_prompt_XY", info->GetVtxPositionX() / cm, TrackedDouble(info->GetVtxPositionY() / cm));
+            fillH2("gen_prompt_XZ", info->GetVtxPositionX() / cm, TrackedDouble(info->GetVtxPositionZ() / cm));
+            fillH2("gen_prompt_YZ", info->GetVtxPositionY() / cm, TrackedDouble(info->GetVtxPositionZ() / cm));
         }
     }
     SetParentIDofPhoton(0);
