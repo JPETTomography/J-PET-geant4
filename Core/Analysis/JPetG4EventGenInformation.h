@@ -10,27 +10,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  @file JPetG4EventInformation.h
+ *  @file JPetG4EventGenInformation.h
  */
 
-#ifndef JPET_G4EVENT_INFORMATION_H
-#define JPET_G4EVENT_INFORMATION_H 1
+#ifndef JPET_G4EVENT_GEN_INFORMATION_H
+#define JPET_G4EVENT_GEN_INFORMATION_H 1
 
 
 #include "G4ThreeVector.hh"
 #include <vector>
 
 /**
- * @class JPetG4EventInformation
+ * @class JPetG4EventGenInformation
  * @brief keeps information about initial simulation parameters
  * e.g. vertices and times distributions for annihilation
  * and prompt gamma photons
  */
-class JPetG4EventInformation
+class JPetG4EventGenInformation
 {
 public:
-  JPetG4EventInformation() = default;
-  ~JPetG4EventInformation() = default;
+  JPetG4EventGenInformation() = default;
+  ~JPetG4EventGenInformation() = default;
   void SetThreeGammaGen(bool tf) { fThreeGammaGen = tf; };
   void SetTwoGammaGen(bool tf) { fTwoGammaGen = tf; };
   void SetPromptGammaGen(bool tf) { fPromptGammaGen = tf; };
@@ -96,4 +96,4 @@ private:
 };
 
 
-#endif /* !JPET_EVENT_INFORMATION_H */
+#endif /* !JPET_G4EVENT_GEN_INFORMATION_H */

@@ -25,7 +25,7 @@
 #include "DetectorHit.h"
 #include "G4AnalysisManager.hh"
 #include "EventMessenger.h"
-#include "JPetG4EventInformation.h"
+#include "JPetG4EventGenInformation.h"
 
 class G4PrimaryParticle;
 class VtxInformation;
@@ -128,7 +128,7 @@ class NTupleEventAnalysis {
     G4Cache<bool> m_emptyEvent;
 
     ///
-    G4Cache<JPetG4EventInformation> m_g4EventInfo;
+    G4Cache<JPetG4EventGenInformation> m_g4EventGenInfo;
 
     ///
     void WriteError(const char* nameOfHistogram, const std::string& messageEnd);
@@ -143,7 +143,7 @@ class NTupleEventAnalysis {
     void FillNTupleEvent(const G4int& evtId);
 
     ///
-    void FillGenInfo(const G4Event* anEvent);
+    void FillG4EventGenInfo(const G4Event* anEvent);
     void FillGenVtxInfo(VtxInformation* info);
     void FillGenParticleInfo(G4PrimaryParticle* particle);
 

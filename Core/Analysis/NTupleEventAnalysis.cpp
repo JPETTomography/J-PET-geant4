@@ -254,8 +254,8 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
                                      threadLocalScinHitColl.MomentumOutZ, hit->GetMomentumOut(),keV);
         }
         if(threadLocalScinHitColl.ScinId.size()>0){
+            FillG4EventGenInfo(evt);
             FillNTupleEvent(evt->GetEventID()+1);
-            FillGenInfo(evt);
         }
     } //if(hitsColl)
 }
@@ -288,8 +288,7 @@ void NTupleEventAnalysis::FillNTupleEvent(const G4int& evtId){
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
-void NTupleEventAnalysis::FillGenInfo(const G4Event* anEvent){
-    // std::cout << "Vrtx multiplicity: " << anEvent->GetNumberOfPrimaryVertex() << std::endl;
+void NTupleEventAnalysis::FillG4EventGenInfo(const G4Event* anEvent){
     for (int i = 0; i < anEvent->GetNumberOfPrimaryVertex(); i++){
         auto info = dynamic_cast<VtxInformation*>(anEvent->GetPrimaryVertex(i)->GetUserInformation());
         if (info){
@@ -304,9 +303,9 @@ void NTupleEventAnalysis::FillGenInfo(const G4Event* anEvent){
         }
     }
     
-    const auto& g4EventInfo = m_g4EventInfo.Get();
-    double theta_12 = (180. / M_PI) * (g4EventInfo.GetMomentumGamma(1)).angle(g4EventInfo.GetMomentumGamma(2));
-    double theta_23 = (180. / M_PI) * (g4EventInfo.GetMomentumGamma(2)).angle(g4EventInfo.GetMomentumGamma(3));
+    const auto& g4EventGenInfo = m_g4EventGenInfo.Get();
+    double theta_12 = (180. / M_PI) * (g4EventGenInfo.GetMomentumGamma(1)).angle(g4EventGenInfo.GetMomentumGamma(2));
+    double theta_23 = (180. / M_PI) * (g4EventGenInfo.GetMomentumGamma(2)).angle(g4EventGenInfo.GetMomentumGamma(3));
 
     auto fillH2 = [&](const char* name, double valueX, const TrackedDouble& valueY){
         if(valueY.isChanged){
@@ -315,9 +314,8 @@ void NTupleEventAnalysis::FillGenInfo(const G4Event* anEvent){
             WriteError(name, " does not received argument for Y axis");
         }
     };
-
     fillH2("gen_3g_angles", theta_12, TrackedDouble(theta_23));
-    fillH2("gen_energy", g4EventInfo.GetMomentumGamma(1).mag(), TrackedDouble(g4EventInfo.GetMomentumGamma(2).mag()));
+    fillH2("gen_energy", g4EventGenInfo.GetMomentumGamma(1).mag(), TrackedDouble(g4EventGenInfo.GetMomentumGamma(2).mag()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -358,16 +356,16 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
     bool isPrompt = info->GetPromptGammaGen();
     bool isCosmic = info->GetCosmicGammaGen();
 
-    auto& g4EventInfo = m_g4EventInfo.Get();
+    auto& g4EventGenInfo = m_g4EventGenInfo.Get();
     if (is2g || is3g)
     {   
-        g4EventInfo.SetThreeGammaGen(is3g);
-        g4EventInfo.SetTwoGammaGen(is2g);
-        g4EventInfo.SetVtxPosition(info->GetVtxPositionX() / cm, 
+        g4EventGenInfo.SetThreeGammaGen(is3g);
+        g4EventGenInfo.SetTwoGammaGen(is2g);
+        g4EventGenInfo.SetVtxPosition(info->GetVtxPositionX() / cm, 
                                      info->GetVtxPositionY() / cm, 
                                      info->GetVtxPositionZ() / cm);
-        g4EventInfo.SetLifetime(info->GetLifetime() / ps);
-        g4EventInfo.SetRunNr(info->GetRunNr());
+        g4EventGenInfo.SetLifetime(info->GetLifetime() / ps);
+        g4EventGenInfo.SetRunNr(info->GetRunNr());
 
         if (NTupleEventAnalysis::ControlHisto){
             fillH1("gen_lifetime", info->GetLifetime() / ps);
@@ -392,12 +390,12 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
     }
 
     if (isPrompt){
-        g4EventInfo.SetPromptGammaGen(isPrompt);
-        g4EventInfo.SetPromptLifetime(info->GetLifetime() / ps);
-        g4EventInfo.SetVtxPromptPosition(info->GetVtxPositionX() / cm,
+        g4EventGenInfo.SetPromptGammaGen(isPrompt);
+        g4EventGenInfo.SetPromptLifetime(info->GetLifetime() / ps);
+        g4EventGenInfo.SetVtxPromptPosition(info->GetVtxPositionX() / cm,
                                            info->GetVtxPositionY() / cm,
                                            info->GetVtxPositionZ() / cm);
-        g4EventInfo.SetRunNr(info->GetRunNr());
+        g4EventGenInfo.SetRunNr(info->GetRunNr());
 
         if (NTupleEventAnalysis::ControlHisto){
             fillH1("gen_gamma_multiplicity", 1);
@@ -409,7 +407,7 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
     }
     SetParentIDofPhoton(0);
     if (isCosmic){
-        g4EventInfo.setCosmicEventTag(true);
+        g4EventGenInfo.setCosmicEventTag(true);
     }
 }
 
@@ -420,7 +418,7 @@ void NTupleEventAnalysis::FillGenParticleInfo(G4PrimaryParticle* particle){
   if (infoParticle){
     G4int index = infoParticle->GetIndex();
     G4ThreeVector genMom = infoParticle->GenGenMomentum();
-    m_g4EventInfo.Get().SetMomentumGamma(index, genMom.x() / keV,
+    m_g4EventGenInfo.Get().SetMomentumGamma(index, genMom.x() / keV,
                                                 genMom.y() / keV,
                                                 genMom.z() / keV);
   }
