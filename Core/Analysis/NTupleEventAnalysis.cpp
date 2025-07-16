@@ -312,7 +312,7 @@ void NTupleEventAnalysis::FillNTupleEvent(const G4int& evtId){
     // Fill Scintillator hits
     // ... all data is already in the vectors of ScinHitCollection
 
-    // Fill event information
+    // Fill gen event information
     fillNtupleDColumn("GenVtxPositionX", threadLocalG4EventInfo.GetVtxPositionX());
     fillNtupleDColumn("GenVtxPositionY", threadLocalG4EventInfo.GetVtxPositionY());
     fillNtupleDColumn("GenVtxPositionZ", threadLocalG4EventInfo.GetVtxPositionZ());
@@ -320,7 +320,7 @@ void NTupleEventAnalysis::FillNTupleEvent(const G4int& evtId){
     fillNtupleDColumn("GenVtxPromptPositionY", threadLocalG4EventInfo.GetVtxPromptPositionY());
     fillNtupleDColumn("GenVtxPromptPositionZ", threadLocalG4EventInfo.GetVtxPromptPositionZ());
     fillNtupleIColumn("GenPromptGamma", static_cast<int>(threadLocalG4EventInfo.GetPromptGammaGen()));
-    fillNtupleIColumn("GenTwoGammaGen",    static_cast<int>(threadLocalG4EventInfo.GetTwoGammaGen()));
+    fillNtupleIColumn("GenTwoGamma", static_cast<int>(threadLocalG4EventInfo.GetTwoGammaGen()));
     fillNtupleIColumn("GenThreeGamma",  static_cast<int>(threadLocalG4EventInfo.GetThreeGammaGen()));
     fillNtupleIColumn("nRun", threadLocalG4EventInfo.GetRunNr());
     fillNtupleDColumn("GenLifetime", threadLocalG4EventInfo.GetLifetime());
