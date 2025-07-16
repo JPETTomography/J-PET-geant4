@@ -153,6 +153,9 @@ class NTupleEventAnalysis {
     ///
     void CreateHistograms();
 
+    ///
+    void ResetCollections();
+
 
     public:
       ///

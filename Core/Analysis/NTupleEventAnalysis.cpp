@@ -14,6 +14,13 @@ bool NTupleEventAnalysis::ControlHisto = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
+void NTupleEventAnalysis::ResetCollections(){
+    m_scinHitCollection.Get().Reset();
+    m_g4EventGenInfo.Get().Reset();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+///
 void NTupleEventAnalysis::ScinHitCollection::Reset(){
     ClearAndReserve<int>(ScinId);
     ClearAndReserve<int>(TrkId);
@@ -62,6 +69,7 @@ void NTupleEventAnalysis::BeginOfRunAction(const G4Run* runPtr, G4bool isMaster)
 ///
 void NTupleEventAnalysis::CreateNTuple(){
     auto& threadLocalScinHitColl = m_scinHitCollection.Get();
+    auto& threadLocalG4EventInfo = m_g4EventGenInfo.Get();
     const auto& threadLocalAnaG4Mngr = m_analysisManager.Get();
 
     auto ntupleId = threadLocalAnaG4Mngr->CreateNtuple("T","J-PET TTree");
@@ -112,6 +120,23 @@ void NTupleEventAnalysis::CreateNTuple(){
     createNtupleVecDColumn("ScinHitMomentumOutY",threadLocalScinHitColl.MomentumOutY);
     createNtupleVecDColumn("ScinHitMomentumOutZ",threadLocalScinHitColl.MomentumOutZ);
 
+    // Event information branches
+    createNtupleDColumn("GenVtxPositionX");   // Position of annihilation
+    createNtupleDColumn("GenVtxPositionY");
+    createNtupleDColumn("GenVtxPositionZ");
+    createNtupleDColumn("GenVtxPromptPositionX");   // Position of prompt photon emmision
+    createNtupleDColumn("GenVtxPromptPositionY");
+    createNtupleDColumn("GenVtxPromptPositionZ");
+    createNtupleIColumn("GenPromptGamma");
+    createNtupleIColumn("GenTwoGamma");
+    createNtupleIColumn("GenThreeGamma");
+    createNtupleIColumn("nRun");    // Number should follow the J-PET measurements run numbering scheme
+    createNtupleDColumn("GenLifetime");         // Lifetime of generated bound state or direct annihilation;
+    createNtupleDColumn("GenPromptLifetime");   // generated lifetime of emmited prompt photon; filled only if prompt gamma is generated
+    createNtupleVecDColumn("GenMomentumGammaX", threadLocalG4EventInfo.fMomentumGammaX);
+    createNtupleVecDColumn("GenMomentumGammaY", threadLocalG4EventInfo.fMomentumGammaY);
+    createNtupleVecDColumn("GenMomentumGammaZ", threadLocalG4EventInfo.fMomentumGammaZ);
+    createNtupleIColumn("CosmicEventTag");
     //
     threadLocalAnaG4Mngr->FinishNtuple(ntupleId);
 }
@@ -215,8 +240,8 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
     auto hCofThisEvent = evt->GetHCofThisEvent();
     auto hitsColl = dynamic_cast<DetectorHitsCollection*>(hCofThisEvent->GetHC(collection_id));
     if (hitsColl) {
+        ResetCollections();
         auto& threadLocalScinHitColl = m_scinHitCollection.Get();
-        threadLocalScinHitColl.Reset();
         int n_hit = hitsColl->entries();
         for (int i = 0; i < n_hit; i++) {
             auto hit = dynamic_cast<DetectorHit*>(hitsColl->GetHit(i));
@@ -265,6 +290,7 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
 void NTupleEventAnalysis::FillNTupleEvent(const G4int& evtId){
     const auto& threadLocalAnaG4Mngr = m_analysisManager.Get();
     auto ntupleId = m_scinHitCollection.Get().ntupleId;
+    const auto & threadLocalG4EventInfo = m_g4EventGenInfo.Get();
 
     auto fillNtupleIColumn = [&](const char* name, G4int val){
           threadLocalAnaG4Mngr->FillNtupleIColumn(ntupleId,m_treeColumnId.Get(name), val); // ,
@@ -282,6 +308,29 @@ void NTupleEventAnalysis::FillNTupleEvent(const G4int& evtId){
     // elements. This means that when you call tree->Fill(), the current state of the std::vector 
     // is saved directly into the tree without needing additional fill methods.
     // In Geant4 the AddNtupleRow method is a wrapper for the tree->Fill() function.
+
+    // Fill Scintillator hits
+    // ... all data is already in the vectors of ScinHitCollection
+
+    // Fill event information
+    fillNtupleDColumn("GenVtxPositionX", threadLocalG4EventInfo.GetVtxPositionX());
+    fillNtupleDColumn("GenVtxPositionY", threadLocalG4EventInfo.GetVtxPositionY());
+    fillNtupleDColumn("GenVtxPositionZ", threadLocalG4EventInfo.GetVtxPositionZ());
+    fillNtupleDColumn("GenVtxPromptPositionX", threadLocalG4EventInfo.GetVtxPromptPositionX());
+    fillNtupleDColumn("GenVtxPromptPositionY", threadLocalG4EventInfo.GetVtxPromptPositionY());
+    fillNtupleDColumn("GenVtxPromptPositionZ", threadLocalG4EventInfo.GetVtxPromptPositionZ());
+    fillNtupleIColumn("GenPromptGamma", static_cast<int>(threadLocalG4EventInfo.GetPromptGammaGen()));
+    fillNtupleIColumn("GenTwoGammaGen",    static_cast<int>(threadLocalG4EventInfo.GetTwoGammaGen()));
+    fillNtupleIColumn("GenThreeGamma",  static_cast<int>(threadLocalG4EventInfo.GetThreeGammaGen()));
+    fillNtupleIColumn("nRun", threadLocalG4EventInfo.GetRunNr());
+    fillNtupleDColumn("GenLifetime", threadLocalG4EventInfo.GetLifetime());
+    fillNtupleDColumn("GenPromptLifetime", threadLocalG4EventInfo.GetPromptLifetime());
+    // ... GenMomentumGamma columns are filled with vectors ...
+    fillNtupleIColumn("CosmicEventTag", threadLocalG4EventInfo.GetCosmicEventTag());
+    
+    // Add the row to the NTuple
+    // Note: This is the point where the data is actually written to the TTree.
+    // It is important to call this method after all columns have been filled.
     threadLocalAnaG4Mngr->AddNtupleRow(ntupleId); // 
 
 }
@@ -304,8 +353,17 @@ void NTupleEventAnalysis::FillG4EventGenInfo(const G4Event* anEvent){
     }
     
     const auto& g4EventGenInfo = m_g4EventGenInfo.Get();
-    double theta_12 = (180. / M_PI) * (g4EventGenInfo.GetMomentumGamma(1)).angle(g4EventGenInfo.GetMomentumGamma(2));
-    double theta_23 = (180. / M_PI) * (g4EventGenInfo.GetMomentumGamma(2)).angle(g4EventGenInfo.GetMomentumGamma(3));
+    G4ThreeVector momentumGamma1{ g4EventGenInfo.GetMomentumGammaX(1),
+                                  g4EventGenInfo.GetMomentumGammaY(1),
+                                  g4EventGenInfo.GetMomentumGammaZ(1) };
+    G4ThreeVector momentumGamma2{ g4EventGenInfo.GetMomentumGammaX(2),
+                                  g4EventGenInfo.GetMomentumGammaY(2),
+                                  g4EventGenInfo.GetMomentumGammaZ(2) };
+    G4ThreeVector momentumGamma3{ g4EventGenInfo.GetMomentumGammaX(3),
+                                  g4EventGenInfo.GetMomentumGammaY(3),
+                                  g4EventGenInfo.GetMomentumGammaZ(3) };
+    double theta_12 = (180. / M_PI) * momentumGamma1.angle(momentumGamma2);
+    double theta_23 = (180. / M_PI) * momentumGamma2.angle(momentumGamma3);
 
     auto fillH2 = [&](const char* name, double valueX, const TrackedDouble& valueY){
         if(valueY.isChanged){
@@ -315,7 +373,7 @@ void NTupleEventAnalysis::FillG4EventGenInfo(const G4Event* anEvent){
         }
     };
     fillH2("gen_3g_angles", theta_12, TrackedDouble(theta_23));
-    fillH2("gen_energy", g4EventGenInfo.GetMomentumGamma(1).mag(), TrackedDouble(g4EventGenInfo.GetMomentumGamma(2).mag()));
+    fillH2("gen_energy", momentumGamma1.mag(), TrackedDouble(momentumGamma2.mag()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

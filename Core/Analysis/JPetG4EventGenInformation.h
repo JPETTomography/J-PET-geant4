@@ -54,14 +54,18 @@ public:
   double GetLifetime() const { return fLifetime; };
   double GetPromptLifetime() const { return fPromptLifetime; };
   void SetMomentumGamma(int index, double x, double y, double z) {
-    fMomentumGamma.at(index).set(x, y, z);
+    fMomentumGammaX.at(index) =x;
+    fMomentumGammaY.at(index) =y;
+    fMomentumGammaZ.at(index) =z;
   };
-  G4ThreeVector GetMomentumGamma(int index) const { return fMomentumGamma.at(index); };
+  double GetMomentumGammaX(int index) const { return fMomentumGammaX.at(index); };
+  double GetMomentumGammaY(int index) const { return fMomentumGammaY.at(index); };
+  double GetMomentumGammaZ(int index) const { return fMomentumGammaZ.at(index); };
   void setCosmicEventTag(bool cosmicTag) { fCosmicEventTag = cosmicTag; };
 
-  bool getCosmicEventTag() const { return fCosmicEventTag; };
+  bool GetCosmicEventTag() const { return fCosmicEventTag; };
 
-  void Clear(){
+  void Reset(){
     fPromptGammaGen = false;
     fTwoGammaGen = false;
     fThreeGammaGen = false;
@@ -70,12 +74,16 @@ public:
     fPromptLifetime = 0.0;
     fVtxPosition.set(0.0, 0.0, 0.0);
     fVtxPromptPosition.set(0.0, 0.0, 0.0);
-    fMomentumGamma.clear();
-    fMomentumGamma.resize(4);
+    fMomentumGammaX.clear();
+    fMomentumGammaX.resize(4);
+    fMomentumGammaY.clear();
+    fMomentumGammaY.resize(4);
+    fMomentumGammaZ.clear();
+    fMomentumGammaZ.resize(4);
     fCosmicEventTag = false;
   }
 
-private:
+public: // TEMPORARY!!!
   const unsigned int fMaxGammaNumberIndex = 3;
   //! Position of annihilation
   G4ThreeVector fVtxPosition;
@@ -91,7 +99,9 @@ private:
   double fLifetime = -1.0;
   //! generated lifetime of emmited prompt photon; filled only if prompt gamma is generated
   double fPromptLifetime = -1.0;
-  std::vector<G4ThreeVector> fMomentumGamma{4};
+  std::vector<double> fMomentumGammaX{4};
+  std::vector<double> fMomentumGammaY{4};
+  std::vector<double> fMomentumGammaZ{4};
   bool fCosmicEventTag = false;
 };
 
