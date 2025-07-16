@@ -144,8 +144,8 @@ class NTupleEventAnalysis {
 
     ///
     void FillG4EventGenInfo(const G4Event* anEvent);
-    void FillGenVtxInfo(VtxInformation* info);
-    void FillGenParticleInfo(G4PrimaryParticle* particle);
+    void FillG4EventGenVtxInfo(VtxInformation* info);
+    void FillG4EventGenParticleInfo(G4PrimaryParticle* particle);
 
     ///
     void CreateNTuple();

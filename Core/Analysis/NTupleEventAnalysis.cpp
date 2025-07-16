@@ -292,13 +292,13 @@ void NTupleEventAnalysis::FillG4EventGenInfo(const G4Event* anEvent){
     for (int i = 0; i < anEvent->GetNumberOfPrimaryVertex(); i++){
         auto info = dynamic_cast<VtxInformation*>(anEvent->GetPrimaryVertex(i)->GetUserInformation());
         if (info){
-            FillGenVtxInfo(info);
+            FillG4EventGenVtxInfo(info);
         }
         auto nParticles = anEvent->GetPrimaryVertex(i)->GetNumberOfParticle();
         for (int j = 0; j < nParticles; j++){
             auto particle = anEvent->GetPrimaryVertex(i)->GetPrimary(j);
             if (particle){
-                FillGenParticleInfo(particle);
+                FillG4EventGenParticleInfo(particle);
             }
         }
     }
@@ -336,7 +336,7 @@ void NTupleEventAnalysis::WriteError(const char* nameOfHistogram, const std::str
 /// Geant:   ns  |  mm      |   MeV
 /// J-PET:   ps  |  cm      |   keV
 /// 
-void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
+void NTupleEventAnalysis::FillG4EventGenVtxInfo(VtxInformation* info){
     const auto& threadLocalAnaG4Mngr = m_analysisManager.Get();
     
     auto fillH1 = [&](const char* name, double value){
@@ -413,7 +413,7 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
-void NTupleEventAnalysis::FillGenParticleInfo(G4PrimaryParticle* particle){
+void NTupleEventAnalysis::FillG4EventGenParticleInfo(G4PrimaryParticle* particle){
   auto infoParticle = dynamic_cast<PrimaryParticleInformation*>(particle->GetUserInformation());
   if (infoParticle){
     G4int index = infoParticle->GetIndex();
