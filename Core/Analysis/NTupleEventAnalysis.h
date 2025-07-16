@@ -18,6 +18,8 @@
 #ifndef EVENT_ANALYSIS_HH
 #define EVENT_ANALYSIS_HH 1
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "globals.hh"
 #include "G4Cache.hh"
 #include "DetectorHit.h"

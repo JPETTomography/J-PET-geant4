@@ -303,8 +303,25 @@ void NTupleEventAnalysis::FillGenInfo(const G4Event* anEvent){
             }
         }
     }
+    
+    const auto& g4EventInfo = m_g4EventInfo.Get();
+    double theta_12 = (180. / M_PI) * (g4EventInfo.GetMomentumGamma(1)).angle(g4EventInfo.GetMomentumGamma(2));
+    double theta_23 = (180. / M_PI) * (g4EventInfo.GetMomentumGamma(2)).angle(g4EventInfo.GetMomentumGamma(3));
+
+    auto fillH2 = [&](const char* name, double valueX, const TrackedDouble& valueY){
+        if(valueY.isChanged){
+            m_analysisManager.Get()->FillH2(m_histId.Get(name),valueX,valueY.value);
+        } else {
+            WriteError(name, " does not received argument for Y axis");
+        }
+    };
+
+    fillH2("gen_3g_angles", theta_12, TrackedDouble(theta_23));
+    fillH2("gen_energy", g4EventInfo.GetMomentumGamma(1).mag(), TrackedDouble(g4EventInfo.GetMomentumGamma(2).mag()));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+///
 void NTupleEventAnalysis::WriteError(const char* nameOfHistogram, const std::string& messageEnd){
     auto& errorCounts = m_errorCounts.Get();
     bool histExists = (errorCounts.find(nameOfHistogram) != errorCounts.end());
@@ -341,14 +358,16 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
     bool isPrompt = info->GetPromptGammaGen();
     bool isCosmic = info->GetCosmicGammaGen();
 
+    auto& g4EventInfo = m_g4EventInfo.Get();
     if (is2g || is3g)
     {   
-        //TODO: fGeantInfo = fEventPack->GetEventInformation();
-        // fGeantInfo->SetThreeGammaGen(is3g);
-        // fGeantInfo->SetTwoGammaGen(is2g);
-        // fGeantInfo->SetVtxPosition(info->GetVtxPositionX() / cm, info->GetVtxPositionY() / cm, info->GetVtxPositionZ() / cm);
-        // fGeantInfo->SetLifetime(info->GetLifetime() / ps);
-        // fGeantInfo->SetRunNr(info->GetRunNr());
+        g4EventInfo.SetThreeGammaGen(is3g);
+        g4EventInfo.SetTwoGammaGen(is2g);
+        g4EventInfo.SetVtxPosition(info->GetVtxPositionX() / cm, 
+                                     info->GetVtxPositionY() / cm, 
+                                     info->GetVtxPositionZ() / cm);
+        g4EventInfo.SetLifetime(info->GetLifetime() / ps);
+        g4EventInfo.SetRunNr(info->GetRunNr());
 
         if (NTupleEventAnalysis::ControlHisto){
             fillH1("gen_lifetime", info->GetLifetime() / ps);
@@ -373,10 +392,12 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
     }
 
     if (isPrompt){
-        // fGeantInfo->SetPromptGammaGen(isPrompt);
-        // fGeantInfo->SetPromptLifetime(info->GetLifetime() / ps);
-        // fGeantInfo->SetVtxPromptPosition(info->GetVtxPositionX() / cm, info->GetVtxPositionY() / cm, info->GetVtxPositionZ() / cm);
-        // fGeantInfo->SetRunNr(info->GetRunNr());
+        g4EventInfo.SetPromptGammaGen(isPrompt);
+        g4EventInfo.SetPromptLifetime(info->GetLifetime() / ps);
+        g4EventInfo.SetVtxPromptPosition(info->GetVtxPositionX() / cm,
+                                           info->GetVtxPositionY() / cm,
+                                           info->GetVtxPositionZ() / cm);
+        g4EventInfo.SetRunNr(info->GetRunNr());
 
         if (NTupleEventAnalysis::ControlHisto){
             fillH1("gen_gamma_multiplicity", 1);
@@ -388,7 +409,7 @@ void NTupleEventAnalysis::FillGenVtxInfo(VtxInformation* info){
     }
     SetParentIDofPhoton(0);
     if (isCosmic){
-        // fGeantInfo->setCosmicEventTag(true);
+        g4EventInfo.setCosmicEventTag(true);
     }
 }
 
@@ -399,9 +420,10 @@ void NTupleEventAnalysis::FillGenParticleInfo(G4PrimaryParticle* particle){
   if (infoParticle){
     G4int index = infoParticle->GetIndex();
     G4ThreeVector genMom = infoParticle->GenGenMomentum();
-    //TODO: fGeantInfo->SetMomentumGamma(index, genMom.x() / keV, genMom.y() / keV, genMom.z() / keV);
+    m_g4EventInfo.Get().SetMomentumGamma(index, genMom.x() / keV,
+                                                genMom.y() / keV,
+                                                genMom.z() / keV);
   }
-
 }
 
 #include "JPetGeantDecayTree.h"
