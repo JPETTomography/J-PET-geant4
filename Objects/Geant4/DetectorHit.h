@@ -39,6 +39,9 @@ public:
   void SetTime(G4double val, G4double weight);
   void SetPosition(G4ThreeVector xyz, G4double weight);
   void SetTrackID(G4int i) { fTrackID = i; }
+  void SetParentTrackID(G4int i) { fTrackParentID = i; }
+  void SetInteractionType(G4int i) { fInteractionType = i; }
+  void SetDecayChannel(G4int i) { fDecayChannel = i; }
   void SetTrackPDG(G4int i) { fTrackPDG = i; }
   void SetScinID(G4int i) { fScinID = i; }
   void SetInteractionNumber() { fNumInteractions = 1; }
@@ -62,6 +65,9 @@ public:
   G4ThreeVector GetPosition();
   G4int GetScinID() { return fScinID; }
   G4int GetTrackID() { return fTrackID; }
+  G4int GetParentID() { return fTrackParentID; }
+  G4int GetInteractionType() const { return fInteractionType; }
+  G4int GetDecayChannel() const { return fDecayChannel; }
   G4double GetEdep() { return fEdep; }
   G4int GetTrackPDG() { return fTrackPDG; }
   G4ThreeVector GetPolarizationIn() { return fPolarizationIn; }
@@ -78,6 +84,12 @@ private:
   G4int fScinID;
   //! Track identificator
   G4int fTrackID;
+  //! Parent Track identificator
+  G4int fTrackParentID;
+  //! Interaction type
+  G4int fInteractionType;
+  //! Decay channel,
+  G4int fDecayChannel;
   //! Particle Data Group numbering for particles
   G4int fTrackPDG;
   //! Total energy deposited in the strip

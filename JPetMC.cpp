@@ -19,6 +19,7 @@
 #include "Info/EventMessenger.h"
 #include "Core/PhysicsList.h"
 #include "Core/RunManager.h"
+#include "Core/Analysis/NTupleEventAnalysis.h"
 
 #include <G4VisExecutive.hh>
 #include <G4UIExecutive.hh>
@@ -91,9 +92,9 @@ int main (int argc, char** argv)
       if (cmdLineArgs.count("m"))
         EventAction::EvtMultCut = cmdLineArgs["m"].as<int>();
       if (cmdLineArgs.count("n"))
-        HistoManager::OuputFileName = cmdLineArgs["n"].as<std::string>();
+        NTupleEventAnalysis::OutputFileName = cmdLineArgs["n"].as<std::string>();
       if (cmdLineArgs.count("o"))
-        HistoManager::OuputDir = cmdLineArgs["o"].as<std::string>();
+        NTupleEventAnalysis::OutputDir = cmdLineArgs["o"].as<std::string>();
 
       UImanager->ApplyCommand(command + fileName);
     } else {

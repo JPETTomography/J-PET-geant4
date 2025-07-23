@@ -44,6 +44,25 @@ struct TrackedDouble {
     isChanged = true;
   }
 };
+/* // Do przeniesienia tu jak się będziemy pozbywać JPetGeantDecayTreeBranch.h
+enum class InteractionType : int { /// Interaction "type" of the particle in the scintillator
+  kUnknown = 0,
+  kPrimaryGamma,
+  kScattActivePart,
+  kScattNonActivePart,
+  kSecondaryPart
+};
+
+enum class DecayChannel : int { /// To jest ustawiane przy powstawaniu cząstki - ale jak z tym pracoweać? 
+  kUnknown = 0,
+  kPara2G,
+  kDirect2G,
+  kOrtho2G,
+  kPara3G,
+  kDirect3G,
+  kOrtho3G
+};
+*/
 
 class NTupleEventAnalysis {
 
@@ -55,8 +74,12 @@ class NTupleEventAnalysis {
 
         G4int runId = -1;
         //!
-
-        std::vector<int> ScinId, TrkId, TrkPDG;
+        std::vector<int> ChildTrkIdsFlat;
+        std::vector<int> ChildTrkOffsets;
+        std::vector<int> ChildTrkCounts;
+        std::vector<int> InteractionType;
+        std::vector<int> DecayChannel;
+        std::vector<int> ScinId, TrkId, ParentTrkId, TrkPDG;
         //! Number of interaction taking place in single scintillator,
         //! which were classified as a single hit;
         //! it may be a big number since electron deposits energy in many steps
@@ -163,11 +186,12 @@ class NTupleEventAnalysis {
 
       ///
       static bool NTupleMerging;
-
       ///
       static bool Cosmic;
       static bool ControlHisto;
 
+      static std::string OutputFileName;
+      static std::string OutputDir;
       ///
       void BeginOfRunAction(const G4Run* runPtr, G4bool isMaster);
 

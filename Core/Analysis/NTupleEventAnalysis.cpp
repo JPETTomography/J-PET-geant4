@@ -11,6 +11,9 @@
 bool NTupleEventAnalysis::NTupleMerging = true;
 bool NTupleEventAnalysis::Cosmic = false;
 bool NTupleEventAnalysis::ControlHisto = true;
+std::string NTupleEventAnalysis::OutputFileName = "mcGeant4.root";
+std::string NTupleEventAnalysis::OutputDir = "./output";
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -24,6 +27,12 @@ void NTupleEventAnalysis::ResetCollections(){
 void NTupleEventAnalysis::ScinHitCollection::Reset(){
     ClearAndReserve<int>(ScinId);
     ClearAndReserve<int>(TrkId);
+    ClearAndReserve<int>(ParentTrkId);
+    ClearAndReserve<int>(ChildTrkIdsFlat);
+    ClearAndReserve<int>(ChildTrkOffsets);
+    ClearAndReserve<int>(ChildTrkCounts);
+    ClearAndReserve<int>(InteractionType);
+    ClearAndReserve<int>(DecayChannel);
     ClearAndReserve<int>(TrkPDG);
     ClearAndReserve<int>(NumOfInteractions);
     ClearAndReserve<int>(GenGammaIndex);
@@ -98,6 +107,12 @@ void NTupleEventAnalysis::CreateNTuple(){
     // Scintilator Hits branches
     createNtupleVecIColumn("ScinId",threadLocalScinHitColl.ScinId);
     createNtupleVecIColumn("ScinHitTrackId",threadLocalScinHitColl.TrkId);
+    createNtupleVecIColumn("ScinHitParentTrackId",threadLocalScinHitColl.ParentTrkId);
+    createNtupleVecIColumn("ScinHitChildTrkIdsFlat", threadLocalScinHitColl.ChildTrkIdsFlat);
+    createNtupleVecIColumn("ScinHitChildTrkOffsets", threadLocalScinHitColl.ChildTrkOffsets);
+    createNtupleVecIColumn("ScinHitChildTrkCounts", threadLocalScinHitColl.ChildTrkCounts);
+    createNtupleVecIColumn("ScinHitInteractionType", threadLocalScinHitColl.InteractionType);
+    createNtupleVecIColumn("ScinHitDecayChannel", threadLocalScinHitColl.DecayChannel);
     createNtupleVecIColumn("ScinHitTrackPDG",threadLocalScinHitColl.TrkPDG);
     createNtupleVecIColumn("ScinHitNIteractions",threadLocalScinHitColl.NumOfInteractions);
     createNtupleVecIColumn("ScinHitGenGammaIndex",threadLocalScinHitColl.GenGammaIndex);
@@ -256,6 +271,9 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
             // Add new hit to output NTuple
             threadLocalScinHitColl.ScinId.emplace_back(hit->GetScinID());
             threadLocalScinHitColl.TrkId.emplace_back(hit->GetTrackID());
+            threadLocalScinHitColl.ParentTrkId.emplace_back(hit->GetParentID());
+            threadLocalScinHitColl.InteractionType.emplace_back(hit->GetInteractionType());
+            threadLocalScinHitColl.DecayChannel.emplace_back(hit->GetDecayChannel());
             threadLocalScinHitColl.TrkPDG.emplace_back(hit->GetTrackPDG());
             threadLocalScinHitColl.NumOfInteractions.emplace_back(hit->GetNumInteractions());
             threadLocalScinHitColl.GenGammaIndex.emplace_back(hit->GetGenGammaIndex());
@@ -278,6 +296,39 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
                                      threadLocalScinHitColl.MomentumOutY,
                                      threadLocalScinHitColl.MomentumOutZ, hit->GetMomentumOut(),keV);
         }
+        // === Build parent → children mapping ===
+        std::map<int, std::vector<int>> parentToChildren;
+        for (size_t i = 0; i < threadLocalScinHitColl.TrkId.size(); ++i) {
+            int child = threadLocalScinHitColl.TrkId[i];
+            int parent = threadLocalScinHitColl.ParentTrkId[i];
+            if (parent >= 0 && parent != child) {
+                parentToChildren[parent].push_back(child);
+            }
+        }
+
+        // === Flatten the data for NTuple ===
+        threadLocalScinHitColl.ChildTrkIdsFlat.clear();
+        threadLocalScinHitColl.ChildTrkOffsets.clear();
+        threadLocalScinHitColl.ChildTrkCounts.clear();
+
+        int currentOffset = 0;
+        for (size_t i = 0; i < threadLocalScinHitColl.TrkId.size(); ++i) {
+            int trackId = threadLocalScinHitColl.TrkId[i];
+            auto it = parentToChildren.find(trackId);
+            if (it != parentToChildren.end()) {
+                const auto& children = it->second;
+                threadLocalScinHitColl.ChildTrkOffsets.push_back(currentOffset);
+                threadLocalScinHitColl.ChildTrkCounts.push_back(children.size());
+                threadLocalScinHitColl.ChildTrkIdsFlat.insert(
+                    threadLocalScinHitColl.ChildTrkIdsFlat.end(),
+                    children.begin(), children.end());
+                currentOffset += children.size();
+            } else {
+                threadLocalScinHitColl.ChildTrkOffsets.push_back(currentOffset);
+                threadLocalScinHitColl.ChildTrkCounts.push_back(0);
+            }
+        }
+
         if(threadLocalScinHitColl.ScinId.size()>0){
             FillG4EventGenInfo(evt);
             FillNTupleEvent(evt->GetEventID()+1);

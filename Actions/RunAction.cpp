@@ -23,6 +23,13 @@
 #include <TRandom3.h>
 #include <chrono>
 #include <unistd.h>
+#include <fstream>
+#include <iostream>
+#include <utility>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 
 RunAction::RunAction() {
   m_anaG4Mngr->SetNtupleMerging(NTupleEventAnalysis::NTupleMerging);
@@ -38,7 +45,13 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
   // fHistoManager->Book();
 
-  m_anaG4Mngr->OpenFile("mcGeant4.root");
+  fs::path dp(NTupleEventAnalysis::OutputDir );
+  if (!fs::exists(dp)) {
+    std::cout << "[INFO]:: Created directory: " << dp << std::endl;
+    fs::create_directories(dp);
+  }
+
+  m_anaG4Mngr->OpenFile(NTupleEventAnalysis::OutputDir + "/" + NTupleEventAnalysis::OutputFileName);
 
   if (IsMaster())
     G4cout << "### Run #" << aRun->GetRunID() << " starts (master)." << G4endl;

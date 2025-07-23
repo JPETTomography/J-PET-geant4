@@ -6,3 +6,7 @@ PointerBindsToType: true
 ColumnLimit: 150
 AlwaysBreakTemplateDeclarations: true
 BreakBeforeBraces: Allman
+BasedOnStyle: Google
+SortIncludes: false
+DerivePointerAlignment: false
+PointerAlignment: Left

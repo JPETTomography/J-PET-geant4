@@ -98,6 +98,9 @@ G4bool DetectorSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
     DetectorHit* newHit = new DetectorHit();
     newHit->SetEdep(edep);
     newHit->SetTrackID(aStep->GetTrack()->GetTrackID());
+    newHit->SetParentTrackID(aStep->GetTrack()->GetParentID());
+    newHit->SetInteractionType(0);
+    newHit->SetDecayChannel(0);
     newHit->SetTrackPDG(aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding());
     newHit->SetProcessName(aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName());
     newHit->SetInteractionNumber();
