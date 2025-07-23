@@ -28,8 +28,7 @@ void NTupleEventAnalysis::ScinHitCollection::Reset(){
     ClearAndReserve<int>(ScinId);
     ClearAndReserve<int>(TrkId);
     ClearAndReserve<int>(ParentTrkId);
-    ClearAndReserve<int>(ChildTrkIdsFlat);
-    ClearAndReserve<int>(ChildTrkOffsets);
+    ClearAndReserve<int>(ChildTrkIds);
     ClearAndReserve<int>(ChildTrkCounts);
     ClearAndReserve<int>(InteractionType);
     ClearAndReserve<int>(DecayChannel);
@@ -108,8 +107,7 @@ void NTupleEventAnalysis::CreateNTuple(){
     createNtupleVecIColumn("ScinId",threadLocalScinHitColl.ScinId);
     createNtupleVecIColumn("ScinHitTrackId",threadLocalScinHitColl.TrkId);
     createNtupleVecIColumn("ScinHitParentTrackId",threadLocalScinHitColl.ParentTrkId);
-    createNtupleVecIColumn("ScinHitChildTrkIdsFlat", threadLocalScinHitColl.ChildTrkIdsFlat);
-    createNtupleVecIColumn("ScinHitChildTrkOffsets", threadLocalScinHitColl.ChildTrkOffsets);
+    createNtupleVecIColumn("ScinHitChildTrkIds", threadLocalScinHitColl.ChildTrkIds);    
     createNtupleVecIColumn("ScinHitChildTrkCounts", threadLocalScinHitColl.ChildTrkCounts);
     createNtupleVecIColumn("ScinHitInteractionType", threadLocalScinHitColl.InteractionType);
     createNtupleVecIColumn("ScinHitDecayChannel", threadLocalScinHitColl.DecayChannel);
@@ -307,24 +305,19 @@ void NTupleEventAnalysis::EndOfEventAction(const G4Event *evt){
         }
 
         // === Flatten the data for NTuple ===
-        threadLocalScinHitColl.ChildTrkIdsFlat.clear();
-        threadLocalScinHitColl.ChildTrkOffsets.clear();
+        threadLocalScinHitColl.ChildTrkIds.clear();
         threadLocalScinHitColl.ChildTrkCounts.clear();
 
-        int currentOffset = 0;
         for (size_t i = 0; i < threadLocalScinHitColl.TrkId.size(); ++i) {
             int trackId = threadLocalScinHitColl.TrkId[i];
             auto it = parentToChildren.find(trackId);
             if (it != parentToChildren.end()) {
                 const auto& children = it->second;
-                threadLocalScinHitColl.ChildTrkOffsets.push_back(currentOffset);
                 threadLocalScinHitColl.ChildTrkCounts.push_back(children.size());
-                threadLocalScinHitColl.ChildTrkIdsFlat.insert(
-                    threadLocalScinHitColl.ChildTrkIdsFlat.end(),
+                threadLocalScinHitColl.ChildTrkIds.insert(
+                    threadLocalScinHitColl.ChildTrkIds.end(),
                     children.begin(), children.end());
-                currentOffset += children.size();
             } else {
-                threadLocalScinHitColl.ChildTrkOffsets.push_back(currentOffset);
                 threadLocalScinHitColl.ChildTrkCounts.push_back(0);
             }
         }

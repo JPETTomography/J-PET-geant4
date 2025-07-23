@@ -74,12 +74,7 @@ class NTupleEventAnalysis {
 
         G4int runId = -1;
         //!
-        std::vector<int> ChildTrkIdsFlat;
-        std::vector<int> ChildTrkOffsets;
-        std::vector<int> ChildTrkCounts;
-        std::vector<int> InteractionType;
-        std::vector<int> DecayChannel;
-        std::vector<int> ScinId, TrkId, ParentTrkId, TrkPDG;
+        std::vector<int> ScinId, ChildTrkIds,ChildTrkCounts, TrkId, ParentTrkId, TrkPDG, InteractionType, DecayChannel;
         //! Number of interaction taking place in single scintillator,
         //! which were classified as a single hit;
         //! it may be a big number since electron deposits energy in many steps
