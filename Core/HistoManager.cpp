@@ -70,7 +70,6 @@ void HistoManager::createHistogramWithAxes(TObject* object, TString xAxisName, T
     tempHisto->GetYaxis()->SetTitle(yAxisName);
     tempHisto->GetZaxis()->SetTitle(zAxisName);
   }
-  // fStats.Add(object);
   fObjects.push_back(object);
 }
 
@@ -537,11 +536,6 @@ void HistoManager::Save()
         obj->Write();
     }
   }
-  //   TIterator* it = fStats.MakeIterator();
-  //   TObject* obj;
-  //   while ((obj = it->Next()))
-  //     obj->Write();
-  // }
   fRootFile->Close();
   delete fRootFile;
   G4cout << "----> Histograms and ntuples are saved\n" << G4endl;

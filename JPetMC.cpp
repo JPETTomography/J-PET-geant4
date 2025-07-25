@@ -123,7 +123,7 @@ int main (int argc, char** argv)
 
   // delete visManager;
   delete runManager;
-  
+
   #ifdef JPETMULTITHREADED
     bool cleanup = cmdLineArgs["cleanup"].as<bool>();
     HistoManager::MergeNTuples(cleanup); // merge ntuples and clean up
