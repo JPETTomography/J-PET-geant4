@@ -48,6 +48,7 @@ int main (int argc, char** argv)
   ("n,name", "Job name, the output file name (default 'mcGeant')", cxxopts::value<std::string>())
   ("o,output", "Output path (default value is bin/)", cxxopts::value<std::string>())
   ("t,nThreads", "Number of threads to execute on", cxxopts::value<int>()->default_value("1"))
+  ("cleanup", "Clean up output from MT runtime", cxxopts::value<bool>()->default_value("false"))
   ("m,evtMult", "Event multiplicity (default -1, no cut)", cxxopts::value<int>()->default_value("-1"))
   ;
   options.allow_unrecognised_options();
@@ -73,8 +74,8 @@ int main (int argc, char** argv)
   runManager->SetUserInitialization(new ActionInitialization);
 
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
-  G4VisManager* visManager = new G4VisExecutive;
-  visManager->Initialize();
+  // G4VisManager* visManager = new G4VisExecutive;
+  // visManager->Initialize();
 
   if (!ui) {
     //! batch mode
@@ -111,9 +112,7 @@ int main (int argc, char** argv)
     }
   }
 
-  delete visManager;
-  delete runManager;
-
+  
   if (EventMessenger::GetEventMessenger()->SaveSeed()) {
     long seed = G4Random::getTheSeed();
     std::ofstream file;
@@ -121,8 +120,15 @@ int main (int argc, char** argv)
     file << seed << "\n";
     file.close();
   }
+
+  // delete visManager;
+  delete runManager;
+  
   #ifdef JPETMULTITHREADED
-    HistoManager::MergeNTuples(true); // merge ntuples and clean up
+    bool cleanup = cmdLineArgs["cleanup"].as<bool>();
+    HistoManager::MergeNTuples(cleanup); // merge ntuples and clean up
   #endif
+
+  
   return 0;
 }
