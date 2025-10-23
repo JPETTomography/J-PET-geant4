@@ -32,7 +32,6 @@ RUN /bin/bash -c "conda env create -n jpet -f /opt/J-PET-geant4/setups/conda_env
 
 # Initialize submodules and build
 RUN /opt/conda/bin/conda run -n jpet bash -c "\
-    conda install conda-forge::expat=2.7.1 &&\
     cd /opt/J-PET-geant4 && ./setups/init_submodules.sh &&\
     mkdir -p build && cd build && \
     cmake ../ -DMT=ON && make -j2"
