@@ -11,4 +11,4 @@ dependencies:
   - cmake=3.29.5
   - pthread-stubs=0.4
   - doxygen=1.10.0
-  - expat>=2.6.3
+  - expat=2.7.1

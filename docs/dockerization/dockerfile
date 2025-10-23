@@ -11,11 +11,6 @@ ARG JPET_G4_BRANCH=develop-agh-thashtable-issue
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
-# RUN apt-get update && \
-#   apt-get install -y git && \
-#   apt-get install -y wget && \
-#   apt-get install -y zlib1g-dev
-
 # Copy Conda binaries from a Conda base image
 COPY --from=continuumio/miniconda3:25.3.1-1 /opt/conda /opt/conda
 
@@ -37,6 +32,7 @@ RUN /bin/bash -c "conda env create -n jpet -f /opt/J-PET-geant4/setups/conda_env
 
 # Initialize submodules and build
 RUN /opt/conda/bin/conda run -n jpet bash -c "\
+    conda install conda-forge::expat=2.7.1 &&\
     cd /opt/J-PET-geant4 && ./setups/init_submodules.sh &&\
     mkdir -p build && cd build && \
     cmake ../ -DMT=ON && make -j2"
