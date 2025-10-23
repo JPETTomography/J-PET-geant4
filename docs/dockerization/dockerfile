@@ -1,0 +1,42 @@
+# INSTRUCTION:
+# Build image (from the directory containing dockerfile):
+# docker build -f dockerfile --tag 'ubuntu-g4:22.04-11.1.3-plgrid' .
+# Run container:
+# docker run -ti --rm ubuntu-g4:22.04-11.1.3-plgrid /bin/bash
+
+FROM docker.io/rootproject/root:6.32.02-ubuntu24.04
+
+ARG JPET_G4_BRANCH=develop-agh-thashtable-issue
+
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
+# RUN apt-get update && \
+#   apt-get install -y git && \
+#   apt-get install -y wget && \
+#   apt-get install -y zlib1g-dev
+
+# Copy Conda binaries from a Conda base image
+COPY --from=continuumio/miniconda3:25.3.1-1 /opt/conda /opt/conda
+
+ENV ROOTSYS=/opt/root
+ENV PATH=$ROOTSYS/bin:$PATH
+ENV LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
+ENV CONDA_DIR=/opt/conda
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+# ----------------------------------------
+# J-PET-geant4
+# ----------------------------------------
+# Clone the repository (cached unless branch changes)
+RUN cd /opt && git clone --single-branch --branch $JPET_G4_BRANCH \
+    https://github.com/JPETTomography/J-PET-geant4.git
+
+# Create conda environment
+RUN /bin/bash -c "conda env create -n jpet -f /opt/J-PET-geant4/setups/conda_env_g4v11-jpet.yml"
+
+# Initialize submodules and build
+RUN /opt/conda/bin/conda run -n jpet bash -c "\
+    cd /opt/J-PET-geant4 && ./setups/init_submodules.sh &&\
+    mkdir -p build && cd build && \
+    cmake ../ -DMT=ON && make -j2"
