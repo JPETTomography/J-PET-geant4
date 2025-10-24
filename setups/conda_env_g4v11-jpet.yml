@@ -3,6 +3,7 @@ channels:
   - defaults
 dependencies:
   - geant4=11.2.2
+  - root=6.32.02
   - traitlets=5.7.1
   - xerces-c=3.2.5
   - libffi=3.4.4
@@ -11,3 +12,4 @@ dependencies:
   - cmake=3.29.5
   - pthread-stubs=0.4
   - doxygen=1.10.0
+  - expat=2.7.1

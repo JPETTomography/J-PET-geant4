@@ -3,11 +3,11 @@
 
 This Docker image provides a ready-to-use environment for `J-PET-geant4` simulations with `ROOT` and a Conda-based Python environment. It includes all necessary dependencies for building and running `J-PET-geant4` on `Ubuntu 24.04`.
 
-This image is built on top of:
-- ROOT image: `docker.io/rootproject/root:6.32.02-ubuntu24.04` provides ROOT 6.32.02 precompiled for Ubuntu 24.04.
+This image is built through a two-step process:
+1) dockerfile.base: based on Ubuntu 22.04, with ROOT and Geant4 installed inside a Conda environment being copied from Miniconda image (for Python/Conda environment): `continuumio/miniconda3:25.3.1-1`
+2) dockerfile: the actual build on top using the f-petframework branch.
 
-- Miniconda image (for Python/Conda environment): `continuumio/miniconda3:25.3.1-1`
-conda binaries are copied into the image to manage Python dependencies.
+Note: Avoid using the official ROOT Docker image from Docker Hub as it often leads to dependency and library linking issues caused by mismatched system libraries and complex external dependencies. Installing ROOT via Conda inside your custom image provides better control over package versions, environment consistency, and reduces runtime compatibility problems
 
 ## Singularity
 
