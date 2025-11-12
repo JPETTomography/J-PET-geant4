@@ -70,7 +70,7 @@ void HistoManager::createHistogramWithAxes(TObject* object, TString xAxisName, T
     tempHisto->GetYaxis()->SetTitle(yAxisName);
     tempHisto->GetZaxis()->SetTitle(zAxisName);
   }
-  fStats.Add(object);
+  fObjects.push_back(object);
 }
 
 void HistoManager::fillHistogram(const char* name, double xValue, doubleCheck yValue, doubleCheck zValue)
@@ -532,10 +532,9 @@ void HistoManager::Save()
   fRootFile->cd();
   fTree->Write();
   if (GetMakeControlHisto()) {
-    TIterator* it = fStats.MakeIterator();
-    TObject* obj;
-    while ((obj = it->Next()))
-      obj->Write();
+    for(auto& obj : fObjects) {
+        obj->Write();
+    }
   }
   fRootFile->Close();
   delete fRootFile;
@@ -582,6 +581,7 @@ void HistoManager::MergeNTuples(bool cleanUp){
   fm.Merge();
   G4cout << "NTuples are merged!" << G4endl;
   if(cleanUp){
+    G4cout << "Cleaning up... - started!\n" << G4endl;
     for(const auto& file : files_to_merge)
       fs::remove(file);
     try{ // for some reason it may not be empty (e.g. other job name)

@@ -1,22 +1,31 @@
 # Dockerization for the PL-Grid infrastructure
+## Ubuntu-G4 Docker Image for J-PET-geant4
+
+This Docker image provides a ready-to-use environment for `J-PET-geant4` simulations with `ROOT` and a Conda-based Python environment. It includes all necessary dependencies for building and running `J-PET-geant4` on `Ubuntu 24.04`.
+
+This image is built through a two-step process:
+1) dockerfile.base: based on Ubuntu 22.04, with ROOT and Geant4 installed inside a Conda environment being copied from Miniconda image (for Python/Conda environment): `continuumio/miniconda3:25.3.1-1`
+2) dockerfile: the actual build on top using the f-petframework branch.
+
+Note: Avoid using the official ROOT Docker image from Docker Hub as it often leads to dependency and library linking issues caused by mismatched system libraries and complex external dependencies. Installing ROOT via Conda inside your custom image provides better control over package versions, environment consistency, and reduces runtime compatibility problems
 
 ## Singularity
 
 ## Building the docker image with J-PET s/w
 
-In order to build an image, run from the directory where dockerfile is placed, or put the full path to it. For this repo the dockerfile is named `dockerfile_g4`:
+In order to build an image, run from the directory where dockerfile is placed, or put the full path to it. For this repo the dockerfile is named `dockerfile`:
 ```
-docker build -f dockerfile_g4 --tag 'ubuntu-g4:22.04-11.1.3-plgrid' .
+docker build -f dockerfile --tag 'ubuntu-24.04-root-6.32.02-g4-11.2.2-<branch-name>-<commit-id>' .
 ```
 
 To validate the image, you can run the container:
 ```
-docker run -ti --rm ubuntu-g4:22.04-11.1.3-plgrid /bin/bash
+docker run -ti --rm ubuntu-24.04-root-6.32.02-g4-11.2.2-<branch-name>-<commit-id> /bin/bash
 ```
 
 ## Export the docker image
 ```
-docker save -o ubuntu-22.04-g4-11.1.3-plgrid.tar ubuntu-g4:22.04-11.1.3-plgrid
+docker save -o ubuntu-24.04-root-6.32.02-g4-11.2.2-<branch-name>-<commit-id>.tar ubuntu-24.04-root-6.32.02-g4-11.2.2-<branch-name>-<commit-id>
 ```
 
 ## Convert the docker image to singularity image
@@ -27,11 +36,11 @@ conda env create --file=sif-env.yml
 
 In general, the convertion command is like:
 ```
-singularity build my_sif_image.sif docker-archive:///ubuntu-22.04-g4-11.1.3-plgrid.tar
+singularity build my_sif_image.sif docker-archive:///ubuntu-24.04-root-6.32.02-g4-11.2.2-<branch-name>-<commit-id>.tar
 ```
 But running it on single CPU takes long time... you can then utilize the `Makefile` to run this conversion in parralell:
 ```
-make -j 8 DOCKER_ARCHIVE=/your_path/ubuntu-22.04-g4-11.1.3-plgrid.tar
+make -j 8 DOCKER_ARCHIVE=/your_path/ubuntu-24.04-root-6.32.02-g4-11.2.2-<branch-name>-<commit-id>.tar
 ```
 
 # Run builded SIF image on Cyfronet/Ares
