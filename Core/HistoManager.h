@@ -101,12 +101,12 @@ public:
   template <typename T>
   T* getObject(const char* name)
   {
-    TObject* tmp = fStats.FindObject(name);
-    if (!tmp)
+    for (auto& obj : fObjects)
     {
-      return nullptr;
+      if(strcmp(obj->GetName(), name) == 0)
+        return dynamic_cast<T*>(obj);
     }
-    return dynamic_cast<T*>(tmp);
+    return nullptr;
   }
 
 private:
@@ -134,7 +134,7 @@ private:
   void BookHistograms();
 
 protected:
-  THashTable fStats;
+  std::vector<TObject*> fObjects;
   std::set<std::string> fErrorCounts;
 };
 

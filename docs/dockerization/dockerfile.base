@@ -1,0 +1,44 @@
+# INSTRUCTION:
+# Build image (from the directory containing dockerfile):
+# sudo docker build -f dockerfile.base --tag 'ubuntu-22.04-root-6.32.02-g4-11.2.2:v1r0' .
+# Run container:
+# docker run -ti --rm ubuntu-22.04-root-6.32.02-g4-11.2.2:v1r0 /bin/bash
+
+FROM ubuntu:22.04
+
+# Disable installing suggested & recommended packages - keep image smaller
+RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/00-docker && \
+    echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/00-docker && \
+    DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y git && \
+    apt-get install -y ca-certificates && \
+    apt-get install -y libx11-dev
+
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
+# Copy Conda binaries from a Conda base image
+COPY --from=continuumio/miniconda3:25.3.1-1 /opt/conda /opt/conda
+
+# NOTE: below list of packages should be equal to the one defined
+#       in the setups/conda_env_g4v11-jpet.yml
+# NOTE: Avoid using the ROOT Docker image from Docker Hub due to frequent dependency 
+#       and library linking issues arising from mismatched system libraries and complex 
+#       external dependencies. Installing ROOT from Conda inside your custom image ensures
+#       better control and compatibility with package versions and runtime environment.
+RUN /bin/bash -c "\
+    source /opt/conda/etc/profile.d/conda.sh && \
+    conda create -n jpet \
+    -c conda-forge \
+    geant4=11.2.2 \
+    root=6.32.02 \
+    traitlets=5.7.1 \
+    xerces-c=3.2.5 \
+    libffi=3.4.4 \
+    gxx=12.4.0 \
+    make=4.4.1 \
+    cmake=3.29.5 \
+    pthread-stubs=0.4 \
+    doxygen=1.10.0 \
+    expat=2.7.1"
