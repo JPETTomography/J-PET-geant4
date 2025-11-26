@@ -43,6 +43,8 @@ But running it on single CPU takes long time... you can then utilize the `Makefi
 make -j 8 DOCKER_ARCHIVE=/your_path/ubuntu-24.04-root-6.32.02-g4-11.2.2-<branch-name>-<commit-id>.tar
 ```
 
+**NOTE**: The temporary directory used during a build must be on a filesystem that has enough space to hold the entire container image, uncompressed, including any temporary files that are created and later removed during the build. You may need to set `SINGULARITY_TMPDIR` when building a large container on a system which has a small `/tmp` filesystem.
+
 # Run builded SIF image on Cyfronet/Ares
 Start an interactive session on worker node (from Ares machine):
 ```

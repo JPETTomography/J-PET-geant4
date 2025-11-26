@@ -1,0 +1,51 @@
+# INSTRUCTION:
+# Build image (from the directory containing dockerfile):
+# docker build -f dockerfile --tag 'ubuntu-g4:22.04-11.1.3-plgrid' .
+# Run container:
+# docker run -ti --rm ubuntu-g4:22.04-11.1.3-plgrid /bin/bash
+
+FROM ubuntu:22.04
+RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/00-docker
+RUN echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/00-docker
+
+ARG JPET_G4_BRANCH=develop-agh
+
+ARG MINICONDA_VERSION=py310_23.9.0-0-Linux-x86_64
+
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+    
+SHELL ["/bin/bash", "-c"]
+
+RUN DEBIAN_FRONTEND=noninteractive && \
+  apt-get update && \
+  apt-get install -y git && \
+  apt-get install -y wget && \
+  apt-get install -y vim && \
+  apt-get install -y curl && \
+  apt-get install -y ca-certificates && \
+  # Geant4 is being built with dependencies to X11:
+  apt-get install -y zlib1g-dev libx11-dev libxpm-dev libxt-dev libxmu-dev && \
+  apt-get clean && apt-get autoremove --purge && \
+  # Install, upgrade and setup conda:
+  wget --no-check-certificate https://repo.anaconda.com/miniconda/Miniconda3-$MINICONDA_VERSION.sh -O /opt/miniconda.sh && \
+  /bin/bash /opt/miniconda.sh -b -p /opt/conda && \
+  rm /opt/miniconda.sh && \
+  source /opt/conda/etc/profile.d/conda.sh && \
+  conda init && \
+  conda update -y -n base conda && \
+  conda install -y -n base conda-libmamba-solver && \
+  conda config --set solver libmamba && \
+  conda config --add channels defaults
+
+ENV CONDA_DIR=/opt/conda
+ENV PATH=$CONDA_DIR/bin:$PATH
+# ----------------------------------------
+# J-PET-geant4
+# ----------------------------------------
+RUN source /opt/conda/etc/profile.d/conda.sh && \
+    conda init && /bin/bash && cd /opt/ && \
+    git clone --single-branch --branch $JPET_G4_BRANCH https://github.com/JPETTomography/J-PET-geant4.git && \
+    conda env create --name jpet -f /opt/J-PET-geant4/setups/conda_env_g4v11-jpet.yml && \
+    conda activate jpet && cd /opt/J-PET-geant4 && /bin/bash setups/init_submodules.sh && \
+    mkdir build && cd build && cmake ../ -DMT=ON; make -j2
