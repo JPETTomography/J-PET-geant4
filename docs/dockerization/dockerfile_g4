@@ -9,8 +9,6 @@ RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/00-docker
 RUN echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/00-docker
 
 ARG JPET_G4_BRANCH=develop-agh
-ARG JPET_FRAMEWORK_BRANCH=modular
-ARG JPET_FRAMEWORK_EXAMPLE_BRANCH=modular4
 
 ARG MINICONDA_VERSION=py310_23.9.0-0-Linux-x86_64
 
